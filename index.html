@@ -1390,8 +1390,8 @@
 
         async function fetchHRNews() {
             try {
-                const snap = await db.collection('broadcasts').orderBy('updated_at', 'desc').limit(5).get();
-                hrNews = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                const snap = await db.collection('broadcasts').limit(5).get();
+                hrNews = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
                 renderHRNews();
             } catch (e) { }
         }
@@ -1484,8 +1484,8 @@
 
         async function sync() {
             try {
-                const snap = await db.collection('reports').where('emp_no', '==', currentUser.emp_no).orderBy('created_at', 'desc').get();
-                reports = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                const snap = await db.collection('reports').where('emp_no', '==', currentUser.emp_no).get();
+                reports = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
                 renderReports(); updateStats();
             } catch (e) { }
         }
