@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NIT Field App | Auto-ID Connect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0D1145;
+            --accent: #38BDF8;
+            --bg: #F8FAFC;
+            --success: #22C55E;
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: #cbd5e1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .phone-frame {
+            width: 330px;
+            height: 695px;
+            background: #000;
+            border-radius: 45px;
+            padding: 12px;
+            border: 5px solid #1e293b;
+            position: relative;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100%;
+            background: #f1f5f9;
+            border-radius: 35px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            padding: 35px 20px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, var(--primary), #1e293b);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .nit-logo {
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 2.5px;
+            opacity: 0.9;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 120px;
+        }
+
+        .wa-fixed {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 25px;
+            z-index: 999;
+            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+            cursor: pointer;
+        }
+
+        .hero-card {
+            background: white;
+            padding: 20px;
+            border-radius: 28px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .profile-line {
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+        }
+
+        .news-board {
+            background: linear-gradient(135deg, var(--primary), #161b4d);
+            padding: 22px;
+            border-radius: 30px;
+            color: white;
+            margin-bottom: 25px;
+            box-shadow: 0 12px 30px rgba(13, 17, 69, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .news-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 11px;
+            font-weight: 950;
+        }
+
+        .news-icon {
+            width: 34px;
+            height: 34px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 14px;
+        }
+
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-box {
+            background: white;
+            border: 2px solid #f1f5f9;
+            padding: 15px;
+            border-radius: 18px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .type-box.active {
+            border-color: var(--accent);
+            background: #f0f9ff;
+        }
+
+        .type-box i {
+            font-size: 20px;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .type-box.active i {
+            color: var(--accent);
+        }
+
+        .type-box span {
+            font-size: 11px;
+            font-weight: 900;
+            color: #64748b;
+        }
+
+        .phase-item.done .phase-label {
+            color: var(--success);
+        }
+
+        .navbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 85px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding-bottom: 10px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex: 1;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+        }
+
+        .nav-item span {
+            font-size: 9px;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px);
+        }
+
+        .online-dot { 
+            position: absolute; 
+            top: -2px; 
+            right: -2px; 
+            width: 13px; 
+            height: 13px; 
+            background: #22c55e; 
+            border-radius: 50%; 
+            border: 2px solid white; 
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+            animation: pulse-green 1.5s infinite;
+        }
+        @keyframes pulse-green { 
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } 
+        }
+
+        .nav-add {
+            width: 65px !important;
+            height: 65px !important;
+            background: linear-gradient(135deg, #38BDF8, #0ea5e9);
+            color: white !important;
+            border-radius: 50%;
+            box-shadow: 0 12px 30px rgba(56, 189, 248, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+            margin-top: -32px;
+            border: 5px solid rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            aspect-ratio: 1/1;
+            cursor: pointer;
+        }
+
+        .nav-add:active {
+            transform: scale(0.9) translateY(5px);
+        }
+
+        .nav-add i {
+            font-size: 28px;
+            color: white !important;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            border-radius: 18px;
+            border: 1.5px solid #f1f5f9;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: 900;
+            background: white;
+            transition: 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
+        }
+
+        .btn-p {
+            background: var(--primary);
+            color: white;
+            padding: 18px;
+            border-radius: 20px;
+            width: 100%;
+            border: none;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(13, 17, 69, 0.2);
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 30px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #ffffff;
+        }
+
+        .ticket-item {
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 22px;
+            margin-bottom: 12px;
+            border: 1.5px solid #f1f5f9;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .ticket-item:active {
+            transform: scale(0.98);
+            background: #f1f5f9;
+        }
+
+        .lbl {
+            font-size: 10px;
+            font-weight: 950;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .toast {
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1.5px solid var(--accent);
+            z-index: 10006;
+            transform: translateY(-150%);
+            transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .toast.active {
+            transform: translateY(0);
+        }
+
+        .drawer {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100%;
+            background: #0b0e37;
+            z-index: 10001;
+            transition: 0.4s ease;
+            padding: 40px 25px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer.active {
+            left: 0;
+        }
+
+        .drawer-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            display: none;
+        }
+
+        .drawer-overlay.active {
+            display: block;
+        }
+
+        .drawer-user {
+            margin-bottom: 40px;
+        }
+
+        .drawer-user h3 {
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+        }
+
+        .menu-item span {
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .menu-item i {
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--accent);
+        }
+
+        .chat-bubble {
+            max-width: 85%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            position: relative;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .chat-bubble.me {
+            align-self: flex-end;
+            background: var(--accent);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-bubble.them {
+            align-self: flex-start;
+            background: white;
+            color: var(--primary);
+            border-bottom-left-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chat-meta {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-bottom: 4px;
+            font-weight: 900;
+        }
+
+        .ticket-item {
+            background: white;
+            padding: 15px;
+            border-radius: 18px;
+            margin-bottom: 12px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+        }
+
+        .t-id {
+            font-size: 10px;
+            color: #94a3b8;
+            font-weight: 950;
+        }
+
+        .t-body {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--primary);
+            margin-top: 4px;
+        }
+
+        .stat-card-active {
+            border: 3px solid var(--accent) !important;
+            transform: scale(1.02);
+            transition: 0.2s ease;
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.1) !important;
+        }
+
+        .notif-card {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            border: 1.5px solid #f1f5f9;
+            margin-bottom: 15px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notif-card.unread {
+            border: 1.5px solid var(--accent);
+        }
+
+        .notif-card .dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .sub-type-item {
+            background: #fff;
+            padding: 6px 12px;
+            border-radius: 10px;
+            border: 1.5px solid #f1f5f9;
+            font-size: 11px;
+            font-weight: 900;
+            color: #64748b;
+            cursor: pointer;
+            min-width: 60px;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .sub-type-item.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+
+        .news-board {
+            background: #111827;
+            background-image: linear-gradient(135deg, #111827, #1e293b);
+            padding: 25px;
+            border-radius: 30px;
+            color: white;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-left: 6px solid #38BDF8;
+            position: relative;
+        }
+
+        .news-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .news-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .news-icon {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #38BDF8;
+            font-size: 16px;
+        }
+
+        .news-txt {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-label {
+            font-size: 10px;
+            font-weight: 950;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .news-value {
+            font-size: 13px;
+            font-weight: 900;
+            color: #38BDF8;
+            margin-top: 1px;
+        }
+
+        .bell-container,
+        .chat-notify-container {
+            position: relative;
+            cursor: pointer;
+            margin-left: 15px;
+        }
+
+        .bell-badge,
+        .chat-badge-dot {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 10px;
+            height: 10px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: none;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .chat-badge-dot {
+            background: #38BDF8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+
+        /* Blue dot for chat, red for system */
+        .badge-unread {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 10px;
+            min-width: 14px;
+            height: 14px;
+            font-size: 8px;
+            font-weight: 950;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            box-shadow: 0 2px 5px rgba(239, 68, 68, 0.5);
+            border: 1.5px solid white;
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 30px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #ffffff;
+        }
+
+        .nav-add span {
+            display: none;
+        }
+
+        .nav-item span {
+            font-size: 8px;
+            margin-top: 2px;
+        }
+
+        .ticket-item .t-body {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .chat-hub-row {
+            padding: 22px 5px;
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .chat-hub-row:active {
+            background: #f8fafc;
+        }
+
+        .row-icon-cell {
+            width: 55px;
+            height: 50px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .row-icon-circ {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ecedf2;
+            color: #1e293b;
+            font-size: 16px;
+            border: 1.5px solid white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .row-main {
+            flex: 1;
+            padding-left: 2px;
+        }
+
+        .row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+
+        .row-title {
+            font-size: 16px;
+            font-weight: 950;
+            color: #1e293b;
+        }
+
+        .row-date {
+            font-size: 11px;
+            font-weight: 950;
+            color: #94a3b8;
+        }
+
+        .row-subtext {
+            font-size: 13px;
+            font-weight: 900;
+            color: #64748b;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            padding-right: 40px;
+        }
+
+        .row-badge-col {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-between;
+            min-width: 60px;
+        }
+
+        .chat-badge-hub {
+            background: #ef4444;
+            color: white;
+            border-radius: 20px;
+            min-width: 20px;
+            height: 20px;
+            font-size: 10px;
+            font-weight: 950;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+            margin-top: 5px;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 14px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 8px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .chat-bubble.me {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-bubble.them {
+            align-self: flex-start;
+            background: white;
+            color: #1e293b;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .chat-meta {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-bottom: 5px;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .login-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10005;
+            background: radial-gradient(circle at top left, #1e293b, #0D1145);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            padding: 50px 30px;
+            border-radius: 45px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .login-logo {
+            font-size: 55px;
+            font-weight: 900;
+            color: var(--accent);
+            margin-bottom: 5px;
+            letter-spacing: 8px;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .active-peers-bar {
+            display: flex;
+            gap: 18px;
+            overflow-x: auto;
+            padding: 15px 5px 25px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .active-peers-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .peer-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 65px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .peer-node:active {
+            transform: scale(0.9);
+        }
+
+        .peer-circ {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: white;
+            padding: 2px;
+            position: relative;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .peer-circ img,
+        .peer-circ .icon-placeholder {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 900;
+            font-size: 18px;
+        }
+
+        .peer-name-mini {
+            font-size: 10px;
+            font-weight: 950;
+            color: #64748b;
+            text-align: center;
+            max-width: 65px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+    <div class="phone-frame">
+        <div class="app-container">
+            <!-- Login Screen -->
+            <div id="s-login" class="login-bg" style="display:none">
+                <div class="login-logo">NIT</div>
+                <div style="font-weight:900; font-size:18px; letter-spacing:3px; margin-bottom:40px; opacity:0.8">FIELD
+                    CONNECT</div>
+                <div class="login-card">
+                    <div style="font-weight:900; font-size:14px; margin-bottom:25px; opacity:0.8">ENTER EMPLOYEE ID
+                    </div>
+                    <input type="text" id="login-id" class="form-input"
+                        style="text-align:center; font-size:24px; letter-spacing:2px; height:80px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:white"
+                        placeholder="0000" maxlength="6">
+                    <button id="login-btn" class="btn-p" style="background:var(--accent); margin-top:10px"
+                        onclick="doLogin()">SIGN IN</button>
+                    <div id="login-err"
+                        style="color:#ef4444; font-size:11px; font-weight:900; margin-top:20px; display:none">ID NOT
+                        FOUND</div>
+                </div>
+                <p style="margin-top:40px; font-size:10px; font-weight:900; opacity:0.4; letter-spacing:1px">SECURE
+                    INTEL NETWORK ACCESS</p>
+            </div>
+
+            <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
+            <div id="drawer" class="drawer">
+                <div class="drawer-user">
+                    <h3 id="dr-name">---</h3>
+                    <p id="dr-id" style="font-size:12px; color:var(--accent); font-weight:900; margin-top:5px">#0000</p>
+                </div>
+                <div class="menu-item" onclick="switchScreen('stats'); closeDrawer();"><span>My Dashboard</span><i
+                        class="fas fa-th-large"></i></div>
+                <div class="menu-item" onclick="switchScreen('reports', 'nav-reports'); closeDrawer();"><span>My
+                        Incidents</span><i class="fas fa-file-alt"></i></div>
+                <div class="menu-item" onclick="switchScreen('support', 'nav-support'); closeDrawer();"><span>Help
+                        Center</span><i class="fas fa-headset"></i></div>
+                <div class="menu-item" onclick="doLogout(); closeDrawer();"><span style="color:#ef4444">Sign
+                        Out</span><i class="fas fa-sign-out-alt" style="color:#ef4444"></i></div>
+                <div class="menu-item" onclick="closeDrawer()" style="margin-top:auto; border:none"><span
+                        style="opacity:0.3">Arabic Language</span><i class="fas fa-globe" style="opacity:0.3"></i></div>
+            </div>
+
+
+            <div id="notif-toast" class="toast">
+                <div style="font-size:10px; font-weight:900; color:var(--accent);">NEW MESSAGE</div>
+                <div id="toast-msg" style="font-size:13px; font-weight:900; color:var(--primary); margin-top:4px;">Admin
+                    replied.</div>
+            </div>
+
+            <div class="wa-fixed" onclick="window.open('https://wa.me/+966500000000')"><i class="fab fa-whatsapp"></i>
+            </div>
+
+            <!-- Home -->
+            <div class="screen active" id="s-home">
+                <header class="header">
+                    <i class="fas fa-bars" onclick="openDrawer()"></i>
+                    <div class="nit-logo">NIT FIELD</div>
+                    <div class="bell-container" onclick="switchScreen('notifs')">
+                        <i class="fas fa-bell"></i>
+                        <div id="bell-dot" class="bell-badge"></div>
+                    </div>
+                </header>
+                <div class="content">
+                    <div class="hero-card">
+                        <div class="profile-line">
+                            <div id="hm-name" style="font-weight:900; color:var(--primary); font-size:18px">---</div>
+                            <div id="hm-id"
+                                style="font-size:11px; color:var(--accent); font-weight:900; margin-top:3px">ID: ---
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="news-board">
+                        <div
+                            style="font-size:10px; font-weight:950; opacity:0.6; margin-bottom:18px; letter-spacing:1px">
+                            HR & MANAGEMENT BROADCAST</div>
+                        <div id="news-list-home">
+                            <div style="color:rgba(255,255,255,0.4); font-size:11px; font-weight:900">Synchronizing
+                                broadcast data...</div>
+                        </div>
+                    </div>
+                    <div class="activity-card" id="latest-case-card" style="display:none">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                            <span class="lbl" style="margin-bottom:0">MY RECENT CASES</span>
+                            <div style="font-size:9px; font-weight:950; color:var(--accent)"
+                                onclick="switchScreen('reports', 'nav-reports')">VIEW ALL <i
+                                    class="fas fa-chevron-right" style="margin-left:4px"></i></div>
+                        </div>
+                        <div id="mini-l"></div>
+                    </div>
+                    <div id="no-case-card"
+                        style="text-align:center; padding:30px; background:white; border-radius:25px; border:1.5px solid #f1f5f9; display:none">
+                        <i class="fas fa-inbox" style="font-size:30px; color:#cbd5e1; margin-bottom:15px"></i>
+                        <div class="lbl">NO RECENT CASES</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create -->
+            <div class="screen" id="s-create">
+                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home', 'nav-home')"></i>
+                    <div class="nit-logo">ADD CASE</div>
+                    <div style="width:20px"></div>
+                </header>
+                <div class="content">
+                    <span class="lbl">PROBLEM TYPE</span>
+                    <div class="type-grid">
+                        <div class="type-box active" onclick="setType('safety', this)"><i
+                                class="fas fa-shield-alt"></i><span>Safety</span></div>
+                        <div class="type-box" onclick="setType('materials', this)"><i
+                                class="fas fa-box"></i><span>Materials</span></div>
+                        <div class="type-box" onclick="setType('mechanical', this)"><i
+                                class="fas fa-tools"></i><span>Mech.</span></div>
+                        <div class="type-box" onclick="setType('other', this)"><i
+                                class="fas fa-info-circle"></i><span>Other</span></div>
+                    </div>
+                    <div id="sub-types" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px"></div>
+                    <span class="lbl">WRITE PROBLEM</span>
+                    <textarea id="f-desc" class="form-input" style="height:120px"
+                        placeholder="Tell us what happened..."></textarea>
+
+                    <select id="f-site" class="form-input" style="padding-right:40px">
+                        <option value="Randa Tower" selected>Randa Tower</option>
+                        <option value="NEOM Office">NEOM Office</option>
+                        <option value="Riyadh HQ">Riyadh HQ</option>
+                        <option value="Jubail Site">Jubail Site</option>
+                        <option value="Yanbu Port">Yanbu Port</option>
+                        <option value="Other Site">Other Location...</option>
+                    </select>
+
+                    <span class="lbl">ADD PHOTO</span>
+                    <div style="border:3px dashed #cbd5e1; height:100px; border-radius:20px; display:flex; align-items:center; justify-content:center; color:#94a3b8; margin-bottom:20px; cursor:pointer; background:white"
+                        onclick="document.getElementById('fIn').click()">
+                        <img id="prevImg"
+                            style="display:none; width:100%; height:100%; object-fit:cover; border-radius:18px">
+                        <span id="phold"><i class="fas fa-camera"></i> PHOTOGRAPH</span>
+                    </div>
+                    <input type="file" id="fIn" hidden onchange="handleImg(this)">
+                    <button class="btn-p" id="subBtn" onclick="doSubmit()">SUBMIT CASE</button>
+                </div>
+            </div>
+
+            <!-- List -->
+            <div class="screen" id="s-reports">
+                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home', 'nav-home')"></i>
+                    <div class="nit-logo">ALL DATA</div>
+                    <div style="width:20px"></div>
+                </header>
+                <div class="content" id="full-l"></div>
+            </div>
+
+            <div class="screen" id="s-support">
+                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home')"></i>
+                    <div class="nit-logo">HELP CENTER</div>
+                    <div style="width:20px"></div>
+                </header>
+                <div class="content">
+                    <div style="background:white; padding:25px; border-radius:28px; border:1px solid #e2e8f0;">
+                        <span class="lbl">HAVE A PERSONAL REQUEST?</span>
+                        <div style="display:flex; gap:10px; margin-bottom:10px">
+                            <input type="text" id="supp-name-disp" class="form-input readonly" readonly style="flex:2"
+                                value="---">
+                            <input type="text" id="supp-id-disp" class="form-input readonly" readonly style="flex:1"
+                                value="---">
+                        </div>
+
+                        <div style="display:flex; gap:10px; margin-bottom:20px">
+                            <input type="text" id="supp-mobile" placeholder="Mobile Number" class="form-input"
+                                style="flex:1">
+                            <input type="text" id="supp-email" placeholder="Email Address" class="form-input"
+                                style="flex:1">
+                        </div>
+
+                        <span class="lbl">SUBJECT</span>
+                        <input type="text" id="supp-subj" class="form-input" placeholder="Subject...">
+
+                        <span class="lbl">MESSAGE DETAILS</span>
+                        <textarea id="supp-msg" class="form-input" style="height:120px"
+                            placeholder="Explain the issue..."></textarea>
+
+                        <button class="btn-p" onclick="submitHelp()">SUBMIT</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifs -->
+            <div class="screen" id="s-notifs">
+                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home')"></i>
+                    <div class="nit-logo">NOTIFICATIONS</div>
+                    <div style="width:20px"></div>
+                </header>
+                <div class="content" id="notif-list"></div>
+            </div>
+
+            <!-- Stats -->
+            <div class="screen" id="s-stats">
+                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home')"></i>
+                    <div class="nit-logo">MY DASHBOARD</div>
+                    <div style="width:20px"></div>
+                </header>
+                <div class="content">
+                    <div style="display:grid; grid-template-columns:1fr; gap:15px">
+                        <div id="card-all" class="stat-box stat-card-active"
+                            style="background:var(--primary); color:white; padding:30px; border-radius:28px"
+                            onclick="filterAndShow('all', this)">
+                            <span class="lbl" style="color:rgba(255,255,255,0.6)">TOTAL INCIDENTS</span>
+                            <h1 id="stat-total" style="font-size:40px; font-weight:900; margin-top:10px">0</h1>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
+                            <div id="card-pending" class="stat-box"
+                                style="background:white; padding:25px; border-radius:25px; border:1.5px solid #e2e8f0; text-align:center"
+                                onclick="filterAndShow('pending', this)">
+                                <span class="lbl">PENDING</span>
+                                <h2 id="stat-pend"
+                                    style="font-size:24px; font-weight:900; color:var(--accent); margin-top:10px">0</h2>
+                            </div>
+                            <div id="card-done" class="stat-box"
+                                style="background:white; padding:25px; border-radius:25px; border:1.5px solid #e2e8f0; text-align:center"
+                                onclick="filterAndShow('done', this)">
+                                <span class="lbl">COMPLETED</span>
+                                <h2 id="stat-done"
+                                    style="font-size:24px; font-weight:900; color:var(--success); margin-top:10px">0
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:25px">
+                        <span class="lbl" id="stat-activity-lbl">RECENT ACTIVITY</span>
+                        <div id="stat-activity" style="margin-top:10px">
+                            <!-- Activity items will load here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail -->
+            <div class="screen" id="s-detail">
+                <header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i>
+                    <div class="nit-logo">CASE INFO</div>
+                    <div style="width:20px"></div>
+                </header>
+                <div class="content" id="det-cont"></div>
+            </div>
+
+            <!-- Chat Selection Hub -->
+            <div class="screen" id="s-chat-list">
+                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home', 'bn-home')"></i>
+                    <div class="nit-logo">CHAT HUB</div>
+                    <div style="width:20px"></div>
+                </header>
+                <div class="content">
+                    <div
+                        style="background:#f1f5f9; padding:12px 20px; border-radius:25px; border:1.5px solid #e2e8f0; margin-bottom:20px; display:flex; align-items:center; gap:15px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02)">
+                        <i class="fas fa-search" style="color:#94a3b8; font-size:14px"></i>
+                        <input type="text" id="emp-search"
+                            style="flex:1; border:none; background:transparent; padding:4px 0; font-size:13px; font-weight:900; color:var(--primary); outline:none"
+                            placeholder="Search by name or ID..." oninput="searchPeers()">
+                    </div>
+
+                    <div id="active-peers" class="active-peers-bar"></div>
+
+                    <div id="peer-results" style="margin-bottom:20px; display:none"></div>
+                    <h3 style="font-size:14px; font-weight:950; color:var(--primary); margin:10px 5px 20px">Recent
+                        Messages</h3>
+                    <div id="chat-report-list"></div>
+                </div>
+
+            </div>
+
+            <!-- Chat -->
+            <div class="screen" id="s-chat">
+                <header class="header"><i class="fas fa-chevron-left" onclick="closeChat()"></i>
+                    <div class="nit-logo" id="chat-title">CHAT</div>
+                    <div style="width:20px"></div>
+                </header>
+                <div class="content" id="chat-msgs"
+                    style="display:flex; flex-direction:column; gap:12px; padding-bottom:140px; background: #f1f5f9;">
+                </div>
+
+                <!-- Chat Input Area (Shown when open) -->
+                <div id="chat-input-area"
+                    style="position:absolute; bottom:0; width:100%; padding:20px; background:white; display:flex; gap:10px; border-top:1.5px solid #e2e8f0; align-items:center;">
+                    <input type="text" id="chat-input" class="form-input" style="margin-bottom:0; flex:1;"
+                        placeholder="Type here...">
+                    <button class="btn-p" style="width:50px; height:50px; padding:0;" onclick="sendReportMsg()"><i
+                            class="fas fa-paper-plane"></i></button>
+                </div>
+
+
+                <!-- Chat Lock Message (Shown when closed) -->
+                <div id="chat-lock-area"
+                    style="position:absolute; bottom:0; width:100%; padding:25px; background:#f8fafc; display:none; flex-direction:column; align-items:center; text-align:center; border-top:1.5px solid #e2e8f0;">
+                    <div
+                        style="width:50px; height:50px; background:#e2e8f0; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#64748b; margin-bottom:12px">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div style="font-weight:900; font-size:14px; color:var(--primary)">CASE RESOLVED</div>
+                    <p style="font-size:11px; color:#64748b; margin-top:4px; font-weight:900">This conversation is
+                        closed / Ready Only</p>
+                </div>
+
+            </div>
+
+            <!-- Bottom Nav Bar -->
+            <div class="navbar">
+                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')">
+                    <i class="fas fa-history"></i>
+                    <span>Reports</span>
+                </div>
+                <div class="nav-item nav-add" id="bn-create" onclick="switchScreen('create')">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add</span>
+                </div>
+                <div class="nav-item" id="bn-chat-hub" onclick="switchScreen('chat-list')">
+                    <div style="position:relative">
+                        <i class="fas fa-comments"></i>
+                        <div id="chat-global-badge" class="badge-unread"></div>
+                    </div>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item" id="bn-help" onclick="switchScreen('support')">
+                    <i class="fas fa-headset"></i>
+                    <span>Help</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = window.location.origin.includes('10.0') || window.location.origin.includes('192.168') ? window.location.origin : 'http://10.0.33.69:8001';
+        let currentUser = null;
+
+        let reports = [], notifs = [], readLocally = new Set(), chatWS = null, directWS = null, activeRoom = null, isDirectMode = false, isP2P = false, targetPeer = null, imgB64 = null, unreadChats = {};
+        let currentType = 'safety', currentSubType = '';
+
+        const subCats = {
+            safety: ['Fire Hazard', 'Personal Injury', 'Spillage', 'Slip/Trip'],
+            materials: ['Low Stock', 'Damaged Item', 'Wrong Receipt', 'Quality Issue'],
+            mechanical: ['Noisy Engine', 'Fluid Leak', 'Elec. Failure', 'Machine Off'],
+            other: ['General inquiry', 'Personal request', 'Site observation']
+        };
+        let currentFilter = 'all', lastScreen = 'home', hrNews = [];
+
+        async function initApp() {
+            const saved = localStorage.getItem('nit_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                document.getElementById('s-login').style.display = 'none';
+                updateProfileUI();
+                startHub();
+            } else {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('s-login').style.display = 'flex';
+                document.querySelector('.navbar').style.display = 'none';
+            }
+        }
+
+        async function startHub() {
+            if (!currentUser) return;
+            updateProfileUI();
+
+            // Auto-refresh English data from backend
+            fetch(`${API}/employees/${currentUser.emp_no}`).then(r => r.json()).then(data => {
+                if (data && !data.error) {
+                    currentUser = { ...currentUser, ...data };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    updateProfileUI();
+                }
+            }).catch(e => { });
+
+            sync(); loadNotifs(); initDirectWS();
+            renderSubTypes(); fetchHRNews(); fetchUnreadChats(); renderChatHub();
+            console.log("[Presence] Setting online for:", currentUser.emp_no);
+            fetch(`${API}/employees/${currentUser.emp_no}/online?status=1`, { method: 'PATCH' })
+                .then(r => r.json()).then(d => console.log("[Presence] Status OK:", d))
+                .catch(e => console.error("[Presence] Error:", e));
+            setInterval(sync, 5000); setInterval(loadNotifs, 5000); setInterval(fetchHRNews, 5000); setInterval(fetchUnreadChats, 5000); setInterval(renderChatHub, 5000);
+
+
+        }
+
+
+
+        function updateProfileUI() {
+            if (!currentUser) return;
+            // Strict English priority
+            const engName = currentUser.name_en || currentUser.name || currentUser.name_ar || 'NIT Officer';
+            const siteRaw = currentUser.site || 'Field Operations';
+
+            const siteEng = siteRaw.match(/\((.*?)\)/) ? siteRaw.match(/\((.*?)\)/)[1] : siteRaw.replace(/[^\x00-\x7F]/g, "").trim() || siteRaw;
+
+            document.getElementById('dr-name').innerText = engName;
+            document.getElementById('dr-id').innerText = '#' + currentUser.emp_no;
+            document.getElementById('hm-name').innerText = engName;
+            document.getElementById('hm-id').innerText = `EMP ID: #${currentUser.emp_no} • ${siteEng}`;
+            document.getElementById('supp-name-disp').value = engName;
+            document.getElementById('supp-id-disp').value = '#' + currentUser.emp_no;
+        }
+
+
+        async function doLogin() {
+            const id = document.getElementById('login-id').value.trim();
+            const btn = document.getElementById('login-btn'), err = document.getElementById('login-err');
+            if (!id) return;
+            btn.innerText = 'VERIFYING...'; err.style.display = 'none';
+            try {
+                const res = await fetch(`${API}/employees/${id}`);
+                if (!res.ok) throw new Error('ID_NOT_FOUND');
+                const data = await res.json();
+                currentUser = data.employee;
+                localStorage.setItem('nit_user', JSON.stringify(currentUser));
+
+                document.getElementById('s-login').style.display = 'none';
+                document.querySelector('.navbar').style.display = 'flex';
+                switchScreen('home', 'bn-home');
+                updateProfileUI();
+                fetch(`${API}/employees/${currentUser.emp_no}/online?status=1`, { method: 'PATCH' }).catch(() => { });
+                startHub();
+
+            } catch (e) {
+                err.style.display = 'block';
+                btn.innerText = 'SIGN IN';
+            }
+        }
+
+        function doLogout() {
+            localStorage.removeItem('nit_user');
+            location.reload();
+        }
+
+
+        function initDirectWS() {
+            if (directWS) { directWS.onclose = null; directWS.close(); }
+            const wsUrl = API.replace('http', 'ws');
+            directWS = new WebSocket(`${wsUrl}/ws/direct/${currentUser.emp_no}`);
+            directWS.onmessage = (e) => {
+                const d = JSON.parse(e.data);
+                const isCur = isDirectMode && activeRoom === 'admin';
+                if (d.role === 'admin') {
+                    if (!isCur) {
+                        showToast(`Admin: ${d.message || d.content}`);
+                        const sid = `direct_${currentUser.emp_no}`;
+                        unreadChats[sid] = (unreadChats[sid] || 0) + 1;
+                        updateChatBadges();
+                    } else {
+                        appendMsg(d);
+                    }
+                }
+            };
+            directWS.onclose = () => setTimeout(initDirectWS, 3000);
+        }
+
+        async function fetchHRNews() {
+            try {
+                const res = await fetch(`${API}/news`);
+                if (!res.ok) throw new Error('API Error');
+                hrNews = await res.json();
+                console.log("[Manager] News Refreshed:", hrNews);
+                renderHRNews();
+            } catch (e) {
+                console.error("[Manager] News Fetch Failed:", e);
+                document.getElementById('news-list-home').innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:10px; font-weight:900">Sync Error (Backend News)</div>';
+            }
+
+        }
+        async function fetchUnreadChats() {
+            try {
+                const res = await fetch(`${API}/chat/unread?emp_no=${currentUser.emp_no}`);
+                unreadChats = await res.json();
+                updateChatBadges();
+            } catch (e) { }
+        }
+        function updateChatBadges() {
+            let total = 0; Object.values(unreadChats).forEach(c => total += c);
+            const dot = document.getElementById('chat-global-badge');
+            if (dot) {
+                dot.innerText = total > 9 ? '9+' : total;
+                dot.style.display = total > 0 ? 'flex' : 'none';
+            }
+            // Update the separate chat count on the nav item if needed
+            const navBadge = document.querySelector('#bn-chat-hub .badge-unread');
+            if (navBadge) {
+                navBadge.innerText = total > 9 ? '9+' : total;
+                navBadge.style.display = total > 0 ? 'flex' : 'none';
+            }
+            if (document.getElementById('s-chat-list').classList.contains('active')) renderChatHub();
+        }
+        async function markChatRead(rid) {
+            try { await fetch(`${API}/chat/history/report_${rid}/read`, { method: 'PATCH' }); delete unreadChats[`report_${rid}`]; updateChatBadges(); } catch (e) { }
+        }
+        async function markDirectRead() {
+            const sid = `direct_${currentUser.emp_no}`;
+            try { await fetch(`${API}/chat/history/${sid}/read?emp_no=${currentUser.emp_no}`, { method: 'PATCH' }); delete unreadChats[sid]; updateChatBadges(); } catch (e) { }
+        }
+        async function markRoomRead(sid) {
+            try { await fetch(`${API}/chat/history/${sid}/read?emp_no=${currentUser.emp_no}`, { method: 'PATCH' }); delete unreadChats[sid]; updateChatBadges(); } catch (e) { }
+        }
+        async function markChatRead(rid) {
+            try { await fetch(`${API}/chat/history/report_${rid}/read?emp_no=${currentUser.emp_no}`, { method: 'PATCH' }); delete unreadChats[`report_${rid}`]; updateChatBadges(); } catch (e) { }
+        }
+
+        function renderHRNews() {
+            const h = document.getElementById('news-list-home');
+            if (!h || !hrNews || !hrNews.length) return;
+            h.innerHTML = hrNews.map(n => {
+                const iconCls = n.icon ? (n.icon.startsWith('fa-') ? `fas ${n.icon}` : n.icon) : 'fas fa-info-circle';
+                return `
+                <div class="news-item">
+                    <div class="news-icon"><i class="${iconCls}"></i></div>
+                    <div class="news-txt">
+                        <span class="news-label">${n.title}</span>
+                        <span class="news-value">${n.content}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+
+        async function loadNotifs() {
+            try {
+                const res = await fetch(`${API}/notifications?emp_no=${currentUser.emp_no}`);
+                const data = await res.json();
+
+                // Merge server state with locally read status
+                notifs = data.map(n => {
+                    if (readLocally.has(n.id)) n.is_read = true;
+                    return n;
+                });
+                renderNotifs();
+            } catch (e) { }
+        }
+
+        function renderNotifs() {
+            const container = document.getElementById('notif-list');
+            if (!container) return;
+
+            const unreadCount = notifs.filter(n => !n.is_read).length;
+            const bellDot = document.getElementById('bell-dot');
+            if (bellDot) bellDot.style.display = unreadCount > 0 ? 'block' : 'none';
+
+            container.innerHTML = notifs.map(n => `
+                <div class="notif-card ${!n.is_read ? 'unread' : ''}" onclick="handleNotifClick(${n.id}, ${n.report_id || 'null'})">
+                    ${!n.is_read ? '<div class="dot"></div>' : ''}
+                    <div style="font-size:10px; font-weight:900; color:var(--accent); margin-bottom:5px">${n.created_at}</div>
+                    <div style="font-size:14px; font-weight:900; color:var(--primary)">${n.title || n.title_ar}</div>
+                    <div style="font-size:12px; color:#64748b; margin-top:5px; font-weight:900">${n.body || n.body_ar}</div>
+                </div>`).join('') || '<div style="text-align:center; padding:50px; opacity:0.5; font-weight:900">No Notifications</div>';
+
+        }
+
+        async function handleNotifClick(id, rid) {
+            readLocally.add(id);
+            const idx = notifs.findIndex(x => x.id === id);
+            if (idx !== -1) {
+                notifs[idx].is_read = true;
+                renderNotifs();
+            }
+            try {
+                await fetch(`${API}/notifications/${id}/read`, { method: 'PATCH' });
+            } catch (e) { }
+            if (rid) openDetail(rid);
+        }
+
+        async function sync() {
+            try {
+                const r = await fetch(`${API}/reports?emp_no=${currentUser.emp_no}`);
+                const d = await r.json();
+
+                reports = d.reports || [];
+                renderReports(); updateStats();
+            } catch (e) { }
+        }
+
+        function updateStats() {
+            const total = reports.length, done = reports.filter(r => r.status && r.status.toLowerCase() === 'done').length, pend = total - done;
+            if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
+            if (document.getElementById('stat-done')) document.getElementById('stat-done').innerText = done;
+            if (document.getElementById('stat-pend')) document.getElementById('stat-pend').innerText = pend;
+            filterAndShow(currentFilter);
+        }
+
+        function filterAndShow(status, element = null) {
+            currentFilter = status;
+            const lbl = document.getElementById('stat-activity-lbl');
+            const activity = document.getElementById('stat-activity');
+            if (!activity || !lbl) return;
+
+            document.querySelectorAll('.stat-box').forEach(b => b.classList.remove('stat-card-active'));
+            if (element) element.classList.add('stat-card-active');
+            else {
+                const id = status === 'all' ? 'card-all' : (status === 'pending' ? 'card-pending' : 'card-done');
+                const btn = document.getElementById(id);
+                if (btn) btn.classList.add('stat-card-active');
+            }
+
+            let filtered = [];
+            if (status === 'all') { filtered = reports; lbl.innerText = 'RECENT ACTIVITY'; }
+            else if (status === 'pending') { filtered = reports.filter(r => r.status && r.status.toLowerCase() !== 'done'); lbl.innerText = 'FILTERED: PENDING'; }
+            else if (status === 'done') { filtered = reports.filter(r => r.status && r.status.toLowerCase() === 'done'); lbl.innerText = 'FILTERED: COMPLETED'; }
+
+            activity.innerHTML = filtered.map(r => `
+                <div style="background:white; padding:15px; border-radius:18px; border:1.5px solid #f1f5f9; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;" onclick="lastScreen='stats'; openDetail(${r.id})">
+                    <div style="flex:1">
+                        <div style="font-size:12px; font-weight:900; color:var(--primary)">${r.description.substring(0, 35)}...</div>
+                        <div style="font-size:9px; font-weight:950; color:${(r.status || '').toLowerCase() === 'done' ? '#22c55e' : '#38bdf8'}; margin-top:3px">${(r.type || '').toUpperCase()} | ${(r.status || '').toUpperCase()}</div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color:#cbd5e1; font-size:12px"></i>
+                </div>`).join('') || `<div style="text-align:center; padding:30px; opacity:0.5; font-weight:900">No ${status} reports found</div>`;
+        }
+
+        function switchScreen(id, mid = null) {
+            const active = document.querySelector('.screen.active');
+            if (active && !['detail', 'chat'].includes(id)) lastScreen = active.id.replace('s-', '');
+
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById('s-' + id);
+            if (target) target.classList.add('active');
+
+            // Sidebar logic
+            document.querySelectorAll('.drawer-item').forEach(i => i.classList.remove('active'));
+            if (mid) {
+                const m = document.getElementById(mid);
+                if (m) m.classList.add('active');
+            }
+
+            // Bottom Nav Logic
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if (id === 'home') document.getElementById('bn-home').classList.add('active');
+            if (id === 'reports') document.getElementById('bn-reports').classList.add('active');
+            if (id === 'create') document.getElementById('bn-create').classList.add('active');
+            if (id === 'chat-list') document.getElementById('bn-chat-hub').classList.add('active');
+            if (id === 'support') document.getElementById('bn-help').classList.add('active');
+
+            // Visibility
+            const isChatOrDetail = (id === 'chat' || id === 'detail');
+            document.querySelector('.navbar').style.display = isChatOrDetail ? 'none' : 'flex';
+            document.querySelector('.wa-fixed').style.display = isChatOrDetail ? 'none' : 'flex';
+
+            if (id === 'home' || id === 'reports') sync();
+            if (id === 'chat-list') renderChatHub();
+            if (id === 'notifs') loadNotifs();
+            closeDrawer();
+        }
+
+        function goBack() { switchScreen(lastScreen); }
+
+        function setType(t, e) {
+            currentType = t;
+            document.querySelectorAll('.type-grid .type-box').forEach(b => b.classList.remove('active'));
+            e.classList.add('active');
+            renderSubTypes();
+        }
+        function setSubType(t) {
+            currentSubType = t;
+            renderSubTypes();
+        }
+        function renderSubTypes() {
+            const container = document.getElementById('sub-types');
+            const items = subCats[currentType] || [];
+            container.innerHTML = items.map(s => `
+                <div class="sub-type-item ${currentSubType === s ? 'active' : ''}" onclick="setSubType('${s}')">${s}</div>
+            `).join('');
+        }
+        function handleImg(input) { const f = input.files[0]; const r = new FileReader(); r.onload = (e) => { imgB64 = e.target.result; document.getElementById('prevImg').src = imgB64; document.getElementById('prevImg').style.display = 'block'; document.getElementById('phold').style.display = 'none'; }; r.readAsDataURL(f); }
+
+        async function doSubmit() {
+            const ds = document.getElementById('f-desc').value.trim();
+            const chosenSite = document.getElementById('f-site').value;
+            if (!ds) return alert('Enter details');
+            document.getElementById('subBtn').innerText = 'Syncing...';
+            const dsBody = currentSubType ? `[${currentSubType}] ${ds}` : ds;
+            try {
+                await fetch(`${API}/reports`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ emp_no: currentUser.emp_no, type: currentType, priority: 'Normal', site: chosenSite, description: dsBody, photo_b64: imgB64 }) });
+                alert('Sent!'); document.getElementById('f-desc').value = ''; currentSubType = ''; renderSubTypes(); imgB64 = null; document.getElementById('prevImg').style.display = 'none'; document.getElementById('phold').style.display = 'flex'; switchScreen('reports');
+            } catch (e) { alert('Connection Error: ' + e); }
+
+            document.getElementById('subBtn').innerText = 'SUBMIT CASE';
+        }
+
+        async function submitHelp() {
+            const subj = document.getElementById('supp-subj').value.trim();
+            const msg = document.getElementById('supp-msg').value.trim();
+            const mob = document.getElementById('supp-mobile').value.trim();
+            const email = document.getElementById('supp-email').value.trim();
+
+            if (!msg || !subj) return alert('Subject and details required');
+            try {
+                await fetch(`${API}/support`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: currentUser.name_ar || currentUser.name, emp_no: currentUser.emp_no, phone: mob, email: email, message: msg, subject: subj })
+                });
+                alert('Inquiry Submitted!'); document.getElementById('supp-subj').value = ''; document.getElementById('supp-msg').value = ''; switchScreen('home');
+            } catch (e) { }
+
+        }
+
+        function renderReports() {
+            const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
+            const card = document.getElementById('latest-case-card'), none = document.getElementById('no-case-card');
+            if (!f || !m) return;
+            f.innerHTML = reports.map(i => {
+                const isClosed = (i.status || '').toLowerCase() === 'done';
+                return `<div class="ticket-item" onclick="lastScreen='reports'; openDetail(${i.id})" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div class="t-body" style="color:var(--accent); text-transform:uppercase; font-size:14px; margin-bottom:2px">${i.type}</div>
+                        <div style="font-size:11px; font-weight:900; color:var(--primary)">${i.description.substring(0, 45)}...</div>
+                        <div style="font-size:9px; font-weight:950; color:${isClosed ? '#22c55e' : '#38bdf8'}; margin-top:4px">CASE #${i.id} | ${isClosed ? 'DONE' : 'IN PROG'}</div>
+                    </div>
+                </div>`;
+            }).join('') || 'No data';
+
+            if (reports.length === 0) {
+                if (card) card.style.display = 'none';
+                if (none) none.style.display = 'block';
+                return;
+            }
+            if (card) card.style.display = 'block';
+            if (none) none.style.display = 'none';
+
+            m.innerHTML = reports.slice(0, 3).map(i => {
+                const isDone = (i.status || '').toLowerCase() === 'done';
+                const desc = i.description || '';
+                const subType = desc.match(/\[(.*?)\]/) ? desc.match(/\[(.*?)\]/)[0] : desc.substring(0, 30) + '...';
+
+                return `
+                    <div style="margin-bottom:25px; border-bottom:1.5px solid #f1f5f9; padding-bottom:15px">
+                        <div style="background:#f8fafc; padding:15px; border-radius:18px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="lastScreen='home'; openDetail(${i.id})">
+                            <div>
+                                <div style="font-size:14px; font-weight:900; color:var(--accent); text-transform:uppercase; margin-bottom:2px">${i.type}</div>
+                                <div style="font-size:11px; font-weight:900; color:var(--primary)">${subType}</div>
+                                <div style="font-size:9px; font-weight:950; color:#94a3b8; margin-top:4px">CASE #${i.id} • ${i.site}</div>
+                            </div>
+                            <div class="activity-pill ${isDone ? 'done' : ''}" style="font-size:9px">${isDone ? 'CLOSED' : 'RUNNING'}</div>
+                        </div>
+                        <div id="home-tl-${i.id}" style="margin-top:15px; padding-left:5px">
+                            <div style="font-size:10px; opacity:0.5">Syncing history...</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            reports.slice(0, 3).forEach(i => loadLatestTimeline(i.id, `home-tl-${i.id}`));
+        }
+
+        async function searchPeers() {
+            const q = document.getElementById('emp-search').value.trim();
+            const resBox = document.getElementById('peer-results');
+            if (!q) { resBox.style.display = 'none'; return; }
+            try {
+                const res = await fetch(`${API}/employees/search/${q}`);
+                const data = await res.json();
+                resBox.style.display = 'block';
+                resBox.innerHTML = '<span class="lbl">FOUND COLLEAGUES</span>' + (data.results || []).filter(e => e.emp_no != currentUser.emp_no).map(e => `
+                    <div style="background:white; padding:12px 18px; border-radius:15px; border:1.5px solid #f1f5f9; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="openPrivateChat('${e.emp_no}', '${(e.name_en || e.name).replace(/'/g,"\\'")}')">
+                        <div>
+                            <div style="font-size:13px; font-weight:950; color:var(--primary)">${e.name_en || e.name}</div>
+                            <div style="font-size:10px; font-weight:900; color:var(--accent)">ID: #${e.emp_no} • ${e.department}</div>
+                        </div>
+                        <div style="position:relative">
+                            <i class="fas fa-paper-plane" style="color:var(--accent); opacity:0.5"></i>
+                            ${e.is_online ? '<div class="online-dot"></div>' : ''}
+                        </div>
+                    </div>
+                `).join('') + (data.results.length === 0 ? '<div style="font-size:11px; opacity:0.5; text-align:center; padding:20px">No colleagues found</div>' : '');
+            } catch (e) { }
+        }
+
+        async function openPrivateChat(eno, name) {
+            document.getElementById('emp-search').value = '';
+            document.getElementById('peer-results').style.display = 'none';
+            lastScreen = 'chat-list';
+            isDirectMode = false; isP2P = true; targetPeer = { emp_no: eno, name: name };
+            const ids = [currentUser.emp_no, eno].sort();
+            activeRoom = `p2p_${ids[0]}_${ids[1]}`;
+            markRoomRead(activeRoom);
+
+            document.getElementById('chat-input-area').style.display = 'flex';
+            document.getElementById('chat-lock-area').style.display = 'none';
+            document.getElementById('chat-title').innerText = name;
+            switchScreen('chat');
+            initP2PWS(eno);
+            try {
+                const res = await fetch(`${API}/chat/history/${activeRoom}`);
+                const data = await res.json();
+                document.getElementById('chat-msgs').innerHTML = (data.messages || []).map(m => renderMsg(m)).join('');
+                const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
+            } catch (e) { }
+        }
+
+        function initP2PWS(otherNo) {
+            if (chatWS) { chatWS.onclose = null; chatWS.close(); }
+            const wsUrl = API.replace('http', 'ws');
+            chatWS = new WebSocket(`${wsUrl}/ws/p2p/${currentUser.emp_no}/${otherNo}`);
+            chatWS.onmessage = (e) => {
+                const d = JSON.parse(e.data);
+                if (d.session_id === activeRoom && d.sender_no !== currentUser.emp_no) appendMsg(d);
+            };
+            chatWS.onclose = () => { if (isP2P && targetPeer && targetPeer.emp_no === otherNo) setTimeout(() => initP2PWS(otherNo), 3000); };
+        }
+
+        async function renderChatHub() {
+            const container = document.getElementById('chat-report-list');
+            const circles = document.getElementById('active-peers');
+            if (!container || !circles) return;
+
+            // Circles Logic
+            try {
+                const oRes = await fetch(`${API}/employees/online/list?exclude=${currentUser.emp_no}`);
+                const oData = await oRes.json();
+                const onlineUsers = oData.online || [];
+
+                let circleHTML = `<div class="peer-node" onclick="openDirectChat()"><div class="peer-circ" style="border-color:#e2e8f0"><div class="icon-placeholder" style="background:#f1f5f9; color:var(--primary)"><i class="fas fa-headset"></i></div></div><span class="peer-name-mini">Admin</span></div>`;
+                circles.innerHTML = circleHTML;
+            } catch (e) { }
+
+
+            const sidDir = `direct_${currentUser.emp_no}`;
+            const unreadDirect = unreadChats[sidDir] || 0;
+
+            let latestDirect = 'Direct communication with CIT Admin';
+            let directTime = 0;
+            try {
+                const dRes = await fetch(`${API}/chat/history/${sidDir}?limit=1`);
+                const dData = await dRes.json();
+                if (dData.messages && dData.messages.length) {
+                    const m = dData.messages[0];
+                    const prefix = m.role === 'admin' ? 'Admin: ' : 'Me: ';
+                    latestDirect = prefix + (m.content || m.message || '');
+                    directTime = new Date(m.created_at).getTime();
+                }
+            } catch (e) { }
+
+            const directData = {
+                time: directTime,
+                html: `<div class="chat-hub-row" onclick="openDirectChat()" style="background:#e0f2fe; border-radius:24px; margin-bottom:15px; border:1px solid #bae6fd; padding:18px"><div class="row-icon-cell"><div class="row-icon-circ" style="background:var(--primary); color:white; width:46px; height:46px;"><i class="fas fa-user-shield"></i></div></div><div class="row-main" style="padding-left:10px"><div class="row-header"><span class="row-title" style="font-size:15px">Management Support</span><span class="row-date" style="color:var(--accent)">${directTime ? new Date(directTime).toLocaleDateString('en-GB') : ''}</span></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px"><div class="row-subtext" style="color:#64748b; font-size:13px; font-weight:900">${latestDirect}</div>${unreadDirect > 0 ? `<div class="chat-badge-hub" style="margin-top:0">${unreadDirect}</div>` : ''}</div></div></div>`
+            };
+
+
+            let allRows = [directData];
+
+            // P2P Chats
+            try {
+                const sRes = await fetch(`${API}/employees/chats/${currentUser.emp_no}`);
+                const sessions = (await sRes.json()).sessions || [];
+                const p2ps = await Promise.all(sessions.filter(s => s.startsWith('p2p_')).map(async sid => {
+                    const parts = sid.split('_'), otherID = parts[1] === currentUser.emp_no ? parts[2] : parts[1], unread = unreadChats[sid] || 0;
+                    let otherName = `Employee #${otherID}`, preview = 'Private conversation...', pTime = 0;
+                    try {
+                        const eRes = await fetch(`${API}/employees/${otherID}`);
+                        const empData = (await eRes.json()).employee;
+                        otherName = empData.name_en || empData.name_ar || otherName;
+                    } catch (e) { }
+                    try {
+                        const hRes = await fetch(`${API}/chat/history/${sid}?limit=1`), hData = await hRes.json();
+                        if (hData.messages.length) {
+                            const m = hData.messages[0];
+                            const userPrefix = (m.sender_name === currentUser.name || m.sender_no === currentUser.emp_no) ? 'Me: ' : `${m.sender_name || 'User'}: `;
+                            preview = userPrefix + (m.content || m.message); pTime = new Date(m.created_at).getTime();
+                        }
+                    } catch (e) { }
+                    return { time: pTime, html: `<div class="chat-hub-row" onclick="openPrivateChat('${otherID}', '${otherName.replace(/'/g,"\\'")}')"><div class="row-icon-cell"><div class="row-icon-circ"><i class="fas fa-user"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title">${otherName}</span><span class="row-date">${pTime ? new Date(pTime).toLocaleDateString('en-GB') : ''}</span></div><div style="display:flex; justify-content:space-between; align-items:flex-start"><div class="row-subtext">${preview}</div>${unread > 0 ? `<div class="chat-badge-hub">${unread}</div>` : ''}</div></div></div>` };
+                }));
+                allRows = allRows.concat(p2ps);
+            } catch (e) { }
+
+            // Reports
+            const reportRows = await Promise.all(reports.filter(r => (r.status || '').toLowerCase() !== 'done').map(async r => {
+                const unread = unreadChats[`report_${r.id}`] || 0, d = new Date(r.created_at), title = `CASE #${r.id}`;
+                let latestText = r.description || '', rTime = d.getTime();
+                try {
+                    const hRes = await fetch(`${API}/chat/history/report_${r.id}?limit=1`), hData = await hRes.json();
+                    if (hData.messages && hData.messages.length) {
+                        const m = hData.messages[0];
+                        let prefix = 'Me: ';
+                        if(m.role === 'admin') prefix = 'Admin: ';
+                        else if(m.role === 'assistant') prefix = 'Assistant: ';
+                        else if(m.sender_no !== currentUser.emp_no) prefix = (m.sender_name || 'Employee') + ': ';
+                        
+                        latestText = prefix + (m.content || m.message || ''); rTime = new Date(m.created_at).getTime();
+                    }
+                } catch (e) { }
+                return { time: rTime, html: `<div class="chat-hub-row" onclick="openReportChat(${r.id}, 'chat-list')"><div class="row-icon-cell"><div class="row-icon-circ"><i class="fas fa-comment-dots"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title">${title}</span><span class="row-date">${d.toLocaleDateString('en-GB')}</span></div><div style="display:flex; justify-content:space-between; align-items:flex-start"><div class="row-subtext">${latestText.substring(0, 80)}</div>${unread > 0 ? `<div class="chat-badge-hub">${unread}</div>` : ''}</div></div></div>` };
+            }));
+            allRows = allRows.concat(reportRows);
+            allRows.sort((a, b) => b.time - a.time);
+            container.innerHTML = allRows.map(r => r.html).join('');
+        }
+
+
+        async function loadLatestTimeline(id, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            try {
+                const res = await fetch(`${API}/reports/${id}`);
+                const data = await res.json();
+                const i = data.report, tl = data.timeline || [], isDone = (i.status || '').toLowerCase() === 'done';
+                let events = [];
+                events.push({ color: 'var(--accent)', event_text: 'Case Logged', created_at: i.created_on || 'Start', event_by: '' });
+                tl.forEach(t => events.push(t));
+                if (isDone) events.push({ color: 'var(--success)', event_text: 'Case Resolved', created_at: i.updated_on || '', event_by: 'Management' });
+                container.innerHTML = events.slice(-3).map((t, idx, arr) => `
+                    <div style="display:flex; gap:12px; margin-bottom:12px">
+                        <div style="width:2px; background:#e2e8f0; position:relative; margin:4px 0">
+                            <div style="position:absolute; top:0; left:-3.5px; width:9px; height:9px; background:${t.color || 'var(--accent)'}; border-radius:50%; border:2px solid white; box-shadow:0 0 0 1px #f1f5f9"></div>
+                            ${idx < arr.length - 1 ? '<div style="position:absolute; top:10px; bottom:-12px; left:0px; width:2px; background:#e2e8f0"></div>' : ''}
+                        </div>
+                        <div>
+                            <div style="font-size:10px; font-weight:900; color:var(--primary)">${t.event_text}</div>
+                            <div style="font-size:8px; color:#94a3b8; font-weight:950; margin-top:1px">${t.created_at}${t.event_by ? ' • ' + t.event_by : ''}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) { }
+        }
+
+        async function openDetail(id) {
+            try {
+                const res = await fetch(`${API}/reports/${id}`);
+                const data = await res.json();
+                const i = data.report, tl = data.timeline || [], status = (i.status || '').toLowerCase();
+                const isDone = status === 'done';
+                let img = i.photo_b64 ? `<div style="margin-top:20px; border-radius:20px; overflow:hidden; border:1px solid #e2e8f0"><img src="${i.photo_b64}" style="width:100%; display:block"></div>` : '';
+                const desc = i.description || '';
+                const subType = desc.match(/\[(.*?)\]/) ? desc.match(/\[(.*?)\]/)[0] : '';
+                const userDetail = desc.replace(subType, '').trim();
+
+                document.getElementById('det-cont').innerHTML = `
+                    <div style="margin-top:20px">
+                        <div style="background:white; padding:25px; border-radius:28px; border:1px solid #e2e8f0;">
+                            <span class="lbl">Summary</span>
+                            <h2 style="font-weight:900; color:var(--accent); font-size:17px; margin-bottom:15px; text-transform:uppercase">${i.type} ${subType}</h2>
+                            <div style="display:flex; gap:15px; border-top:1.5px solid #f1f5f9; padding-top:15px">
+                                <div style="flex:1"><span class="lbl">Site</span><p style="font-weight:900; font-size:14px">${i.site}</p></div>
+                                <div style="flex:1"><span class="lbl">Status</span><p style="font-weight:900; font-size:14px; color:${isDone ? '#22c55e' : '#38bdf8'}">${isDone ? 'Closed' : 'Running'}</p></div>
+                            </div>
+                            <div style="border-top:1.5px solid #f1f5f9; padding-top:15px; margin-top:0px">
+                                <span class="lbl">Case Details</span>
+                                <p style="font-weight:900; font-size:14px; color:var(--primary)">${userDetail || 'No additional details provided.'}</p>
+                            </div>
+
+                        </div>
+                        ${img}
+                        <div style="margin-top:30px">
+                            <span class="lbl">FULL CASE JOURNEY</span>
+                            <div style="margin-top:15px">
+                                <div style="display:flex; gap:15px; margin-bottom:20px">
+                                    <div style="width:2px; background:#e2e8f0; position:relative; margin:5px 0">
+                                        <div style="position:absolute; top:0; left:-4px; width:10px; height:10px; background:var(--accent); border-radius:50%; border:2px solid white; box-shadow:0 0 0 2px #f1f5f9"></div>
+                                        <div style="position:absolute; top:10px; bottom:-20px; left:0px; width:2px; background:#e2e8f0"></div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:13px; font-weight:900; color:var(--primary)">Case Logged</div>
+                                        <div style="font-size:10px; color:#94a3b8; font-weight:950; margin-top:2px">${i.created_on}</div>
+                                    </div>
+                                </div>
+
+                                ${tl.map((t, idx) => `
+                                    <div style="display:flex; gap:15px; margin-bottom:20px">
+                                        <div style="width:2px; background:#e2e8f0; position:relative; margin:5px 0">
+                                            <div style="position:absolute; top:0; left:-4px; width:10px; height:10px; background:${t.color || 'var(--accent)'}; border-radius:50%; border:2px solid white; box-shadow:0 0 0 2px #f1f5f9"></div>
+                                            ${idx < tl.length - 1 || isDone ? '<div style="position:absolute; top:10px; bottom:-20px; left:0px; width:2px; background:#e2e8f0"></div>' : ''}
+                                        </div>
+                                        <div>
+                                            <div style="font-size:13px; font-weight:900; color:var(--primary)">${t.event_text}</div>
+                                            <div style="font-size:10px; color:#94a3b8; font-weight:950; margin-top:2px">${t.created_at} • ${t.event_by}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                ${isDone ? `
+                                    <div style="display:flex; gap:15px; margin-bottom:20px">
+                                        <div style="width:2px; background:transparent; position:relative; margin:5px 0">
+                                            <div style="position:absolute; top:0; left:-4px; width:10px; height:10px; background:var(--success); border-radius:50%; border:2px solid white; box-shadow:0 0 0 2px #f1f5f9"></div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:13px; font-weight:900; color:var(--primary)">Case Resolved</div>
+                                            <div style="font-size:10px; color:var(--success); font-weight:950; margin-top:2px">${i.updated_on}</div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                            </div>
+                        </div>
+                    </div>
+                `;
+                switchScreen('detail');
+            } catch (e) { }
+        }
+
+        async function openDirectChat() {
+            lastScreen = 'chat-list';
+            activeRoom = 'admin';
+            isDirectMode = true;
+            markDirectRead();
+
+            document.getElementById('chat-input-area').style.display = 'flex';
+            document.getElementById('chat-lock-area').style.display = 'none';
+            document.getElementById('chat-title').innerText = "CIT MANAGEMENT";
+            document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:20px; opacity:0.5; font-weight:900">Syncing with Management...</p>';
+            switchScreen('chat');
+
+            try {
+                const res = await fetch(`${API}/chat/history/direct_${currentUser.emp_no}`);
+                const data = await res.json();
+                document.getElementById('chat-msgs').innerHTML = (data.messages || []).map(m => renderMsg(m)).join('');
+                const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
+            } catch (e) { }
+        }
+
+        async function openReportChat(rid, from = 'detail') {
+            lastScreen = from;
+            activeRoom = rid;
+            isDirectMode = false;
+
+            const rData = reports.find(r => r.id == rid);
+            const isClosed = rData && (rData.status || '').toLowerCase() === 'done';
+
+            document.getElementById('chat-input-area').style.display = isClosed ? 'none' : 'flex';
+            document.getElementById('chat-lock-area').style.display = isClosed ? 'flex' : 'none';
+
+            document.getElementById('chat-title').innerText = "CHAT #" + rid;
+            switchScreen('chat');
+            markChatRead(rid);
+            initReportWS(rid);
+            try {
+                const res = await fetch(`${API}/chat/history/report_${rid}`);
+                const data = await res.json();
+                document.getElementById('chat-msgs').innerHTML = (data.messages || []).map(m => renderMsg(m)).join('');
+                const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
+            } catch (e) { }
+        }
+
+        function initReportWS(rid) {
+            if (chatWS) { chatWS.onclose = null; chatWS.close(); }
+            const wsUrl = API.replace('http', 'ws');
+            chatWS = new WebSocket(`${wsUrl}/ws/report/${rid}`);
+            chatWS.onmessage = (e) => {
+                const d = JSON.parse(e.data);
+                const isCur = !isDirectMode && activeRoom === rid;
+                if (d.role === 'admin') {
+                    if (!isCur) showToast(`Admin: ${d.message || d.content}`);
+                    else appendMsg(d);
+                } else if (isCur && d.sender_no !== currentUser.emp_no) appendMsg(d);
+            };
+            chatWS.onclose = () => { if (activeRoom === rid && !isDirectMode) setTimeout(() => initReportWS(rid), 3000); };
+        }
+
+        function appendMsg(m) { const c = document.getElementById('chat-msgs'); c.innerHTML += renderMsg(m); c.scrollTop = c.scrollHeight; }
+        function renderMsg(m) {
+            let isMe = false;
+            if (m.sender_no && m.sender_no !== 'Unknown' && m.sender_no !== 'admin') {
+                isMe = (m.sender_no === currentUser.emp_no);
+            } else {
+                isMe = (m.role === 'employee' || m.role === 'user');
+            }
+            
+            let sName = m.sender_name;
+            if (!sName || sName === 'Unknown') {
+                if (isP2P && targetPeer) sName = targetPeer.name;
+                else sName = (m.role === 'admin' ? 'ADMIN' : 'Colleague');
+            }
+            
+            const senderDisp = isMe ? 'YOU' : sName;
+            return `<div class="chat-bubble ${isMe ? 'me' : 'them'}"><div class="chat-meta">${senderDisp.toUpperCase()}</div><div>${m.content || m.message || ''}</div></div>`;
+        }
+
+        function sendReportMsg() {
+            const i = document.getElementById('chat-input'), msg = i.value.trim();
+            if (!msg) return;
+
+            const myName = currentUser.name_en || currentUser.name_ar || currentUser.name || "Employee";
+
+            if (isDirectMode) {
+                if (!directWS || directWS.readyState !== WebSocket.OPEN) return alert('Connecting to Admin...');
+                const d = { message: msg, role: 'employee', sender_name: myName, sender_no: currentUser.emp_no, session_id: `direct_${currentUser.emp_no}` };
+                appendMsg(d);
+                directWS.send(JSON.stringify(d));
+            } else if (isP2P) {
+                if (!chatWS || chatWS.readyState !== WebSocket.OPEN) return alert('Reconnecting to Colleague...');
+                const d = { message: msg, role: 'employee', sender_name: myName, sender_no: currentUser.emp_no, session_id: activeRoom };
+                appendMsg(d);
+                chatWS.send(JSON.stringify(d));
+            } else {
+                if (!chatWS || chatWS.readyState !== WebSocket.OPEN) return alert('Reconnecting...');
+                const d = { message: msg, role: 'employee', sender_name: myName, sender_no: currentUser.emp_no, session_id: `report_${activeRoom}` };
+                appendMsg(d);
+                chatWS.send(JSON.stringify(d));
+            }
+            i.value = '';
+        }
+
+        function closeChat() {
+            if (chatWS) chatWS.close();
+            chatWS = null;
+            switchScreen(lastScreen === 'chat-list' ? 'chat-list' : 'detail');
+        }
+        function showToast(m) { const t = document.getElementById('notif-toast'); document.getElementById('toast-msg').innerText = m; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 4000); }
+        function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
+        function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
+        window.onload = initApp;
+    </script>
+</body>
+
+</html>
