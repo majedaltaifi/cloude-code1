@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-DB_PATH = "backend/nit_data.db"
+DB_PATH = "nit_data.db"
 if os.path.exists(DB_PATH):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
