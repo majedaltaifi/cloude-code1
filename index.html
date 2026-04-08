@@ -1830,8 +1830,9 @@
             initChatWS(activeRoom);
             
             try {
-                const snap = await db.collection('chat_messages').where('session_id', '==', activeRoom).orderBy('created_at', 'asc').get();
-                document.getElementById('chat-msgs').innerHTML = snap.docs.map(m => renderMsg(m.data())).join('');
+                const snap = await db.collection('chat_messages').where('session_id', '==', activeRoom).get();
+                const msgs = snap.docs.map(m => m.data()).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                document.getElementById('chat-msgs').innerHTML = msgs.map(m => renderMsg(m)).join('');
                 const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
             } catch (e) { }
         }
@@ -1908,7 +1909,7 @@
 
             try {
                 const snap = await db.collection('chat_messages').where('session_id', '==', `direct_${currentUser.emp_no}`).get();
-                const msgs = snap.docs.map(m => m.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                const msgs = snap.docs.map(m => m.data()).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
                 document.getElementById('chat-msgs').innerHTML = msgs.map(m => renderMsg(m)).join('');
                 const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
             } catch (e) { }
@@ -1933,7 +1934,7 @@
             
             try {
                 const snap = await db.collection('chat_messages').where('session_id', '==', `report_${rid}`).get();
-                const msgs = snap.docs.map(m => m.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                const msgs = snap.docs.map(m => m.data()).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
                 document.getElementById('chat-msgs').innerHTML = msgs.map(m => renderMsg(m)).join('');
                 const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
             } catch (e) { }
