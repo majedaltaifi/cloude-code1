@@ -1646,7 +1646,7 @@
                     <div>
                         <div class="t-body" style="color:var(--accent); text-transform:uppercase; font-size:14px; margin-bottom:2px">${i.type}</div>
                         <div style="font-size:11px; font-weight:900; color:var(--primary)">${(i.description||'').substring(0, 45)}...</div>
-                        <div style="font-size:9px; font-weight:950; color:${isClosed ? '#22c55e' : '#38bdf8'}; margin-top:4px">CASE #${(i.id||'').substring(0,5)} | ${isClosed ? 'DONE' : 'IN PROG'}</div>
+                        <div style="font-size:9px; font-weight:950; color:${isClosed ? '#22c55e' : '#38bdf8'}; margin-top:4px">CASE #${String(i.id||'').substring(0,5)} | ${isClosed ? 'DONE' : 'IN PROG'}</div>
                     </div>
                 </div>`;
             }).join('') || 'No data';
@@ -1670,7 +1670,7 @@
                             <div>
                                 <div style="font-size:14px; font-weight:900; color:var(--accent); text-transform:uppercase; margin-bottom:2px">${i.type}</div>
                                 <div style="font-size:11px; font-weight:900; color:var(--primary)">${subType}</div>
-                                <div style="font-size:9px; font-weight:950; color:#94a3b8; margin-top:4px">CASE #${(i.id||'').substring(0,5)} • ${i.site}</div>
+                                <div style="font-size:9px; font-weight:950; color:#94a3b8; margin-top:4px">CASE #${String(i.id||'').substring(0,5)} • ${i.site}</div>
                             </div>
                             <div class="activity-pill ${isDone ? 'done' : ''}" style="font-size:9px">${isDone ? 'CLOSED' : 'RUNNING'}</div>
                         </div>
@@ -1875,13 +1875,13 @@
                 const sid = `report_${r.id}`;
                 const unread = unreadChats[sid] || 0;
                 let d = new Date(r.created_at);
-                let title = `CASE #${r.id.substring(0,5)}`;
+                let title = `CASE #${String(r.id).substring(0,5)}`;
                 let latestText = r.description || '';
                 let rTime = d.getTime();
                 try {
-                    const hSnap = await db.collection('chat_messages').where('session_id', '==', sid).orderBy('created_at', 'desc').limit(1).get();
+                    const hSnap = await db.collection('chat_messages').where('session_id', '==', sid).get();
                     if(!hSnap.empty) {
-                        const m = hSnap.docs[0].data();
+                        const m = hSnap.docs.sort((a,b) => new Date(b.data().created_at) - new Date(a.data().created_at))[0].data();
                         let prefix = 'Me: ';
                         if(m.role === 'admin') prefix = 'Admin: ';
                         else if(m.role === 'assistant') prefix = 'Assistant: ';
