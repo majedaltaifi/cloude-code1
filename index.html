@@ -1447,15 +1447,20 @@
         }
 
         async function loadNotifs() {
+            if (!currentUser || !currentUser.emp_no) return;
             try {
-                const snap = await db.collection('notifications').where('emp_no', 'in', [currentUser.emp_no, null]).orderBy('created_at', 'desc').limit(20).get();
+                // Modified to avoid composite index requirements in Firebase
+                const snap = await db.collection('notifications').where('emp_no', 'in', [currentUser.emp_no, null]).get();
                 notifs = snap.docs.map(d => {
                     let n = {id: d.id, ...d.data()};
                     if (readLocally.has(n.id)) n.is_read = true;
                     return n;
-                });
+                }).sort((a,b) => new Date(b.created_at) - new Date(a.created_at)); // Sort client-side
+                
                 renderNotifs();
-            } catch (e) { }
+            } catch (e) {
+                console.error("Firestore Notif Error:", e);
+            }
         }
 
         function renderNotifs() {
@@ -1483,18 +1488,47 @@
         }
 
         async function sync() {
+            if (!currentUser || !currentUser.emp_no) return;
             try {
-                const snap = await db.collection('reports').where('emp_no', '==', currentUser.emp_no).get();
+                console.log("Firestore Sync: Querying reports for", currentUser.emp_no, "(" + typeof currentUser.emp_no + ")");
+                
+                // 1. Try with original type
+                let snap = await db.collection('reports').where('emp_no', '==', currentUser.emp_no).get();
+                
+                // 2. If empty, try the alternate type (string <-> number)
+                if (snap.empty) {
+                    const altType = typeof currentUser.emp_no === 'string' ? Number(currentUser.emp_no) : String(currentUser.emp_no);
+                    if (altType !== currentUser.emp_no && (typeof altType !== 'number' || !isNaN(altType))) {
+                        console.log("Firestore Sync: Trying alternate type", altType, "(" + typeof altType + ")");
+                        snap = await db.collection('reports').where('emp_no', '==', altType).get();
+                    }
+                }
+
+                if (snap.empty) {
+                    console.warn("Firestore Sync: No reports found in Firestore for user", currentUser.emp_no);
+                } else {
+                    console.log(`Firestore Sync: Success! Found ${snap.docs.length} reports.`);
+                }
+
                 reports = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                renderReports(); updateStats();
-            } catch (e) { }
+                
+                renderReports(); 
+                updateStats();
+            } catch (e) { 
+                console.error("Firestore Sync Error:", e);
+            }
         }
 
         function updateStats() {
-            const total = reports.length, done = reports.filter(r => r.status && r.status.toLowerCase() === 'done').length, pend = total - done;
+            if (!reports) reports = [];
+            const total = reports.length;
+            const done = reports.filter(r => (r.status || '').toLowerCase() === 'done').length;
+            const pend = total - done;
+
             if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
             if (document.getElementById('stat-done')) document.getElementById('stat-done').innerText = done;
             if (document.getElementById('stat-pend')) document.getElementById('stat-pend').innerText = pend;
+            
             filterAndShow(currentFilter);
         }
 

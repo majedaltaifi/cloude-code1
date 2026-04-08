@@ -241,7 +241,24 @@
         </div>
     </div>
 
+    <!-- Firebase Legacy SDK (Version 8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck",
+            authDomain: "cloude-code1.firebaseapp.com",
+            projectId: "cloude-code1",
+            storageBucket: "cloude-code1.firebasestorage.app",
+            messagingSenderId: "553630040386",
+            appId: "1:553630040386:web:361da3353836ac709188db",
+            measurementId: "G-GJ65XRZ57B"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         const API = window.location.origin.includes('10.0') || window.location.origin.includes('192.168') ? window.location.origin : 'http://10.0.33.69:8001';
         let allRep = [], helpTix = [], currentFilter = 'all', siteFilter = null;
         let chatTabMode = 'incidents', activeEmpId = null, activeRid = null, adminWS = null;
@@ -286,14 +303,24 @@
             
             if(!q) { 
                 try {
-                    const res = await fetch(`${API}/admin/chats/direct`);
-                    const active = await res.json();
-                    if(active && active.length) {
-                        list.innerHTML = '<p style="font-size:11px; opacity:0.4; margin:10px 15px; font-weight:900">ACTIVE CHATS</p>' + active.map(e => `
-                            <div class="ticket-item ${activeEmpId == e.emp_no ? 'active' : ''}" onclick="selectDirectChat('${e.emp_no}', '${e.name_en}')">
-                                <b>#${e.emp_no}</b><br><small>${e.name_en} • ${e.department}</small>
-                            </div>
-                        `).join('');
+                    const snap = await db.collection('chat_messages')
+                        .where('role', '==', 'employee')
+                        .limit(20).get();
+                    
+                    const activeIds = [...new Set(snap.docs.map(doc => doc.data().sender_no))].filter(id => id && id !== 'admin');
+                    
+                    if(activeIds.length) {
+                        list.innerHTML = '<p style="font-size:11px; opacity:0.4; margin:10px 15px; font-weight:900">ACTIVE CHATS</p>';
+                        for(let id of activeIds) {
+                            const empSnap = await db.collection('employees').doc(id).get();
+                            if(empSnap.exists) {
+                                let e = empSnap.data();
+                                list.innerHTML += `
+                                    <div class="ticket-item ${activeEmpId == e.emp_no ? 'active' : ''}" onclick="selectDirectChat('${e.emp_no}', '${e.name_en || e.name}')">
+                                        <b>#${e.emp_no}</b><br><small>${e.name_en || e.name} • ${e.department || 'Field'}</small>
+                                    </div>`;
+                            }
+                        }
                         return;
                     }
                 } catch(e){}
@@ -301,42 +328,44 @@
                 return; 
             }
             try {
-                const res = await fetch(`${API}/employees/search/${q}`);
-                const data = await res.json();
-                list.innerHTML = (data.results || []).map(e => `
-                    <div class="ticket-item ${activeEmpId == e.emp_no ? 'active' : ''}" onclick="selectDirectChat('${e.emp_no}', '${e.name_en}')">
-                        <b>ID #${e.emp_no}</b><br><small>${e.name_en} • ${e.department}</small>
+                // Simplified search for Firebase
+                let snap;
+                if(!isNaN(q)) {
+                    snap = await db.collection('employees').where('emp_no', '==', q).get();
+                } else {
+                    snap = await db.collection('employees').where('name_en', '>=', q).where('name_en', '<=', q + '\uf8ff').limit(10).get();
+                }
+                
+                list.innerHTML = (snap.docs.map(d => d.data()) || []).map(e => `
+                    <div class="ticket-item ${activeEmpId == e.emp_no ? 'active' : ''}" onclick="selectDirectChat('${e.emp_no}', '${e.name_en || e.name}')">
+                        <b>ID #${e.emp_no}</b><br><small>${e.name_en || e.name} • ${e.department || 'Field'}</small>
                     </div>
                 `).join('') || '<p style="text-align:center; padding:20px">Not found</p>';
             } catch(e){}
         }
 
         async function selectDirectChat(emp_no, name) {
-            activeEmpId = emp_no; activeRid = null; searchEmployees();
+            activeEmpId = emp_no; activeRid = null; // searchEmployees();
             const container = document.getElementById('cc-msgs'), status = document.getElementById('cc-status');
             document.getElementById('cc-title').innerText = `Direct Chat: ${name} (#${emp_no})`;
 
             document.getElementById('cc-input-area').style.display = 'flex';
-            container.innerHTML = '<p style="text-align:center; padding:20px; opacity:0.5; font-weight:900">Connecting to Employee...</p>';
+            container.innerHTML = '<p style="text-align:center; padding:20px; opacity:0.5; font-weight:900">Syncing with Employee Room...</p>';
+            
             try {
-                const res = await fetch(`${API}/chat/history/direct_${emp_no}`);
-                const data = await res.json();
-                container.innerHTML = (data.messages || []).map(m => renderAdminMsg(m)).join('');
-                container.scrollTop = container.scrollHeight;
-            } catch(e){}
-            if(adminWS) { adminWS.onclose = null; adminWS.close(); }
-            const wsUrl = API.replace('http','ws');
-            adminWS = new WebSocket(`${wsUrl}/ws/direct/${emp_no}`);
-            adminWS.onopen = () => { status.innerText = 'ONLINE (DIRECT)'; status.style.color = 'var(--success)'; };
-            adminWS.onclose = () => { status.innerText = 'OFFLINE'; status.style.color = 'var(--text-muted)'; setTimeout(() => { if(activeEmpId === emp_no) selectDirectChat(emp_no, name); }, 3000); };
-            adminWS.onmessage = (e) => { 
-                const d = JSON.parse(e.data); 
-                // Only append if it's from the employee (ignore my own reflected messages)
-                if(d.role === 'employee' || d.role === 'user') {
-                    appendAdminMsg(d); 
-                    if(chatTabMode === 'direct') searchEmployees(); // Refresh list to move to top
-                }
-            };
+                const sid = `direct_${emp_no}`;
+                // Listen to live updates
+                if(window.unsubChat) window.unsubChat();
+                window.unsubChat = db.collection('chat_messages')
+                    .where('session_id', '==', sid)
+                    .onSnapshot(snap => {
+                        const msgs = snap.docs.map(d => d.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                        container.innerHTML = msgs.map(m => renderAdminMsg(m)).join('');
+                        container.scrollTop = container.scrollHeight;
+                        status.innerText = 'CONNECTED (REALTIME)';
+                        status.style.color = 'var(--success)';
+                    });
+            } catch(e){ status.innerText = 'SYNC ERROR'; }
         }
 
         async function selectChat(rid) {
@@ -344,21 +373,20 @@
             const container = document.getElementById('cc-msgs'), status = document.getElementById('cc-status');
             document.getElementById('cc-title').innerText = `Incident Chat: #${rid}`;
             document.getElementById('cc-input-area').style.display = 'flex';
+            
             try {
-                const res = await fetch(`${API}/chat/history/report_${rid}`);
-                const data = await res.json();
-                container.innerHTML = (data.messages || []).map(m => renderAdminMsg(m)).join('');
-                container.scrollTop = container.scrollHeight;
-            } catch(e){}
-            if(adminWS) { adminWS.onclose = null; adminWS.close(); }
-            const wsUrl = API.replace('http','ws');
-            adminWS = new WebSocket(`${wsUrl}/ws/report/${rid}`);
-            adminWS.onopen = () => { status.innerText = 'ONLINE'; status.style.color = 'var(--success)'; };
-            adminWS.onclose = () => { status.innerText = 'OFFLINE'; status.style.color = 'var(--text-muted)'; setTimeout(() => { if(activeRid === rid) selectChat(rid); }, 3000); };
-            adminWS.onmessage = (e) => { 
-                const d = JSON.parse(e.data); 
-                if(d.role !== 'admin') appendAdminMsg(d); 
-            };
+                const sid = `report_${rid}`;
+                if(window.unsubChat) window.unsubChat();
+                window.unsubChat = db.collection('chat_messages')
+                    .where('session_id', '==', sid)
+                    .onSnapshot(snap => {
+                        const msgs = snap.docs.map(d => d.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                        container.innerHTML = msgs.map(m => renderAdminMsg(m)).join('');
+                        container.scrollTop = container.scrollHeight;
+                        status.innerText = 'SYNCED';
+                        status.style.color = 'var(--success)';
+                    });
+            } catch(e){ status.innerText = 'SYNC ERROR'; }
         }
 
         function renderAdminMsg(m) {
@@ -368,45 +396,70 @@
 
         function appendAdminMsg(m) { const c = document.getElementById('cc-msgs'); c.innerHTML += renderAdminMsg(m); c.scrollTop = c.scrollHeight; }
 
-        function sendAdminMsgCC() {
+        async function sendAdminMsgCC() {
             const input = document.getElementById('cc-input'), msg = input.value.trim();
-            if(!msg || !adminWS) return;
+            if(!msg) return;
             const sid = activeEmpId ? `direct_${activeEmpId}` : `report_${activeRid}`;
-            const data = { message: msg, role: 'admin', session_id: sid };
-            appendAdminMsg(data);
-            adminWS.send(JSON.stringify(data));
-            if(activeEmpId) {
-                fetch(`${API}/notifications`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ emp_no: activeEmpId, title_ar: `New Chat Message`, body_ar: msg, type: 'info' }) }).catch(e=>{});
-
-                if(chatTabMode === 'direct') searchEmployees(); // Refresh list to move to top
-            }
-            input.value = '';
+            const participants = activeEmpId ? [activeEmpId, 'admin'] : ['admin']; // Simplified
+            
+            const data = { 
+                message: msg, 
+                content: msg, 
+                role: 'admin', 
+                session_id: sid, 
+                sender_name: 'Admin', 
+                sender_no: 'admin',
+                created_at: new Date().toISOString(),
+                is_read: false,
+                participants: participants
+            };
+            
+            try {
+                await db.collection('chat_messages').add(data);
+                if(activeEmpId) {
+                    await db.collection('notifications').add({ 
+                        emp_no: activeEmpId, 
+                        title_ar: `رسالة من الإدارة`, 
+                        body_ar: msg, 
+                        type: 'info',
+                        created_at: new Date().toISOString()
+                    });
+                }
+                input.value = '';
+            } catch(e) { alert("Fail to send: " + e.message); }
         }
 
         function renderChatList() {
             const list = document.getElementById('chat-center-list');
             if(chatTabMode !== 'incidents') return;
             list.innerHTML = allRep.map(r => `
-                <div class="ticket-item ${activeRid == r.id ? 'active' : ''}" onclick="selectChat(${r.id})">
-                    <b>#NIT-${r.id}</b><br><small>${r.site} • ${r.status}</small>
+                <div class="ticket-item ${activeRid == r.id ? 'active' : ''}" onclick="selectChat('${r.id}')">
+                    <b>#NIT-${String(r.id).substring(0,6)}</b><br><small>${r.site} • ${r.status}</small>
                 </div>
             `).join('') || '<p style="text-align:center">No reports</p>';
         }
 
         async function reloadAll() {
             try {
-                const [r, s, stRes] = await Promise.all([fetch(`${API}/reports`), fetch(`${API}/support`), fetch(`${API}/stats`)]);
-                allRep = (await r.json()).reports || [];
-                helpTix = await s.json();
-                const st = await stRes.json();
-                document.getElementById('stat-total').innerText = st.total_reports || 0;
-                document.getElementById('stat-pending').innerText = st.open || 0;
-                document.getElementById('stat-resolved').innerText = st.closed || 0;
-                document.getElementById('stat-support').innerText = st.total_support || 0;
+                // Fetch from Firebase instead of local API
+                const rSnap = await db.collection('reports').get();
+                allRep = rSnap.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                const sSnap = await db.collection('support_requests').get();
+                helpTix = sSnap.docs.map(doc => doc.data());
+                
+                const openCount = allRep.filter(r => (r.status||'').toLowerCase() === 'open').length;
+                const doneCount = allRep.filter(r => (r.status||'').toLowerCase() === 'done').length;
+
+                document.getElementById('stat-total').innerText = allRep.length;
+                document.getElementById('stat-pending').innerText = openCount;
+                document.getElementById('stat-resolved').innerText = doneCount;
+                document.getElementById('stat-support').innerText = helpTix.length;
+                
                 renderData();
                 renderSites();
                 if(chatTabMode === 'incidents') renderChatList();
-            } catch(e){}
+            } catch(e){ console.error("Firebase Dashboard Sync Error:", e); }
         }
 
 
@@ -424,12 +477,12 @@
             }
 
             dBody.innerHTML = filtered.slice(0, 20).map(r => `
-                <tr onclick="openDetail(${r.id})" style="cursor:pointer">
-                    <td>#${r.id}</td>
+                <tr onclick="openDetail('${r.id}')" style="cursor:pointer">
+                    <td>#${String(r.id).substring(0,6)}</td>
                     <td>${r.emp_no}</td>
                     <td>${r.site}</td>
                     <td>${new Date(r.created_at).toLocaleDateString()}</td>
-                    <td><span class="badge ${ (r.status||'').toLowerCase() === 'open' ? 'b-open' : 'b-done' }">${r.status.toUpperCase()}</span></td>
+                    <td><span class="badge ${ (r.status||'').toLowerCase() === 'open' ? 'b-open' : 'b-done' }">${(r.status||'OPEN').toUpperCase()}</span></td>
                 </tr>
             `).join('') || '<tr><td colspan="5" style="text-align:center; opacity:0.5">No matching records</td></tr>';
 
@@ -438,22 +491,22 @@
                 const bCls = s === 'open' ? 'b-open' : (s === 'inprog' ? 'b-warning' : 'b-done');
                 return `
                 <tr>
-                    <td>#${r.id}</td>
+                    <td>#${String(r.id).substring(0,6)}</td>
                     <td><b>${r.emp_no}</b></td>
                     <td>
                         <div style="position:relative; display:inline-block">
-                            <select class="status-select-pro ${bCls}" onchange="updateReportStatus(${r.id}, this)">
+                            <select class="status-select-pro ${bCls}" onchange="updateReportStatus('${r.id}', this)">
                                 <option value="open" ${s==='open'?'selected':''}>● OPEN</option>
                                 <option value="inprog" ${s==='inprog'?'selected':''}>● IN PROGRESS</option>
                                 <option value="done" ${s==='done'?'selected':''}>● RESOLVED</option>
                             </select>
                         </div>
                     </td>
-                    <td><button class="btn-p" style="padding:8px 15px; font-size:10px; border-radius:12px" onclick="openDetail(${r.id})">VIEW DETAILS</button></td>
+                    <td><button class="btn-p" style="padding:8px 15px; font-size:10px; border-radius:12px" onclick="openDetail('${r.id}')">VIEW DETAILS</button></td>
                 </tr>`;
             }).join('');
 
-            sBody.innerHTML = helpTix.map(s => `<tr><td>#${s.emp_no}</td><td>${s.name}</td><td>${s.phone || '-'}</td><td>${s.email || '-'}</td><td>${s.subject}</td><td>${s.message}</td><td>${new Date(s.created_at).toLocaleDateString()}</td></tr>`).join('');
+            sBody.innerHTML = helpTix.map(s => `<tr><td>#${s.emp_no}</td><td>${s.name}</td><td>${s.phone || '-'}</td><td>${s.email || '-'}</td><td>${s.subject}</td><td>${s.message}</td><td>${new Date(s.created_at || Date.now()).toLocaleDateString()}</td></tr>`).join('');
 
             
             // Build tag string
@@ -471,6 +524,7 @@
             if(!list) return;
             const sMap = {};
             allRep.forEach(r => {
+                if(!r.site) return;
                 if(!sMap[r.site]) sMap[r.site] = { open:0, closed:0, site: r.site };
                 if((r.status||'').toLowerCase() === 'done' || (r.status||'').toLowerCase() === 'closed') sMap[r.site].closed++;
                 else sMap[r.site].open++;
@@ -505,23 +559,25 @@
             const modal = document.getElementById('detailModal');
             const body = document.getElementById('modal-body');
             
+            const stats_color = (r.status||'').toLowerCase() === 'open' ? 'b-open' : ((r.status||'').toLowerCase() === 'inprog' ? 'b-warning' : 'b-done');
+
             body.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px">
                     <div>
-                        <span class="badge b-open" style="margin-bottom:10px; display:inline-block">REFERENCE #${r.id}</span>
-                        <h2 style="font-size:24px; font-weight:950; color:var(--primary)">${r.type.toUpperCase()} REPORT</h2>
+                        <span class="badge b-open" style="margin-bottom:10px; display:inline-block">REFERENCE #${String(r.id).substring(0,8)}</span>
+                        <h2 style="font-size:24px; font-weight:950; color:var(--primary)">${(r.type||'OTHER').toUpperCase()} REPORT</h2>
                         <p style="opacity:0.6; font-size:12px; font-weight:700">Filed by ID ${r.emp_no} • ${new Date(r.created_at).toLocaleString()}</p>
                     </div>
                     <div style="text-align:right">
-                         <div class="status-select-pro ${r.status==='open'?'b-open':(r.status==='inprog'?'b-warning':'b-done')}">${r.status.toUpperCase()}</div>
+                         <div class="status-select-pro ${stats_color}">${(r.status||'OPEN').toUpperCase()}</div>
                     </div>
                 </div>
 
                 <div style="background:var(--bg); padding:25px; border-radius:25px; margin-bottom:25px; border:1.5px solid var(--border)">
                     <span style="font-size:10px; font-weight:900; color:var(--text-muted); opacity:0.6; text-transform:uppercase">Incident Site</span>
-                    <p style="font-weight:950; font-size:16px; margin:5px 0 15px 0">${r.site}</p>
+                    <p style="font-weight:950; font-size:16px; margin:5px 0 15px 0">${r.site || 'N/A'}</p>
                     <span style="font-size:10px; font-weight:900; color:var(--text-muted); opacity:0.6; text-transform:uppercase">Detailed Description</span>
-                    <p style="font-weight:700; line-height:1.6; margin-top:5px; color:var(--primary)">${r.description}</p>
+                    <p style="font-weight:700; line-height:1.6; margin-top:5px; color:var(--primary)">${r.description || 'No description provided'}</p>
                 </div>
 
                 ${r.photo_b64 ? `<div style="margin-bottom:25px"><span style="font-size:10px; font-weight:900; opacity:0.5; display:block; margin-bottom:10px">EVIDENCE PHOTO</span><img src="${r.photo_b64}" style="width:100%; border-radius:30px; border:2px solid var(--border)"></div>` : ''}
@@ -532,16 +588,15 @@
                 </div>
 
                 <div style="display:grid; grid-template-columns: 1fr; gap:15px">
-                    <button class="btn-p" style="background:#E0F2FE; color:var(--accent)" onclick="goToChat(${r.id})"><i class="fas fa-comments"></i> OPEN CHAT HUB</button>
+                    <button class="btn-p" style="background:#E0F2FE; color:var(--accent)" onclick="goToChat('${r.id}')"><i class="fas fa-comments"></i> OPEN CHAT HUB</button>
                 </div>
             `;
             modal.classList.add('active');
 
-            // Fetch Timeline
+            // Fetch Timeline from Firestore Subcollection
             try {
-                const res = await fetch(`${API}/reports/${id}`);
-                const data = await res.json();
-                const tl = data.timeline || [];
+                const tlSnap = await db.collection('reports').doc(String(id)).collection('timeline').orderBy('created_at', 'asc').get();
+                const tl = tlSnap.docs.map(d => d.data());
                 document.getElementById('modal-timeline').innerHTML = `<span style="font-size:10px; font-weight:900; opacity:0.5; display:block; margin-bottom:15px">INCIDENT TIMELINE</span>` + 
                     tl.map(ev => `
                         <div style="display:flex; gap:15px; margin-bottom:15px; align-items:center">
@@ -552,7 +607,7 @@
                             </div>
                         </div>
                     `).join('') || '<p style="font-size:12px; opacity:0.4; text-align:center">No history events recorded yet.</p>';
-            } catch(e){}
+            } catch(e){ console.warn("Timeline fetch error:", e); }
         }
 
 
@@ -560,12 +615,14 @@
 
         async function loadBroadcasts() {
             try {
-                const res = await fetch(`${API}/news`), data = await res.json();
+                const snap = await db.collection('broadcasts').get();
+                const data = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+                
                 document.getElementById('broadcast-editor-list').innerHTML = data.map(b => `
                     <div class="bc-card">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
                             <span style="font-size:10px; font-weight:900; opacity:0.5; text-transform:uppercase">Broadcast Slot #${b.id}</span>
-                            <div class="icon-indicator" onclick="openPicker(${b.id}, this)" style="padding:10px; cursor:pointer; color:var(--accent); font-size:24px; transition:0.2s">
+                            <div class="icon-indicator" onclick="openPicker('${b.id}', this)" style="padding:10px; cursor:pointer; color:var(--accent); font-size:24px; transition:0.2s">
                                 <i class="fas ${b.icon || 'fa-info-circle'}" id="bc-preview-${b.id}"></i>
                             </div>
                         </div>
@@ -578,9 +635,9 @@
                             <label style="font-size:10px; font-weight:900; opacity:0.6">DESCRIPTION CONTENT</label>
                             <input class="bc-input" value="${b.content}" id="bc-c-${b.id}">
                         </div>
-                        <button class="btn-p" style="width:100%; margin-top:20px; font-size:12px" onclick="saveBroadcast(${b.id}, this)">APPLY UPDATE</button>
+                        <button class="btn-p" style="width:100%; margin-top:20px; font-size:12px" onclick="saveBroadcast('${b.id}', this)">APPLY UPDATE</button>
                     </div>
-                `).join('') || '<p style="text-align:center; padding:40px; opacity:0.5">No broadcasts initialized</p>';
+                `).join('') || '<p style="text-align:center; padding:40px; opacity:0.5">No broadcasts found</p>';
             } catch(e){}
         }
 
@@ -591,11 +648,10 @@
             const oldText = btn.innerText;
             btn.innerText = 'SAVING...';
             try {
-                await fetch(`${API}/news`, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ id, icon, title, content }) 
-                });
+                await db.collection('broadcasts').doc(String(id)).set({
+                    icon, title, content, updated_at: new Date().toISOString()
+                }, { merge: true });
+                
                 btn.innerText = 'SAVED SUCCESS!';
                 btn.style.background = 'var(--success)';
                 setTimeout(() => { btn.innerText = oldText; btn.style.background = 'var(--accent)'; }, 2000);
@@ -608,20 +664,26 @@
 
         async function updateReportStatus(rid, select) {
             const val = select.value;
-            console.log(`[StatusUpdate] Report #${rid} -> ${val}`);
             select.classList.add('saving');
             try {
-                // Using POST for stability as PATCH might be restricted
-                const res = await fetch(`${API}/status_update?rid=${rid}&status=${val}`, { method: 'POST' });
-                if(!res.ok) {
-                    const errTxt = await res.text();
-                    throw new Error(`Server Error: ${res.status} - ${errTxt}`);
-                }
-                console.log(`[StatusUpdate] Success for #${rid}`);
-                await reloadAll(); // Refresh data/metrics
+                // Update Firestore directly
+                await db.collection('reports').doc(String(rid)).update({
+                    status: val,
+                    updated_at: new Date().toISOString()
+                });
+                
+                // Add to timeline
+                await db.collection('reports').doc(String(rid)).collection('timeline').add({
+                    event_text: `Status updated to ${val.toUpperCase()}`,
+                    event_by: 'Admin',
+                    color: val === 'done' ? 'var(--success)' : 'var(--accent)',
+                    created_at: new Date().toISOString()
+                });
+
+                await reloadAll(); // Refresh data
             } catch(e) {
                 console.error(`[StatusUpdate] Failed:`, e);
-                alert(`Update Failed: ${e.message}\nMake sure backend is running on 8001.`);
+                alert(`Update Failed: ${e.message}`);
             } finally {
                 select.classList.remove('saving');
             }
@@ -660,8 +722,10 @@
 
         function closeModal() { document.getElementById('detailModal').classList.remove('active'); }
 
-        setInterval(reloadAll, 5000);
+        setInterval(reloadAll, 10000); // 10s refresh for admin
         reloadAll();
     </script>
+</body>
+</html>
 </body>
 </html>

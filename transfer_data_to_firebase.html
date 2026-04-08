@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>نقل البيانات إلى Firebase</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background: #f0f4f8; }
+    .card { background: white; padding: 30px; border-radius: 20px; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 500px; }
+    button { padding: 15px 30px; font-size: 18px; cursor: pointer; background: #22c55e; color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 20px; }
+    button:disabled { background: #cbd5e1; }
+    #status { margin-top: 20px; font-size: 16px; text-align: left; max-height: 300px; overflow-y: auto; padding: 10px; background: #fafafa; border-radius: 10px; }
+    .log-info { color: #64748b; font-size: 12px; margin-bottom: 5px; }
+    .log-success { color: #22c55e; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>🚚 أداة نقل البيانات القديمة إلى Firebase</h2>
+    <p style="color:#64748b">هذه الأداة ستقوم بنقل (البلاغات، المحادثات، والأخبار) من السيرفر المحلي إلى قاعدة بيانات Firebase السحابية لكي يرجع التطبيق كما كان.</p>
+    
+    <button id="syncBtn" onclick="startMigration()">✨ ابدأ عملية النقل الآن</button>
+    <div id="status"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck",
+      authDomain: "cloude-code1.firebaseapp.com",
+      projectId: "cloude-code1",
+      storageBucket: "cloude-code1.firebasestorage.app",
+      messagingSenderId: "553630040386",
+      appId: "1:553630040386:web:361da3353836ac709188db",
+      measurementId: "G-GJ65XRZ57B"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const API = "http://10.0.33.69:8001"; // السيرفر القديم الخاص بك
+
+    window.log = function(msg, type = 'info') {
+        const div = document.getElementById("status");
+        const entry = document.createElement("div");
+        entry.className = "log-" + type;
+        entry.innerText = msg;
+        div.prepend(entry);
+    }
+
+    window.startMigration = async function() {
+        const btn = document.getElementById("syncBtn");
+        btn.disabled = true;
+        log("🚀 بدأت العملية... يرجى التأكد أن السيرفر القديم (FastAPI) يعمل حالياً.");
+
+        try {
+            // 1. نقل البلاغات (Reports)
+            log("⏳ جاري جلب البلاغات من السيرفر القديم...");
+            const rRes = await fetch(`${API}/reports`);
+            const rData = await rRes.json();
+            const reports = rData.reports || [];
+            
+            log(`📦 وجدنا ${reports.length} بلاغ. جاري الرفع لـ Firebase...`);
+            for (let r of reports) {
+                // رفع البلاغ نفسه
+                await setDoc(doc(db, "reports", String(r.id)), {
+                    ...r,
+                    created_at: r.created_at || new Date().toISOString(),
+                    status: (r.status || 'open').toLowerCase()
+                }, { merge: true });
+
+                // جلب الـ Timeline الخاص بهذا البلاغ ورفعه
+                try {
+                    const tRes = await fetch(`${API}/reports/${r.id}`);
+                    const tData = await tRes.json();
+                    const timeline = tData.timeline || [];
+                    for(let event of timeline) {
+                        await addDoc(collection(db, "reports", String(r.id), "timeline"), {
+                            ...event,
+                            created_at: event.created_at || new Date().toISOString()
+                        });
+                    }
+                } catch(e) {}
+                log(`✅ تم نقل البلاغ رقم #${r.id} بنجاح.`);
+            }
+
+            // 2. نقل الأخبار (Broadcasts/HR News)
+            log("⏳ جاري نقل أخبار الإدارة...");
+            const nRes = await fetch(`${API}/news`);
+            const news = await nRes.json();
+            for (let n of news) {
+                await addDoc(collection(db, "broadcasts"), {
+                    ...n,
+                    updated_at: new Date().toISOString()
+                });
+            }
+            log(`✅ تم نقل ${news.length} خبر من أخبار الإدارة.`);
+
+            // 3. نقل المحادثات (Direct Chats)
+            // سنركز على محادثات Admin حالياً
+            log("⏳ البدء بنقل المحادثات... (قد يستغرق وقتاً)");
+            const eRes = await fetch(`${API}/employees`);
+            const employees = (await eRes.json()) || [];
+            for(let emp of employees) {
+                try {
+                    const sid = `direct_${emp.emp_no}`;
+                    const cRes = await fetch(`${API}/chat/history/${sid}`);
+                    const cData = await cRes.json();
+                    const msgs = cData.messages || [];
+                    for(let m of msgs) {
+                        await addDoc(collection(db, "chat_messages"), {
+                            ...m,
+                            session_id: sid,
+                            participants: [emp.emp_no, 'admin'],
+                            is_read: true,
+                            created_at: m.created_at || new Date().toISOString()
+                        });
+                    }
+                    if(msgs.length > 0) log(`✅ تم نقل محادثة الموظف ${emp.emp_no}`);
+                } catch(e) {}
+            }
+
+            log("🏁 تم الانتهاء من كل شيء بنجاح! جرب فتح التطبيق الآن.", "success");
+            btn.innerText = "✅ اكتمل النقل!";
+        } catch (e) {
+            log("❌ خطأ: لم أتمكن من الاتصال بالسيرفر القديم. تأكد أنه يعمل (Python Server)", "info");
+            console.error(e);
+            btn.disabled = false;
+        }
+    }
+  </script>
+</body>
+</html>

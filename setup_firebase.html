@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>Setup Firebase Users</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background: #f8fafc; }
+    button { padding: 15px 30px; font-size: 18px; cursor: pointer; background: #38bdf8; color: white; border: none; border-radius: 10px; font-weight: bold; }
+    button:disabled { background: #cbd5e1; cursor: not-allowed; }
+    #status { margin-top: 20px; font-size: 18px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>أداة إضافة 5000 موظف إلى Firebase Firestore</h2>
+  <button id="startBtn" onclick="startUpload()">🚀 ابدأ بإنشاء الموظفين</button>
+  <p id="status"></p>
+
+  <script type="module">
+    // استدعاء مكاتب فايربيس
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, doc, writeBatch } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck",
+      authDomain: "cloude-code1.firebaseapp.com",
+      projectId: "cloude-code1",
+      storageBucket: "cloude-code1.firebasestorage.app",
+      messagingSenderId: "553630040386",
+      appId: "1:553630040386:web:361da3353836ac709188db",
+      measurementId: "G-GJ65XRZ57B"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.startUpload = async function() {
+        const btn = document.getElementById("startBtn");
+        const status = document.getElementById("status");
+        btn.disabled = true;
+        status.innerHTML = "جاري الاتصال بـ Firebase...";
+        
+        let target = 5000;
+        let current = 1;
+        
+        try {
+            while (current <= target) {
+                const batch = writeBatch(db);
+                // فايربيس يسمح برفع 500 مستند كحد أقصى في الدفعة الواحدة، سنرفعها 490 كل مرة لتفادي الأخطاء
+                let end = Math.min(current + 490, target); 
+                
+                for(let i = current; i <= end; i++) {
+                    // جعل الرقم بصيغة 4 خانات (0001, 0002 ... 5000) يمكن تعديلها لو أحببت
+                    let empStr = String(i).padStart(4, '0');
+                    let docRef = doc(db, "employees", empStr);
+                    batch.set(docRef, {
+                        emp_no: empStr,
+                        name: "Employee " + empStr,
+                        name_en: "Employee " + empStr,
+                        name_ar: "موظف " + empStr,
+                        department: "Field",
+                        site: "Riyadh HQ",
+                        is_online: false
+                    });
+                }
+                
+                await batch.commit();
+                status.innerHTML = `<span style='color:#38bdf8'>⏳ تم رفع الموظفين من ${current} إلى ${end}... الرجاء الانتظار</span>`;
+                current = end + 1;
+            }
+            status.innerHTML = "<strong style='color:#22c55e'>✅ تم الانتهاء بنجاح! تم إنشاء جميع المتسخدمين الـ 5000 إلى قاعدة البيانات.</strong>";
+        } catch (e) {
+            console.error(e);
+            status.innerHTML = "<strong style='color:red'>❌ حدث خطأ: " + e.message + "</strong>";
+        }
+    }
+  </script>
+</body>
+</html>
