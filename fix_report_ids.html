@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NIT Report ID Fixer</title>
+    <style>
+        body { font-family: sans-serif; padding: 50px; text-align: center; background: #f1f5f9; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: inline-block; max-width: 500px; }
+        .btn { background: #0D1145; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        #log { margin-top: 20px; text-align: left; font-size: 12px; color: #64748b; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Report ID Numeric-izer</h2>
+        <p>This tool will convert all existing random-string Case IDs into simple numbers (1, 2, 3...) based on their creation date.</p>
+        <button class="btn" onclick="fixIds()">Start Fixing IDs</button>
+        <div id="log"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck",
+            authDomain: "cloude-code1.firebaseapp.com",
+            projectId: "cloude-code1",
+            storageBucket: "cloude-code1.firebasestorage.app",
+            messagingSenderId: "553630040386",
+            appId: "1:553630040386:web:361da3353836ac709188db",
+            measurementId: "G-GJ65XRZ57B"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function log(m) {
+            const l = document.getElementById('log');
+            l.innerHTML += `<div>${m}</div>`;
+            l.scrollTop = l.scrollHeight;
+        }
+
+        async function fixIds() {
+            log("--- FIXING REPORTS ---");
+            const snap = await db.collection('reports').get();
+            if (!snap.empty) {
+                let reports = snap.docs.map(doc => ({ oldId: doc.id, ...doc.data() }));
+                reports.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+                for (let i = 0; i < reports.length; i++) {
+                    const r = reports[i];
+                    const newId = String(i + 1);
+                    if (r.oldId !== newId) {
+                        log(`Moving Report: ${r.oldId} -> ${newId}`);
+                        const data = { ...r }; delete data.oldId;
+                        await db.collection('reports').doc(newId).set(data);
+                        const tlSnap = await db.collection('reports').doc(r.oldId).collection('timeline').get();
+                        for (let tlDoc of tlSnap.docs) await db.collection('reports').doc(newId).collection('timeline').add(tlDoc.data());
+                        await db.collection('reports').doc(r.oldId).delete();
+                    }
+                }
+            }
+
+            log("--- FIXING BROADCASTS ---");
+            const bSnap = await db.collection('broadcasts').get();
+            if (!bSnap.empty) {
+                for (let doc of bSnap.docs) {
+                    const data = doc.data();
+                    const newId = String(data.id || "1");
+                    if (doc.id !== newId) {
+                        log(`Moving Broadcast: ${doc.id} -> ${newId}`);
+                        await db.collection('broadcasts').doc(newId).set(data);
+                        await db.collection('broadcasts').doc(doc.id).delete();
+                    }
+                }
+            }
+
+            log("Finished! All IDs are now numeric.");
+            alert("Done! All random IDs have been cleaned up.");
+        }
+    </script>
+</body>
+</html>

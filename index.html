@@ -1274,9 +1274,10 @@
                 const API = window.location.origin;
         let currentUser = null;
 
-        let reports = [], notifs = [], readLocally = new Set(), activeRoom = null, isDirectMode = false, isP2P = false, targetPeer = null, imgB64 = null, unreadChats = {};
-        let currentType = 'safety', currentSubType = '';
-        let unsubChat = null, unsubDirect = null, unsubP2P = null;
+        let reports = [];
+        let unreadChats = {};
+        let chatOpenedAt = 0;
+        let unsubSync = null, unsubDirect = null, unsubP2P = null;
 
         const subCats = {
             safety: ['Fire Hazard', 'Personal Injury', 'Spillage', 'Slip/Trip'],
@@ -1825,6 +1826,7 @@
             document.getElementById('chat-lock-area').style.display = 'none';
             document.getElementById('chat-title').innerText = name;
             switchScreen('chat');
+            chatOpenedAt = Date.now();
             initChatWS(activeRoom);
             
             try {
@@ -1886,24 +1888,34 @@
             const reportRows = await Promise.all(reports.filter(r => (r.status || '').toLowerCase() !== 'done').map(async r => {
                 const sid = `report_${r.id}`;
                 const unread = unreadChats[sid] || 0;
-                let d = new Date(r.created_at);
-                let title = `CASE #${String(r.id).substring(0,5)}`;
-                let latestText = r.description || '';
-                let rTime = d.getTime();
+                let title = `# CASE ${String(r.id)}`;
+                let latestText = '';
+                let rTime = 0;
+                
                 try {
                     const hSnap = await db.collection('chat_messages').where('session_id', '==', sid).get();
                     if(!hSnap.empty) {
-                        const m = hSnap.docs.sort((a,b) => new Date(b.data().created_at) - new Date(a.data().created_at))[0].data();
+                        const msgs = hSnap.docs.map(doc => doc.data()).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                        const hasAdmin = msgs.some(m => m.role === 'admin' || m.role === 'assistant');
+                        const hasUser = msgs.some(m => m.sender_no === currentUser.emp_no);
+                        if (!hasAdmin && !hasUser) return null;
+
+                        const m = msgs[0];
                         let prefix = 'Me: ';
                         if(m.role === 'admin') prefix = 'Admin: ';
                         else if(m.role === 'assistant') prefix = 'Assistant: ';
                         else if(m.sender_no !== currentUser.emp_no) prefix = (m.sender_name || 'Employee') + ': ';
-                        latestText = prefix + (m.content || m.message || ''); rTime = new Date(m.created_at).getTime();
+                        
+                        latestText = prefix + (m.content || m.message || ''); 
+                        rTime = new Date(m.created_at).getTime();
+                    } else {
+                        return null;
                     }
-                } catch(e){}
+                } catch(e){ return null; }
+
                 return { time: rTime, html: `<div class="chat-hub-row" onclick="openReportChat('${r.id}', 'chat-list')"><div class="row-icon-cell"><div class="row-icon-circ"><i class="fas fa-comment-dots"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title">${title}</span><span class="row-date">${new Date(rTime).toLocaleDateString('en-GB')}</span></div><div style="display:flex; justify-content:space-between; align-items:flex-start"><div class="row-subtext">${latestText.substring(0, 80)}</div>${unread > 0 ? `<div class="chat-badge-hub">${unread}</div>` : ''}</div></div></div>` };
             }));
-            allRows = allRows.concat(reportRows);
+            allRows = allRows.concat(reportRows.filter(r => r !== null));
             allRows.sort((a, b) => b.time - a.time);
             container.innerHTML = allRows.map(r => r.html).join('');
         }
@@ -1942,6 +1954,7 @@
             
             switchScreen('chat');
             markChatRead(`report_${rid}`);
+            chatOpenedAt = Date.now();
             initChatWS(`report_${rid}`);
             
             try {
@@ -1954,11 +1967,16 @@
 
         function initChatWS(sid) {
             if (unsubChat) unsubChat();
-            unsubChat = db.collection('chat_messages').where('session_id', '==', sid).where('created_at', '>', new Date().toISOString()).onSnapshot(snap => {
+            // Remove created_at filter to avoid composite index requirement
+            unsubChat = db.collection('chat_messages').where('session_id', '==', sid).onSnapshot(snap => {
                 snap.docChanges().forEach(change => {
                     if (change.type === 'added') {
                         const d = change.doc.data();
-                        if (d.sender_no !== currentUser.emp_no) appendMsg(d);
+                        // Only append if it's from someone else and it's new (created after we opened the chat)
+                        const msgTime = new Date(d.created_at).getTime();
+                        if (d.sender_no !== currentUser.emp_no && msgTime > chatOpenedAt) {
+                            appendMsg(d);
+                        }
                     }
                 });
             });
