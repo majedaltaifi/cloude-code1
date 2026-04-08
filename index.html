@@ -1428,14 +1428,18 @@
 
         async function markChatRead(sid) {
             try {
-                const snap = await db.collection('chat_messages').where('session_id', '==', sid).where('is_read', '==', false).get();
+                // Remove the is_read filter from the database query to avoid composite index requirement
+                const snap = await db.collection('chat_messages').where('session_id', '==', sid).get();
                 const batch = db.batch();
                 snap.docs.forEach(doc => {
-                    if(doc.data().sender_no !== currentUser.emp_no) batch.update(doc.ref, {is_read: true});
+                    const d = doc.data();
+                    if(d.sender_no !== currentUser.emp_no && d.is_read === false) {
+                        batch.update(doc.ref, {is_read: true});
+                    }
                 });
                 await batch.commit();
                 delete unreadChats[sid]; updateChatBadges();
-            } catch (e) { }
+            } catch (e) { console.error("Mark read error:", e); }
         }
 
         function renderHRNews() {

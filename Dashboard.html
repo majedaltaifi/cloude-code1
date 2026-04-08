@@ -722,8 +722,32 @@
 
         function closeModal() { document.getElementById('detailModal').classList.remove('active'); }
 
-        setInterval(reloadAll, 10000); // 10s refresh for admin
-        reloadAll();
+        function initDashboardSync() {
+            // Real-time Reports Sync
+            db.collection('reports').onSnapshot(snap => {
+                allRep = snap.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                const openCount = allRep.filter(r => (r.status||'').toLowerCase() === 'open').length;
+                const doneCount = allRep.filter(r => (r.status||'').toLowerCase() === 'done').length;
+
+                document.getElementById('stat-total').innerText = allRep.length;
+                document.getElementById('stat-pending').innerText = openCount;
+                document.getElementById('stat-resolved').innerText = doneCount;
+                
+                renderData();
+                renderSites();
+                if(chatTabMode === 'incidents') renderChatList();
+            }, err => console.error("Reports Sync Error:", err));
+
+            // Real-time Support Sync
+            db.collection('support_requests').onSnapshot(snap => {
+                helpTix = snap.docs.map(doc => doc.data());
+                document.getElementById('stat-support').innerText = helpTix.length;
+                renderData();
+            }, err => console.error("Support Sync Error:", err));
+        }
+
+        initDashboardSync();
     </script>
 </body>
 </html>
