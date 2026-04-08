@@ -1274,10 +1274,10 @@
                 const API = window.location.origin;
         let currentUser = null;
 
-        let reports = [];
-        let unreadChats = {};
+        let reports = [], notifs = [], readLocally = new Set(), activeRoom = null, isDirectMode = false, isP2P = false, targetPeer = null, imgB64 = null, unreadChats = {};
         let chatOpenedAt = 0;
-        let unsubSync = null, unsubDirect = null, unsubP2P = null;
+        let unsubChat = null, unsubDirect = null, unsubP2P = null;
+        let currentType = 'safety', currentSubType = '';
 
         const subCats = {
             safety: ['Fire Hazard', 'Personal Injury', 'Spillage', 'Slip/Trip'],
