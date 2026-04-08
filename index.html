@@ -1836,9 +1836,10 @@
             let latestDirect = 'Direct communication with CIT Admin';
             let directTime = 0;
             try {
-                const dirSnap = await db.collection('chat_messages').where('session_id', '==', sidDir).orderBy('created_at', 'desc').limit(1).get();
+                const dirSnap = await db.collection('chat_messages').where('session_id', '==', sidDir).get();
                 if(!dirSnap.empty) {
-                    const m = dirSnap.docs[0].data();
+                    // Manual sorting to avoid index requirement
+                    const m = dirSnap.docs.sort((a,b) => new Date(b.data().created_at) - new Date(a.data().created_at))[0].data();
                     const prefix = m.role === 'admin' ? 'Admin: ' : 'Me: ';
                     latestDirect = prefix + (m.content || m.message || '');
                     directTime = new Date(m.created_at).getTime();
@@ -1909,8 +1910,9 @@
             switchScreen('chat');
 
             try {
-                const snap = await db.collection('chat_messages').where('session_id', '==', `direct_${currentUser.emp_no}`).orderBy('created_at', 'asc').get();
-                document.getElementById('chat-msgs').innerHTML = snap.docs.map(m => renderMsg(m.data())).join('');
+                const snap = await db.collection('chat_messages').where('session_id', '==', `direct_${currentUser.emp_no}`).get();
+                const msgs = snap.docs.map(m => m.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                document.getElementById('chat-msgs').innerHTML = msgs.map(m => renderMsg(m)).join('');
                 const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
             } catch (e) { }
         }
@@ -1932,8 +1934,9 @@
             initChatWS(`report_${rid}`);
             
             try {
-                const snap = await db.collection('chat_messages').where('session_id', '==', `report_${rid}`).orderBy('created_at', 'asc').get();
-                document.getElementById('chat-msgs').innerHTML = snap.docs.map(m => renderMsg(m.data())).join('');
+                const snap = await db.collection('chat_messages').where('session_id', '==', `report_${rid}`).get();
+                const msgs = snap.docs.map(m => m.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                document.getElementById('chat-msgs').innerHTML = msgs.map(m => renderMsg(m)).join('');
                 const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
             } catch (e) { }
         }
