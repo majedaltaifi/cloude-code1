@@ -1840,84 +1840,59 @@
             const container = document.getElementById('chat-report-list');
             const circles = document.getElementById('active-peers');
             if (!container || !circles) return;
-
-            let circleHTML = `<div class="peer-node" onclick="openDirectChat()"><div class="peer-circ" style="border-color:#e2e8f0"><div class="icon-placeholder" style="background:#f1f5f9; color:var(--primary)"><i class="fas fa-headset"></i></div></div><span class="peer-name-mini">Admin</span></div>`;
-            circles.innerHTML = circleHTML;
-
-            const sidDir = `direct_${currentUser.emp_no}`;
-            const unreadDirect = unreadChats[sidDir] || 0;
-            let latestDirect = 'Direct communication with CIT Admin';
-            let directTime = 0;
-            try {
-                const dirSnap = await db.collection('chat_messages').where('session_id', '==', sidDir).get();
-                if(!dirSnap.empty) {
-                    // Manual sorting to avoid index requirement
-                    const m = dirSnap.docs.sort((a,b) => new Date(b.data().created_at) - new Date(a.data().created_at))[0].data();
-                    const prefix = m.role === 'admin' ? 'Admin: ' : 'Me: ';
-                    latestDirect = prefix + (m.content || m.message || '');
-                    directTime = new Date(m.created_at).getTime();
-                }
-            } catch(e){}
-
-            const directData = {
-                time: directTime,
-                html: `<div class="chat-hub-row" onclick="openDirectChat()" style="background:#e0f2fe; border-radius:24px; margin-bottom:15px; border:1px solid #bae6fd; padding:18px"><div class="row-icon-cell"><div class="row-icon-circ" style="background:var(--primary); color:white; width:46px; height:46px;"><i class="fas fa-user-shield"></i></div></div><div class="row-main" style="padding-left:10px"><div class="row-header"><span class="row-title" style="font-size:15px">Management Support</span><span class="row-date" style="color:var(--accent)">${directTime ? new Date(directTime).toLocaleDateString('en-GB') : ''}</span></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px"><div class="row-subtext" style="color:#64748b; font-size:13px; font-weight:900">${latestDirect}</div>${unreadDirect > 0 ? `<div class="chat-badge-hub" style="margin-top:0">${unreadDirect}</div>` : ''}</div></div></div>`
-            };
-
-            let allRows = [directData];
+            circles.innerHTML = `<div class="peer-node" onclick="openDirectChat()"><div class="peer-circ" style="border-color:#e2e8f0"><div class="icon-placeholder" style="background:#f1f5f9; color:var(--primary)"><i class="fas fa-headset"></i></div></div><span class="peer-name-mini">Admin</span></div>`;
 
             try {
+                const sidDir = `direct_${currentUser.emp_no}`;
+                const unreadChats = {}; // Local for speed if needed or use global
                 const sSnap = await db.collection('chat_sessions').where('participants', 'array-contains', currentUser.emp_no).get();
-                const p2ps = await Promise.all(sSnap.docs.map(async doc => {
-                    const d = doc.data();
+                const allSessions = await Promise.all(sSnap.docs.map(async doc => {
                     const sid = doc.id;
-                    if(sid.startsWith('report_') || sid.startsWith('direct_')) return null;
-                    const otherID = d.participants.find(p=>p!==currentUser.emp_no);
+                    const d = doc.data();
                     const unread = unreadChats[sid] || 0;
-                    let targetName = "Employee #"+otherID;
-                    try {
-                        const empSnap = await db.collection('employees').doc(otherID).get();
-                        if(empSnap.exists) targetName = empSnap.data().name_en || empSnap.data().name_ar || targetName;
-                    }catch(e){}
-                    const time = new Date(d.updated_at).getTime();
-                    return { time: time, html: `<div class="chat-hub-row" onclick="openPrivateChat('${otherID}', '${targetName.replace(/'/g,"\\'")}')"><div class="row-icon-cell"><div class="row-icon-circ"><i class="fas fa-user"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title">${targetName}</span><span class="row-date">${time ? new Date(time).toLocaleDateString('en-GB') : ''}</span></div><div style="display:flex; justify-content:space-between; align-items:flex-start"><div class="row-subtext">${d.last_message||''}</div>${unread > 0 ? `<div class="chat-badge-hub">${unread}</div>` : ''}</div></div></div>` };
-                }));
-                allRows = allRows.concat(p2ps.filter(p=>p!==null));
-            } catch(e){}
-
-            const reportRows = await Promise.all(reports.filter(r => (r.status || '').toLowerCase() !== 'done').map(async r => {
-                const sid = `report_${r.id}`;
-                const unread = unreadChats[sid] || 0;
-                let title = `# CASE ${String(r.id)}`;
-                let latestText = '';
-                let rTime = 0;
-                
-                try {
-                    const hSnap = await db.collection('chat_messages').where('session_id', '==', sid).get();
-                    if(!hSnap.empty) {
-                        const msgs = hSnap.docs.map(doc => doc.data()).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                        const hasAdmin = msgs.some(m => m.role === 'admin' || m.role === 'assistant');
-                        const hasUser = msgs.some(m => m.sender_no === currentUser.emp_no);
+                    const time = new Date(d.updated_at || d.created_at || new Date()).getTime();
+                    
+                    if (sid.startsWith('direct_')) {
+                        return { time, html: `<div class="chat-hub-row" onclick="openDirectChat()" style="background:#e0f2fe; border-radius:24px; margin-bottom:15px; border:1px solid #bae6fd; padding:18px"><div class="row-icon-cell"><div class="row-icon-circ" style="background:var(--primary); color:white; width:46px; height:46px;"><i class="fas fa-user-shield"></i></div></div><div class="row-main" style="padding-left:10px"><div class="row-header"><span class="row-title" style="font-size:15px">Management Support</span><span class="row-date" style="color:var(--accent)">${time ? new Date(time).toLocaleDateString('en-GB') : ''}</span></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px"><div class="row-subtext" style="color:#64748b; font-size:13px; font-weight:900">${d.last_message || 'Direct communication...'}</div>${unread > 0 ? `<div class="chat-badge-hub" style="margin-top:0">${unread}</div>` : ''}</div></div></div>` };
+                    } else if (sid.startsWith('p2p_')) {
+                        const otherID = d.participants.find(p => p !== currentUser.emp_no);
+                        if(!otherID) return null;
+                        let targetName = "Employee #" + otherID;
+                        try {
+                            const empSnap = await db.collection('employees').doc(otherID).get();
+                            if(empSnap.exists) targetName = empSnap.data().name_en || empSnap.data().name_ar || targetName;
+                        } catch(e) {}
+                        return { time, html: `<div class="chat-hub-row" onclick="openPrivateChat('${otherID}', '${targetName.replace(/'/g,"\\'")}')"><div class="row-icon-cell"><div class="row-icon-circ"><i class="fas fa-user"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title">${targetName}</span><span class="row-date">${time ? new Date(time).toLocaleDateString('en-GB') : ''}</span></div><div style="display:flex; justify-content:space-between; align-items:flex-start"><div class="row-subtext">${d.last_message || ''}</div>${unread > 0 ? `<div class="chat-badge-hub">${unread}</div>` : ''}</div></div></div>` };
+                    } else if (sid.startsWith('report_')) {
+                        const rid = sid.replace('report_', '');
+                        const rData = reports.find(r => String(r.id) === rid);
+                        if (!rData || (rData.status || '').toLowerCase() === 'done') return null;
+                        
+                        const hSnap = await db.collection('chat_messages').where('session_id', '==', sid).get();
+                        const hasAdmin = hSnap.docs.some(m => m.data().role === 'admin' || m.data().role === 'assistant');
+                        const hasUser = hSnap.docs.some(m => m.data().sender_no === currentUser.emp_no);
                         if (!hasAdmin && !hasUser) return null;
 
-                        const m = msgs[0];
-                        let prefix = 'Me: ';
-                        if(m.role === 'admin') prefix = 'Admin: ';
-                        else if(m.role === 'assistant') prefix = 'Assistant: ';
-                        else if(m.sender_no !== currentUser.emp_no) prefix = (m.sender_name || 'Employee') + ': ';
-                        
-                        latestText = prefix + (m.content || m.message || ''); 
-                        rTime = new Date(m.created_at).getTime();
-                    } else {
-                        return null;
+                        return { time, html: `<div class="chat-hub-row" onclick="openReportChat('${rid}', 'chat-list')"><div class="row-icon-cell"><div class="row-icon-circ"><i class="fas fa-comment-dots"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title"># CASE ${rid}</span><span class="row-date">${time ? new Date(time).toLocaleDateString('en-GB') : ''}</span></div><div style="display:flex; justify-content:space-between; align-items:flex-start"><div class="row-subtext">${d.last_message || ''}</div>${unread > 0 ? `<div class="chat-badge-hub">${unread}</div>` : ''}</div></div></div>` };
                     }
-                } catch(e){ return null; }
+                    return null;
+                }));
 
-                return { time: rTime, html: `<div class="chat-hub-row" onclick="openReportChat('${r.id}', 'chat-list')"><div class="row-icon-cell"><div class="row-icon-circ"><i class="fas fa-comment-dots"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title">${title}</span><span class="row-date">${new Date(rTime).toLocaleDateString('en-GB')}</span></div><div style="display:flex; justify-content:space-between; align-items:flex-start"><div class="row-subtext">${latestText.substring(0, 80)}</div>${unread > 0 ? `<div class="chat-badge-hub">${unread}</div>` : ''}</div></div></div>` };
-            }));
-            allRows = allRows.concat(reportRows.filter(r => r !== null));
-            allRows.sort((a, b) => b.time - a.time);
-            container.innerHTML = allRows.map(r => r.html).join('');
+                const rows = allSessions.filter(r => r !== null).sort((a,b) => b.time - a.time);
+                container.innerHTML = rows.map(r => r.html).join('') || '<p style="text-align:center; padding:40px; opacity:0.5; font-weight:900">No active conversations found</p>';
+                
+                if(!allSessions.some(s => s && s.html.includes('Management Support'))) {
+                   const hSnap = await db.collection('chat_messages').where('session_id', '==', sidDir).get();
+                   if(!hSnap.empty) {
+                       const msgs = hSnap.docs.map(doc => doc.data()).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                       const m = msgs[0];
+                       const time = new Date(m.created_at).getTime();
+                       const unread = unreadChats[sidDir] || 0;
+                       const rowHTML = `<div class="chat-hub-row" onclick="openDirectChat()" style="background:#e0f2fe; border-radius:24px; margin-bottom:15px; border:1px solid #bae6fd; padding:18px"><div class="row-icon-cell"><div class="row-icon-circ" style="background:var(--primary); color:white; width:46px; height:46px;"><i class="fas fa-user-shield"></i></div></div><div class="row-main" style="padding-left:10px"><div class="row-header"><span class="row-title" style="font-size:15px">Management Support</span><span class="row-date">${new Date(time).toLocaleDateString('en-GB')}</span></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px"><div class="row-subtext" style="color:#64748b; font-size:13px; font-weight:900">${m.content || m.message || ''}</div>${unread > 0 ? `<div class="chat-badge-hub" style="margin-top:0">${unread}</div>` : ''}</div></div></div>`;
+                       container.innerHTML = rowHTML + container.innerHTML;
+                   }
+                }
+            } catch (e) { console.error("Chat hub error:", e); }
         }
 
         async function openDirectChat() {
@@ -2030,12 +2005,14 @@
 
             try {
                 await db.collection('chat_messages').add(d);
-                if(isP2P) {
-                    await db.collection('chat_sessions').doc(sid).set({
-                        participants: participants, updated_at: ts, last_message: `${myName}: ${msg}`.substring(0, 50)
-                    }, {merge: true});
-                }
-            } catch(e) { }
+                // Update or create session for ALL types to ensure persistence in Chat Hub
+                await db.collection('chat_sessions').doc(sid).set({
+                    participants: participants,
+                    updated_at: ts,
+                    last_message: `${myName}: ${msg}`.substring(0, 50),
+                    type: isDirectMode ? 'direct' : (isP2P ? 'p2p' : 'report')
+                }, { merge: true });
+            } catch (e) { console.error("Chat persistence error:", e); }
         }
 
         function closeChat() {
