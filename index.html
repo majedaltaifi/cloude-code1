@@ -1844,7 +1844,6 @@
 
             try {
                 const sidDir = `direct_${currentUser.emp_no}`;
-                const unreadChats = {}; // Local for speed if needed or use global
                 const sSnap = await db.collection('chat_sessions').where('participants', 'array-contains', currentUser.emp_no).get();
                 const allSessions = await Promise.all(sSnap.docs.map(async doc => {
                     const sid = doc.id;
