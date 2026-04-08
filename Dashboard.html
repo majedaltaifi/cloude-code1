@@ -297,38 +297,51 @@
             }
         }
 
+        let unsubDirectList = null;
+        function initChatCenterSync() {
+            if (unsubDirectList) unsubDirectList();
+            unsubDirectList = db.collection('chat_sessions').onSnapshot(async snap => {
+                if (chatTabMode !== 'direct' || document.getElementById('emp-chat-search').value.trim()) return;
+                const list = document.getElementById('chat-center-list');
+                const sessions = snap.docs.map(doc => ({id: doc.id, ...doc.data()}))
+                                    .filter(s => s.id.startsWith('direct_'))
+                                    .sort((a,b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+                
+                if (sessions.length === 0) {
+                    list.innerHTML = '<p style="text-align:center; padding:20px; opacity:0.5">Enter ID to start or wait for messages</p>';
+                    return;
+                }
+
+                list.innerHTML = '<p style="font-size:11px; opacity:0.4; margin:10px 15px; font-weight:900">ACTIVE DIRECT CHATS</p>';
+                for (let s of sessions) {
+                    const empId = s.id.replace('direct_', '');
+                    let eName = "Employee #" + empId;
+                    try {
+                        const eSnap = await db.collection('employees').doc(empId).get();
+                        if (eSnap.exists) eName = eSnap.data().name_en || eSnap.data().name_ar || eName;
+                    } catch(e) {}
+                    list.innerHTML += `
+                        <div class="ticket-item ${activeEmpId == empId ? 'active' : ''}" onclick="selectDirectChat('${empId}', '${eName.replace(/'/g, "\\'")}')">
+                            <div style="display:flex; justify-content:space-between; align-items:center">
+                                <div><b>${eName}</b><br><small>#${empId}</small></div>
+                                <div style="font-size:9px; opacity:0.5">${s.last_message ? s.last_message.substring(0, 15) + '...' : ''}</div>
+                            </div>
+                        </div>`;
+                }
+            });
+        }
+
         async function searchEmployees() {
             const q = document.getElementById('emp-chat-search').value.trim();
             const list = document.getElementById('chat-center-list');
             
             if(!q) { 
-                try {
-                    const snap = await db.collection('chat_messages')
-                        .where('role', '==', 'employee')
-                        .limit(20).get();
-                    
-                    const activeIds = [...new Set(snap.docs.map(doc => doc.data().sender_no))].filter(id => id && id !== 'admin');
-                    
-                    if(activeIds.length) {
-                        list.innerHTML = '<p style="font-size:11px; opacity:0.4; margin:10px 15px; font-weight:900">ACTIVE CHATS</p>';
-                        for(let id of activeIds) {
-                            const empSnap = await db.collection('employees').doc(id).get();
-                            if(empSnap.exists) {
-                                let e = empSnap.data();
-                                list.innerHTML += `
-                                    <div class="ticket-item ${activeEmpId == e.emp_no ? 'active' : ''}" onclick="selectDirectChat('${e.emp_no}', '${e.name_en || e.name}')">
-                                        <b>#${e.emp_no}</b><br><small>${e.name_en || e.name} • ${e.department || 'Field'}</small>
-                                    </div>`;
-                            }
-                        }
-                        return;
-                    }
-                } catch(e){}
-                list.innerHTML = '<p style="text-align:center; padding:20px; opacity:0.5">Enter ID (1-5000) to start chat</p>'; 
+                initChatCenterSync(); 
                 return; 
             }
+            if (unsubDirectList) { unsubDirectList(); unsubDirectList = null; } 
+
             try {
-                // Simplified search for Firebase
                 let snap;
                 if(!isNaN(q)) {
                     snap = await db.collection('employees').where('emp_no', '==', q).get();
@@ -337,7 +350,7 @@
                 }
                 
                 list.innerHTML = (snap.docs.map(d => d.data()) || []).map(e => `
-                    <div class="ticket-item ${activeEmpId == e.emp_no ? 'active' : ''}" onclick="selectDirectChat('${e.emp_no}', '${e.name_en || e.name}')">
+                    <div class="ticket-item ${activeEmpId == e.emp_no ? 'active' : ''}" onclick="selectDirectChat('${e.emp_no}', '${(e.name_en || e.name).replace(/'/g, "\\'")}')">
                         <b>ID #${e.emp_no}</b><br><small>${e.name_en || e.name} • ${e.department || 'Field'}</small>
                     </div>
                 `).join('') || '<p style="text-align:center; padding:20px">Not found</p>';
@@ -748,8 +761,7 @@
         }
 
         initDashboardSync();
+        initChatCenterSync();
     </script>
-</body>
-</html>
 </body>
 </html>
