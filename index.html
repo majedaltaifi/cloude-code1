@@ -1326,11 +1326,11 @@
             const siteEng = siteRaw.match(/\((.*?)\)/) ? siteRaw.match(/\((.*?)\)/)[1] : siteRaw.replace(/[^\x00-\x7F]/g, "").trim() || siteRaw;
 
             document.getElementById('dr-name').innerText = engName;
-            document.getElementById('dr-id').innerText = '#' + currentUser.emp_no;
+            document.getElementById('dr-id').innerText = currentUser.emp_no;
             document.getElementById('hm-name').innerText = engName;
-            document.getElementById('hm-id').innerText = `EMP ID: #${currentUser.emp_no} • ${siteEng}`;
+            document.getElementById('hm-id').innerText = `EMP ID: ${currentUser.emp_no} • ${siteEng}`;
             document.getElementById('supp-name-disp').value = engName;
-            document.getElementById('supp-id-disp').value = '#' + currentUser.emp_no;
+            document.getElementById('supp-id-disp').value = currentUser.emp_no;
         }
 
         async function doLogin() {
@@ -1606,16 +1606,27 @@
             document.getElementById('subBtn').innerText = 'Syncing...';
             const dsBody = currentSubType ? `[${currentSubType}] ${ds}` : ds;
             try {
+                // Determine next ID
+                let nextId = 1;
+                const snap = await db.collection('reports').get();
+                if (!snap.empty) {
+                    const ids = snap.docs.map(d => parseInt(d.id)).filter(id => !isNaN(id));
+                    if (ids.length > 0) nextId = Math.max(...ids) + 1;
+                }
+
                 const tsString = new Date().toISOString();
                 const dOnly = tsString.split('T')[0];
-                const ref = await db.collection('reports').add({
+                const reportData = {
                     emp_no: currentUser.emp_no, type: currentType, priority: 'Normal', site: chosenSite, description: dsBody, photo_b64: imgB64,
                     status: 'open', created_at: tsString, created_on: dOnly, updated_on: dOnly
-                });
-                await db.collection('reports').doc(ref.id).collection('timeline').add({
+                };
+
+                await db.collection('reports').doc(String(nextId)).set(reportData);
+                await db.collection('reports').doc(String(nextId)).collection('timeline').add({
                     event_text: 'Case Logged', event_by: 'System', color: 'var(--accent)', created_at: tsString
                 });
-                alert('Sent!'); document.getElementById('f-desc').value = ''; currentSubType = ''; renderSubTypes(); imgB64 = null; document.getElementById('prevImg').style.display = 'none'; document.getElementById('phold').style.display = 'flex'; switchScreen('reports');
+                alert('Sent! Case #' + nextId); 
+                document.getElementById('f-desc').value = ''; currentSubType = ''; renderSubTypes(); imgB64 = null; document.getElementById('prevImg').style.display = 'none'; document.getElementById('phold').style.display = 'flex'; switchScreen('reports');
             } catch (e) { alert('Connection Error: ' + e); }
             document.getElementById('subBtn').innerText = 'SUBMIT CASE';
         }
@@ -1646,7 +1657,7 @@
                     <div>
                         <div class="t-body" style="color:var(--accent); text-transform:uppercase; font-size:14px; margin-bottom:2px">${i.type}</div>
                         <div style="font-size:11px; font-weight:900; color:var(--primary)">${(i.description||'').substring(0, 45)}...</div>
-                        <div style="font-size:9px; font-weight:950; color:${isClosed ? '#22c55e' : '#38bdf8'}; margin-top:4px">CASE #${String(i.id||'').substring(0,5)} | ${isClosed ? 'DONE' : 'IN PROG'}</div>
+                        <div style="font-size:9px; font-weight:950; color:${isClosed ? '#22c55e' : '#38bdf8'}; margin-top:4px"># CASE ${String(i.id || '')} | ${isClosed ? 'DONE' : 'IN PROG'}</div>
                     </div>
                 </div>`;
             }).join('') || 'No data';
@@ -1670,7 +1681,7 @@
                             <div>
                                 <div style="font-size:14px; font-weight:900; color:var(--accent); text-transform:uppercase; margin-bottom:2px">${i.type}</div>
                                 <div style="font-size:11px; font-weight:900; color:var(--primary)">${subType}</div>
-                                <div style="font-size:9px; font-weight:950; color:#94a3b8; margin-top:4px">CASE #${String(i.id||'').substring(0,5)} • ${i.site}</div>
+                                <div style="font-size:9px; font-weight:950; color:#94a3b8; margin-top:4px"># CASE ${String(i.id || '')} • ${i.site}</div>
                             </div>
                             <div class="activity-pill ${isDone ? 'done' : ''}" style="font-size:9px">${isDone ? 'CLOSED' : 'RUNNING'}</div>
                         </div>
@@ -1927,7 +1938,7 @@
 
             document.getElementById('chat-input-area').style.display = isClosed ? 'none' : 'flex';
             document.getElementById('chat-lock-area').style.display = isClosed ? 'flex' : 'none';
-            document.getElementById('chat-title').innerText = "CHAT #" + String(rid).substring(0,5);
+            document.getElementById('chat-title').innerText = "# CASE " + String(rid);
             
             switchScreen('chat');
             markChatRead(`report_${rid}`);

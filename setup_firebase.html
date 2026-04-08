@@ -49,8 +49,7 @@
                 let end = Math.min(current + 490, target); 
                 
                 for(let i = current; i <= end; i++) {
-                    // جعل الرقم بصيغة 4 خانات (0001, 0002 ... 5000) يمكن تعديلها لو أحببت
-                    let empStr = String(i).padStart(4, '0');
+                    let empStr = String(i);
                     let docRef = doc(db, "employees", empStr);
                     batch.set(docRef, {
                         emp_no: empStr,
