@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NIT Field App | Auto-ID Connect</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NIT Field">
+    <link rel="apple-touch-icon" href="icon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;900&display=swap" rel="stylesheet">
     <style>
@@ -41,6 +46,34 @@
             padding: 12px;
             border: 5px solid #1e293b;
             position: relative;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 500px) {
+            body {
+                background: #f1f5f9;
+                padding: 0;
+                overflow: hidden;
+            }
+            .phone-frame {
+                width: 100vw;
+                height: 100vh;
+                border: none;
+                border-radius: 0;
+                padding: 0;
+                margin: 0;
+            }
+            .app-container {
+                border-radius: 0;
+                height: 100%;
+            }
+            .header {
+                padding-top: env(safe-area-inset-top, 40px);
+            }
+            .navbar {
+                padding-bottom: env(safe-area-inset-bottom, 20px);
+                height: calc(85px + env(safe-area-inset-bottom, 0px));
+            }
         }
 
         .app-container {
@@ -2034,7 +2067,14 @@
         function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
         function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
         
-        window.onload = initApp;
+        window.onload = () => {
+            initApp();
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(() => console.log('Service Worker Registered'))
+                    .catch(err => console.error('Service Worker Registry Failed', err));
+            }
+        };
     </script>
 </body>
 
