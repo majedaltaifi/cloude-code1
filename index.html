@@ -1024,8 +1024,9 @@
             <div class="screen active" id="s-home">
                 <header class="header">
                     <i class="fas fa-bars" onclick="openDrawer()"></i>
-                    <img src="https://www.constructionweeksaudi.com/cloud/2023/10/04/BeNyKTp9-1641473514287-1200x449.jpg"
-                        style="height:25px; object-fit:contain">
+                    <div class="logo-area">
+                        <div style="font-weight:900; font-size:18px; border:1px solid var(--accent); padding:2px 8px; border-radius:4px; color:var(--accent); box-shadow:0 0 10px var(--accent)">NIT</div>
+                    </div>
                     <div class="bell-container" onclick="switchScreen('notifs')">
                         <i class="fas fa-bell"></i>
                         <div id="bell-dot" class="bell-badge"></div>
@@ -1417,43 +1418,6 @@
         }
 
         async function doLogin() {
-            let id = document.getElementById('login-id').value.trim();
-            const btn = document.getElementById('login-btn'), err = document.getElementById('login-err');
-            if (!id) return;
-            btn.innerText = 'VERIFYING...'; err.style.display = 'none';
-            try {
-                // First try: Normal ID search
-                let docSnap = await db.collection('employees').doc(id).get();
-
-                // Second try: If number, try padded version (0001)
-                if (!docSnap.exists && /^\d+$/.test(id)) {
-                    const padded = id.padStart(4, '0');
-                    if (padded !== id) {
-                        docSnap = await db.collection('employees').doc(padded).get();
-                    }
-                }
-
-                // Third try: Global query for robustness
-                if (!docSnap.exists) {
-                    const qSnap = await db.collection('employees').where('emp_no', '==', id).get();
-                    if (!qSnap.empty) docSnap = qSnap.docs[0];
-                }
-
-                if (!docSnap || !docSnap.exists) throw new Error('ID_NOT_FOUND');
-
-                currentUser = docSnap.data();
-                if (!currentUser.emp_no) currentUser.emp_no = id;
-                localStorage.setItem('nit_user', JSON.stringify(currentUser));
-
-                document.getElementById('s-login').style.display = 'none';
-                document.querySelector('.navbar').style.display = 'flex';
-                switchScreen('home', 'bn-home');
-                updateProfileUI();
-                db.collection('employees').doc(currentUser.emp_no).update({ is_online: true }).catch(() => { });
-                startHub();
-            } catch (e) {
-                err.style.display = 'block';
-                btn.innerText = 'SIGN IN';
             }
         }
 
