@@ -11,373 +11,60 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+
         :root {
             --primary: #0f172a;
             --accent: #38bdf8;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
+            --bg: #f1f5f9;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #cbd5e1; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        .phone-frame { width: 380px; height: 820px; background: #000; border-radius: 55px; position: relative; padding: 10px; box-shadow: 0 50px 100px rgba(0,0,0,0.5); border: 10px solid #1e293b; }
+        .phone-frame::before { content: ''; position: absolute; top: 22px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: #000; border-radius: 20px; z-index: 1000; }
+        .app-container { width: 100%; height: 100%; background: #f8fafc; border-radius: 45px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        .screen { display: none; flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 120px; }
+        .screen.active { display: flex; flex-direction: column; }
 
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        .header { background: var(--primary); padding: 50px 25px 20px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 100; }
+        .header h1 { font-size: 18px; font-weight: 900; letter-spacing: 2px; }
 
-        .phone-frame {
-            width: 375px;
-            height: 812px;
-            background: #000;
-            border-radius: 55px;
-            position: relative;
-            padding: 12px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.6);
-            border: 8px solid #334155;
-            transition: 0.3s;
-        }
+        .user-profile-card { background: white; padding: 25px; border-radius: 35px; margin: 20px 0; display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-left: 6px solid var(--accent); position: relative; overflow: hidden; }
+        .user-info h2 { font-size: 22px; font-weight: 900; color: #1e293b; }
+        .user-info p { font-size: 11px; font-weight: 900; color: var(--accent); margin-top: 4px; }
 
-        .phone-frame::before {
-            content: '';
-            position: absolute;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 30px;
-            background: #000;
-            border-radius: 20px;
-            z-index: 1000;
-        }
+        .broadcast-card { background: #1e293b; padding: 30px; border-radius: 40px; color: white; margin-bottom: 25px; }
+        .broadcast-item { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; }
+        .broadcast-icon { width: 42px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        .broadcast-txt span { font-size: 10px; font-weight: 900; opacity: 0.5; text-transform: uppercase; }
+        .broadcast-txt p { font-size: 15px; font-weight: 900; color: var(--accent); }
 
-        .app-container {
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
-            border-radius: 42px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
+        .recent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .recent-header h3 { font-size: 12px; font-weight: 900; color: #94a3b8; text-transform: uppercase; }
+        .recent-header a { font-size: 12px; font-weight: 900; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 5px; }
 
-        .screen {
-            display: none;
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            padding-bottom: 100px;
-        }
+        .timeline { position: relative; padding-left: 20px; margin-left: 10px; }
+        .timeline::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 2px; background: #f1f5f9; }
+        .tm-item { position: relative; margin-bottom: 25px; }
+        .tm-dot { position: absolute; left: -25px; top: 6px; width: 12px; height: 12px; background: var(--accent); border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); z-index: 10; }
+        .tm-card { background: white; padding: 20px; border-radius: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.02); cursor: pointer; }
+        .tm-title { font-size: 14px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
+        .tm-status { font-size: 10px; font-weight: 900; color: #94a3b8; }
 
-        .screen.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .login-bg {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            text-align: center;
-            color: white;
-        }
-
-        .glow-text {
-            font-weight: 900;
-            font-size: 64px;
-            color: var(--accent);
-            text-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
-            letter-spacing: -3px;
-        }
-
-        .login-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            padding: 40px 30px;
-            border-radius: 35px;
-            width: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 40px;
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 40px 0 15px;
-        }
-
-        .header h1 {
-            font-size: 16px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        .type-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .type-box {
-            background: white;
-            padding: 25px;
-            border-radius: 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 2px solid transparent;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            cursor: pointer;
-        }
-
-        .type-box i {
-            width: 45px;
-            height: 45px;
-            background: rgba(56, 189, 248, 0.1);
-            color: var(--accent);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 12px;
-        }
-
-        .type-box.active {
-            border-color: var(--accent);
-            background: #f0f9ff;
-        }
-
-        .type-box span {
-            font-size: 13px;
-            font-weight: 900;
-            color: #475569;
-        }
-
-        .sub-type-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .sub-type-item {
-            padding: 10px 18px;
-            background: white;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 900;
-            color: #475569;
-            border: 1.5px solid #e2e8f0;
-            cursor: pointer;
-        }
-
-        .sub-type-item.active {
-            background: var(--accent);
-            color: white;
-            border-color: var(--accent);
-        }
-
-        .input-group {
-            background: white;
-            padding: 20px;
-            border-radius: 22px;
-            border: 1px solid #e2e8f0;
-            margin-bottom: 15px;
-        }
-
-        textarea {
-            width: 100%;
-            border: none;
-            resize: none;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--primary);
-            background: transparent;
-            min-height: 100px;
-            outline: none;
-        }
-
-        .photo-upload {
-            border: 2px dashed #cbd5e1;
-            border-radius: 22px;
-            height: 140px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            margin-bottom: 25px;
-            background: white;
-            cursor: pointer;
-        }
-
-        .btn-p {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            padding: 22px;
-            border-radius: 24px;
-            border: none;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);
-        }
-
-        .navbar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #ffffff;
-            height: 90px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid #f1f5f9;
-            padding: 0 10px 10px;
-            z-index: 100;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            color: #94a3b8;
-            cursor: pointer;
-            flex: 1;
-        }
-
-        .nav-item.active {
-            color: var(--accent);
-        }
-
+        .navbar { background: white; height: 95px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #f1f5f9; position: absolute; bottom: 0; width: 100%; z-index: 200; padding-bottom: 10px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; gap: 4px; cursor: pointer; flex: 1; }
+        .nav-item.active { color: var(--primary); }
         .nav-item i { font-size: 20px; }
         .nav-item span { font-size: 9px; font-weight: 900; text-transform: uppercase; }
 
-        .nav-fab {
-            width: 65px;
-            height: 65px;
-            background: var(--accent);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 26px;
-            margin-top: -45px;
-            border: 6px solid white;
-            box-shadow: 0 12px 25px rgba(56, 189, 248, 0.4);
-            cursor: pointer;
-        }
+        .fab-hub { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 15px; z-index: 300; }
+        .main-plus { width: 70px; height: 70px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 30px; border: 6px solid white; box-shadow: 0 15px 35px rgba(56, 189, 248, 0.45); cursor: pointer; }
+        .wa-float { width: 50px; height: 50px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3); cursor: pointer; }
 
-        .drawer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 280px;
-            height: 100%;
-            background: var(--primary);
-            z-index: 5000;
-            padding: 60px 25px;
-            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            color: white;
-            transform: translateX(-100%);
-            box-shadow: 15px 0 30px rgba(0,0,0,0.3);
-        }
-
+        .drawer { position: absolute; top: 0; left: 0; width: 280px; height: 100%; background: var(--primary); z-index: 5000; padding: 60px 25px; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); color: white; transform: translateX(-100%); box-shadow: 15px 0 30px rgba(0,0,0,0.3); }
         .drawer.active { transform: translateX(0); }
-
-        .drawer-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 22px 0;
-            border-bottom: 1.5px solid rgba(255, 255, 255, 0.05);
-            cursor: pointer;
-        }
-
-        .drawer-icon {
-            width: 42px;
-            height: 42px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-        }
-
-        .drawer-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            opacity: 0;
-            pointer-events: none;
-            z-index: 2999;
-            transition: 0.3s;
-        }
-
-        .drawer-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .stat-card-main {
-            background: var(--primary);
-            padding: 30px;
-            border-radius: 35px;
-            color: white;
-            margin-bottom: 20px;
-            border: 5px solid var(--accent);
-        }
-
-        .stat-box {
-            background: white;
-            padding: 25px;
-            border-radius: 28px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-        }
-
-        .ticket-item {
-            background: white;
-            padding: 22px;
-            border-radius: 26px;
-            margin-bottom: 12px;
-            border: 1px solid #f1f5f9;
-            cursor: pointer;
-        }
-        
-        .lbl {
-            font-size: 10px;
-            font-weight: 900;
-            opacity: 0.5;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            margin-bottom: 10px;
-            display: block;
-        }
+        .drawer-item { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1.5px solid rgba(255, 255, 255, 0.05); cursor: pointer; }
+        .drawer-icon { width: 42px; height: 42px; background: rgba(255, 255, 255, 0.05); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
 
         @media (max-width: 500px) {
             .phone-frame { width: 100%; height: 100vh; border-radius: 0; border: none; padding: 0; }
@@ -429,28 +116,43 @@
                 </div>
             </div>
 
-            <!-- Home -->
+            <!-- Home Screen -->
             <div class="screen" id="s-home">
                 <header class="header">
-                    <i class="fas fa-bars" onclick="openDrawer()"></i>
+                    <i class="fas fa-bars" style="font-size:24px" onclick="openDrawer()"></i>
                     <h1>NIT FIELD</h1>
-                    <i class="fas fa-bell" onclick="switchScreen('notifs')"></i>
+                    <i class="fas fa-bell" style="font-size:24px" onclick="switchScreen('notifs')"></i>
                 </header>
-                <div style="margin:20px 0 30px">
-                    <p style="font-size:15px; opacity:0.5; font-weight:700">Good Day,</p>
-                    <h2 id="hm-name" style="font-size:28px; font-weight:900; color:var(--primary)">Officer</h2>
-                </div>
-                <div style="background:linear-gradient(135deg, #1e293b, #0f172a); padding:30px; border-radius:35px; color:white; margin-bottom:30px">
-                    <span class="lbl" style="color:white; opacity:0.5">HEADQUARTERS UPDATES</span>
-                    <div id="news-list-home"><div style="opacity:0.3; font-size:11px">Syncing news...</div></div>
-                </div>
-                <div id="latest-case-card" style="display:none">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
-                        <span class="lbl">RECENT CASES</span>
-                        <span style="font-size:11px; font-weight:900; color:var(--accent)" onclick="switchScreen('reports')">VIEW ALL</span>
+
+                <div class="user-profile-card">
+                    <div class="user-info">
+                        <h2 id="hm-name">Officer</h2>
+                        <p id="hm-full-id">EMP ID: 3734 • Riyadh HQ</p>
                     </div>
-                    <div id="mini-l"></div>
                 </div>
+
+                <div class="broadcast-card">
+                    <div class="lbl" style="color:white; opacity:0.6; margin-bottom:25px">HR & MANAGEMENT BROADCAST</div>
+                    <div class="broadcast-item">
+                        <div class="broadcast-icon"><i class="fas fa-bullhorn"></i></div>
+                        <div class="broadcast-txt"><span>HR REMINDER</span><p>Update your bank details</p></div>
+                    </div>
+                    <div class="broadcast-item">
+                        <div class="broadcast-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="broadcast-txt"><span>ZERO ABSENCES</span><p>Abdullah Salem (Mar)</p></div>
+                    </div>
+                    <div class="broadcast-item">
+                        <div class="broadcast-icon"><i class="fas fa-trophy"></i></div>
+                        <div class="broadcast-txt"><span>TOP SITE (SAFETY)</span><p>Randa Tower</p></div>
+                    </div>
+                </div>
+
+                <div class="recent-header">
+                    <h3>MY RECENT CASES</h3>
+                    <div class="view-all" onclick="switchScreen('reports')">VIEW ALL <i class="fas fa-chevron-right" style="font-size:9px"></i></div>
+                </div>
+                
+                <div id="mini-l" class="timeline"></div>
             </div>
 
             <!-- Add Case -->
@@ -527,10 +229,15 @@
             <nav class="navbar" id="main-nav">
                 <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-home"></i><span>Home</span></div>
                 <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-history"></i><span>Reports</span></div>
-                <div class="nav-fab" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
+                <div style="width:70px"></div>
                 <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')"><i class="fas fa-comment-dots"></i><span>Chat</span></div>
                 <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>Help</span></div>
             </nav>
+
+            <div class="fab-hub" id="fab-hub">
+                <div class="main-plus" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
+                <div class="wa-float" onclick="switchScreen('support')"><i class="fab fa-whatsapp"></i></div>
+            </div>
         </div>
     </div>
 
@@ -607,8 +314,16 @@
             const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
             if(!f || !m) return;
             f.innerHTML = reports.map(r => `<div class="ticket-item" onclick="openDetail('${r.id}')"><div style="font-weight:900; color:var(--accent)">${r.type}</div><div style="font-size:12px; opacity:0.6">${(r.description||'').substring(0,40)}...</div><div style="font-size:10px; margin-top:10px; font-weight:900; color:${r.status==='done'?'#22c55e':'#38bdf8'}">#${r.id} | ${(r.status||'OPEN').toUpperCase()}</div></div>`).join('') || 'No reports';
-            m.innerHTML = reports.slice(0,3).map(r => `<div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:10px" onclick="openDetail('${r.id}')"><div style="font-weight:900; color:var(--primary)">${r.type}</div><div style="font-size:11px; opacity:0.5">${(r.description||'').substring(0,30)}...</div></div>`).join('');
-            document.getElementById('latest-case-card').style.display = reports.length ? 'block' : 'none';
+            
+            m.innerHTML = reports.slice(0,3).map(r => `
+                <div class="tm-item" onclick="openDetail('${r.id}')">
+                    <div class="tm-dot"></div>
+                    <div class="tm-card">
+                        <div class="tm-title">${r.type}</div>
+                        <div class="tm-status">${(r.status||'OPEN').toUpperCase()}</div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         async function openDetail(id) {
