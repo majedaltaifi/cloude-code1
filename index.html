@@ -1359,6 +1359,17 @@
         }
 
         let isHubStarted = false;
+        function doLogout() {
+            try {
+                if (currentUser && currentUser.emp_no) {
+                    db.collection('employees').doc(String(currentUser.emp_no)).update({ is_online: false }).catch(() => { });
+                }
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) { }
+            window.location.href = window.location.pathname;
+        }
+
         async function startHub() {
             if (isHubStarted) return;
             isHubStarted = true;
