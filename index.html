@@ -220,7 +220,14 @@
             <!-- Reports -->
             <div class="screen" id="s-reports"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>INCIDENTS</h1><div style="width:20px"></div></header><div id="full-l"></div></div>
             <!-- Detail -->
-            <div class="screen" id="s-detail"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>DETAILS</h1><div style="width:20px"></div></header><div id="det-cont"></div></div>
+            <div class="screen" id="s-detail">
+                <header class="header">
+                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
+                    <h1>CASE INFO</h1>
+                    <div style="width:24px"></div>
+                </header>
+                <div id="det-cont" style="padding-top:10px"></div>
+            </div>
             <!-- Notifications -->
             <div class="screen" id="s-notifs"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>ALERTS</h1><div style="width:20px"></div></header><div id="notif-list"></div></div>
             <!-- Support -->
@@ -372,13 +379,59 @@
             `).join('') || '<p style="font-size:11px; opacity:0.3; padding:10px">No recent activity</p>';
         }
 
+
         async function openDetail(id) {
             const r = reports.find(x => String(x.id) === String(id)); if (!r) return;
             const snap = await db.collection('reports').doc(String(id)).collection('timeline').orderBy('created_at','asc').get();
             const tl = snap.docs.map(d=>d.data());
-            document.getElementById('det-cont').innerHTML = `<div class="hero-card"><span class="lbl">Summary</span><h2 style="font-weight:900; color:var(--primary)">${r.type}</h2><p style="font-size:13px; margin-top:10px">${r.description}</p></div>${r.photo_b64?`<img src="${r.photo_b64}" style="width:100%; border-radius:28px; margin-bottom:20px">`:''}<div class="hero-card"><span class="lbl">Journey</span>${tl.map(t=>`<div style="font-size:12px; margin-top:8px"><b>${t.event_text}</b><br><span style="opacity:0.5">${t.created_at.substring(0,10)}</span></div>`).join('')}</div>`;
+            
+            const cont = document.getElementById('det-cont');
+            cont.innerHTML = `
+                <div class="case-main-card" style="margin-bottom:30px">
+                    <span class="lbl-upper">SUMMARY</span>
+                    <h2 style="font-size:26px; font-weight:900; color:var(--accent); margin-bottom:20px">${r.type.toUpperCase()}</h2>
+                    <hr style="border:none; border-top:1.5px solid #f8fafc; margin-bottom:20px">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; margin-bottom:25px">
+                        <div>
+                            <span class="lbl-upper">SITE</span>
+                            <div style="font-weight:900; font-size:16px; color:var(--primary)">${r.site || 'Randa Tower'}</div>
+                        </div>
+                        <div>
+                            <span class="lbl-upper">STATUS</span>
+                            <div style="font-weight:900; font-size:16px; color:${r.status==='done'?'#22c55e':'#38bdf8'}">${(r.status||'OPEN').toUpperCase()}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="lbl-upper">CASE DETAILS</span>
+                        <div style="font-weight:700; font-size:14px; color:#1e293b; opacity:0.8; line-height:1.6">${r.description}</div>
+                    </div>
+                </div>
+
+                ${r.photo_b64 ? `
+                <div style="margin-bottom:35px">
+                    <span class="lbl-upper">ATTACHED IMAGE</span>
+                    <div style="width:100%; border-radius:35px; overflow:hidden; box-shadow:0 15px 40px rgba(0,0,0,0.08); margin-top:10px">
+                        <img src="${r.photo_b64}" style="width:100%; display:block">
+                    </div>
+                </div>
+                ` : ''}
+
+                <div>
+                    <span class="lbl-upper">FULL CASE JOURNEY</span>
+                    <div class="case-log-list" style="margin-top:20px">
+                        ${tl.map((t, idx) => `
+                        <div class="log-item" style="${idx === tl.length-1 ? 'padding-bottom:0' : ''}">
+                            <div class="log-dot" style="background:${idx===0?'#38bdf8':'#22c55e'}"></div>
+                            <div class="log-txt">${t.event_text}</div>
+                            <div class="log-meta">${t.created_at.substring(0,10)} • ${t.author || (idx===0?'System':'Admin')}</div>
+                        </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
             switchScreen('detail');
         }
+
 
         function setType(t, el) { currentType = t; document.querySelectorAll('.type-box').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderSubTypes(); }
         function renderSubTypes() { document.getElementById('sub-types').innerHTML = (subCats[currentType]||[]).map(s=>`<div class="sub-type-item" onclick="currentSubType='${s}'; this.parentElement.querySelectorAll('.sub-type-item').forEach(x=>x.classList.remove('active')); this.classList.add('active');">${s}</div>`).join(''); }
