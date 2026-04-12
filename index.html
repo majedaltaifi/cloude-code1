@@ -4,107 +4,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NIT Field App v2 | Auto-ID Connect</title>
+    <title>NIT Field App v2 | Prime Edition</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="NIT Field">
-    <link rel="apple-touch-icon" href="icon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0D1145;
-            --accent: #38BDF8;
-            --bg: #F8FAFC;
-            --success: #22C55E;
-            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --primary: #0f172a;
+            --accent: #38bdf8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            font-family: 'Outfit', sans-serif;
         }
 
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            height: 100vh;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
         }
 
         .phone-frame {
-            width: 375px; 
-            height: 812px; 
+            width: 375px;
+            height: 812px;
             background: #000;
-            border-radius: 50px;
-            padding: 12px;
-            border: 8px solid #334155;
+            border-radius: 55px;
             position: relative;
-            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5), 0 30px 60px -30px rgba(0, 0, 0, 0.6);
-            transition: all 0.3s ease;
+            padding: 12px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+            border: 8px solid #334155;
+            transition: 0.3s;
         }
 
-        /* Fake Speaker/Notch Area */
         .phone-frame::before {
             content: '';
             position: absolute;
             top: 25px;
             left: 50%;
             transform: translateX(-50%);
-            width: 100px;
-            height: 25px;
+            width: 120px;
+            height: 30px;
             background: #000;
             border-radius: 20px;
             z-index: 1000;
         }
 
-        @media (max-width: 850px), (max-height: 850px) {
-            body {
-                background: #f1f5f9;
-                display: block;
-                height: 100%;
-            }
-
-            .phone-frame {
-                width: 100% !important;
-                height: 100% !important;
-                border: none !important;
-                border-radius: 0 !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                max-width: none !important;
-                max-height: none !important;
-            }
-
-            .phone-frame::before { display: none; }
-
-            .app-container {
-                border-radius: 0 !important;
-                height: 100vh !important;
-                width: 100vw !important;
-            }
-
-            .header {
-                padding-top: env(safe-area-inset-top, 40px);
-            }
-
-            .navbar {
-                padding-bottom: env(safe-area-inset-bottom, 20px);
-                height: calc(85px + env(safe-area-inset-bottom, 0px));
-            }
-        }
-
         .app-container {
             width: 100%;
             height: 100%;
-            background: #f1f5f9;
-            border-radius: 35px;
+            background: var(--bg);
+            border-radius: 42px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -113,131 +74,93 @@
 
         .screen {
             display: none;
-            height: 100%;
-            flex-direction: column;
-            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            padding-bottom: 100px;
         }
 
         .screen.active {
             display: flex;
+            flex-direction: column;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+        .login-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .glow-text {
+            font-weight: 900;
+            font-size: 64px;
+            color: var(--accent);
+            text-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
+            letter-spacing: -3px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            padding: 40px 30px;
+            border-radius: 35px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
         }
 
         .header {
-            padding: 35px 20px 15px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(to right, var(--primary), #1e293b);
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
+            padding: 40px 0 15px;
         }
 
-        .nit-logo {
-            font-size: 18px;
+        .header h1 {
+            font-size: 16px;
             font-weight: 900;
-            letter-spacing: 2.5px;
-            opacity: 0.9;
-        }
-
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 120px;
-        }
-
-        .wa-fixed {
-            position: absolute;
-            bottom: 100px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background: #22c55e;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 25px;
-            z-index: 999;
-            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
-            cursor: pointer;
-        }
-
-        .hero-card {
-            background: white;
-            padding: 20px;
-            border-radius: 28px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid #ffffff;
-            margin-bottom: 20px;
-        }
-
-        .profile-line {
-            border-left: 4px solid var(--accent);
-            padding-left: 15px;
-        }
-
-        .news-board {
-            background: linear-gradient(135deg, var(--primary), #161b4d);
-            padding: 22px;
-            border-radius: 30px;
-            color: white;
-            margin-bottom: 25px;
-            box-shadow: 0 12px 30px rgba(13, 17, 69, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .news-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
-            font-size: 11px;
-            font-weight: 950;
-        }
-
-        .news-icon {
-            width: 34px;
-            height: 34px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
         }
 
         .type-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
         .type-box {
             background: white;
-            border: 2px solid #f1f5f9;
-            padding: 15px;
-            border-radius: 18px;
-            text-align: center;
+            padding: 25px;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             cursor: pointer;
+        }
+
+        .type-box i {
+            width: 45px;
+            height: 45px;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 12px;
         }
 
         .type-box.active {
@@ -245,253 +168,160 @@
             background: #f0f9ff;
         }
 
-        .type-box i {
-            font-size: 20px;
-            color: #94a3b8;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .type-box.active i {
-            color: var(--accent);
-        }
-
         .type-box span {
+            font-size: 13px;
+            font-weight: 900;
+            color: #475569;
+        }
+
+        .sub-type-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sub-type-item {
+            padding: 10px 18px;
+            background: white;
+            border-radius: 12px;
             font-size: 11px;
             font-weight: 900;
-            color: #64748b;
+            color: #475569;
+            border: 1.5px solid #e2e8f0;
+            cursor: pointer;
         }
 
-        .phase-item.done .phase-label {
-            color: var(--success);
+        .sub-type-item.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .input-group {
+            background: white;
+            padding: 20px;
+            border-radius: 22px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            border: none;
+            resize: none;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+            background: transparent;
+            min-height: 100px;
+            outline: none;
+        }
+
+        .photo-upload {
+            border: 2px dashed #cbd5e1;
+            border-radius: 22px;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            margin-bottom: 25px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .btn-p {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 22px;
+            border-radius: 24px;
+            border: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);
         }
 
         .navbar {
             position: absolute;
             bottom: 0;
             left: 0;
-            right: 0;
-            height: 85px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(0, 0, 0, 0.03);
+            width: 100%;
+            background: #ffffff;
+            height: 90px;
             display: flex;
-            align-items: center;
             justify-content: space-around;
-            padding-bottom: 10px;
-            z-index: 1000;
+            align-items: center;
+            border-top: 1px solid #f1f5f9;
+            padding: 0 10px 10px;
+            z-index: 100;
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
-            cursor: pointer;
+            gap: 5px;
             color: #94a3b8;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
             flex: 1;
         }
 
-        .nav-item i {
-            font-size: 18px;
-        }
-
-        .nav-item span {
-            font-size: 9px;
-            font-weight: 950;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
         .nav-item.active {
-            color: var(--primary);
+            color: var(--accent);
         }
 
-        .nav-item.active i {
-            transform: translateY(-2px);
-        }
+        .nav-item i { font-size: 20px; }
+        .nav-item span { font-size: 9px; font-weight: 900; text-transform: uppercase; }
 
-        .online-dot {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 13px;
-            height: 13px;
-            background: #22c55e;
+        .nav-fab {
+            width: 65px;
+            height: 65px;
+            background: var(--accent);
             border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
-            animation: pulse-green 1.5s infinite;
-        }
-
-        @keyframes pulse-green {
-            0% {
-                transform: scale(0.9);
-                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-            }
-
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
-            }
-
-            100% {
-                transform: scale(0.9);
-                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-            }
-        }
-
-        .nav-add {
-            width: 65px !important;
-            height: 65px !important;
-            background: linear-gradient(135deg, #38BDF8, #0ea5e9);
-            color: white !important;
-            border-radius: 50%;
-            box-shadow: 0 12px 30px rgba(56, 189, 248, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.4);
-            margin-top: -32px;
-            border: 5px solid rgba(255, 255, 255, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1001;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            aspect-ratio: 1/1;
-            cursor: pointer;
-        }
-
-        .nav-add:active {
-            transform: scale(0.9) translateY(5px);
-        }
-
-        .nav-add i {
-            font-size: 28px;
-            color: white !important;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 16px;
-            border-radius: 18px;
-            border: 1.5px solid #f1f5f9;
-            margin-bottom: 15px;
-            font-size: 13px;
-            font-weight: 900;
-            background: white;
-            transition: 0.3s;
-        }
-
-        .form-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
-        }
-
-        .btn-p {
-            background: var(--primary);
             color: white;
-            padding: 18px;
-            border-radius: 20px;
-            width: 100%;
-            border: none;
-            font-size: 16px;
-            font-weight: 900;
+            font-size: 26px;
+            margin-top: -45px;
+            border: 6px solid white;
+            box-shadow: 0 12px 25px rgba(56, 189, 248, 0.4);
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(13, 17, 69, 0.2);
-        }
-
-        .activity-card {
-            background: white;
-            border-radius: 30px;
-            box-shadow: var(--card-shadow);
-            padding: 25px;
-            margin-bottom: 25px;
-            border: 1px solid #ffffff;
-        }
-
-        .ticket-item {
-            background: #f8fafc;
-            padding: 18px;
-            border-radius: 22px;
-            margin-bottom: 12px;
-            border: 1.5px solid #f1f5f9;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .ticket-item:active {
-            transform: scale(0.98);
-            background: #f1f5f9;
-        }
-
-        .lbl {
-            font-size: 10px;
-            font-weight: 950;
-            color: #94a3b8;
-            margin-bottom: 6px;
-            display: block;
-            text-transform: uppercase;
-        }
-
-        .toast {
-            position: absolute;
-            top: 20px;
-            left: 10px;
-            right: 10px;
-            background: white;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1.5px solid var(--accent);
-            z-index: 10006;
-            transform: translateY(-150%);
-            transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-
-        .toast.active {
-            transform: translateY(0);
         }
 
         .drawer {
             position: absolute;
-            top: 0;
-            left: -100%;
+            inset: 0;
             width: 85%;
-            height: 100%;
             background: var(--primary);
-            z-index: 1000;
-            padding: 50px 30px;
+            z-index: 3000;
+            padding: 60px 30px;
             transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             color: white;
+            transform: translateX(-100%);
         }
 
-        .drawer.active {
-            left: 0;
-        }
-
-        .drawer-header {
-            margin-bottom: 50px;
-        }
+        .drawer.active { transform: translateX(0); }
 
         .drawer-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 20px 0;
+            padding: 22px 0;
             border-bottom: 1.5px solid rgba(255, 255, 255, 0.05);
             cursor: pointer;
         }
 
-        .drawer-item span {
-            font-size: 14px;
-            font-weight: 900;
-        }
-
         .drawer-icon {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -501,825 +331,208 @@
         .drawer-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             opacity: 0;
             pointer-events: none;
-            z-index: 999;
+            z-index: 2999;
             transition: 0.3s;
         }
 
-        .drawer-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .drawer-overlay.active { opacity: 1; pointer-events: auto; }
 
-        /* Home section items */
-        .activity-card {
-            background: white;
-            padding: 22px;
-            border-radius: 28px;
-            margin-bottom: 20px;
-        }
-
-        .news-board {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            padding: 25px;
-            border-radius: 30px;
+        .stat-card-main {
+            background: var(--primary);
+            padding: 30px;
+            border-radius: 35px;
             color: white;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            border: 5px solid var(--accent);
         }
 
-        .activity-pill {
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 9px;
-            font-weight: 950;
-            letter-spacing: 0.5px;
-            background: #f0f9ff;
-            color: var(--accent);
-        }
-
-        .activity-pill.done {
-            background: #f0fdf4;
-            color: #22c55e;
-        }
-
-        .lbl {
-            font-size: 10px;
-            font-weight: 950;
-            opacity: 0.4;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            display: block;
+        .stat-box {
+            background: white;
+            padding: 25px;
+            border-radius: 28px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
 
         .ticket-item {
             background: white;
-            padding: 20px;
-            border-radius: 22px;
+            padding: 22px;
+            border-radius: 26px;
             margin-bottom: 12px;
             border: 1px solid #f1f5f9;
+            cursor: pointer;
         }
-
-        /* Chat bubbles */
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding: 10px 0;
-        }
-
-        .chat-bubble {
-            max-width: 80%;
-            padding: 15px 20px;
-            border-radius: 18px;
-            font-size: 13px;
+        
+        .lbl {
+            font-size: 10px;
             font-weight: 900;
-            line-height: 1.5;
+            opacity: 0.5;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 10px;
+            display: block;
         }
 
-        .chat-bubble.me {
-            background: var(--accent);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 5px;
-        }
-
-        .chat-bubble.them {
-            background: white;
-            color: var(--primary);
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
-            border: 1px solid #e2e8f0;
+        @media (max-width: 500px) {
+            .phone-frame { width: 100%; height: 100vh; border-radius: 0; border: none; padding: 0; }
+            .phone-frame::before { display: none; }
+            .app-container { border-radius: 0; }
         }
     </style>
-
-        .notif-card .dot {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 8px;
-            height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-        }
-
-        .sub-type-item {
-            background: #fff;
-            padding: 6px 12px;
-            border-radius: 10px;
-            border: 1.5px solid #f1f5f9;
-            font-size: 11px;
-            font-weight: 900;
-            color: #64748b;
-            cursor: pointer;
-            min-width: 60px;
-            text-align: center;
-            transition: 0.2s;
-        }
-
-        .sub-type-item.active {
-            border-color: var(--accent);
-            background: var(--accent);
-            color: white;
-        }
-
-        .news-board {
-            background: #111827;
-            background-image: linear-gradient(135deg, #111827, #1e293b);
-            padding: 25px;
-            border-radius: 30px;
-            color: white;
-            margin-bottom: 25px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            border-left: 6px solid #38BDF8;
-            position: relative;
-        }
-
-        .news-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 18px;
-        }
-
-        .news-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .news-icon {
-            width: 38px;
-            height: 38px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #38BDF8;
-            font-size: 16px;
-        }
-
-        .news-txt {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .news-label {
-            font-size: 10px;
-            font-weight: 950;
-            opacity: 0.6;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .news-value {
-            font-size: 13px;
-            font-weight: 900;
-            color: #38BDF8;
-            margin-top: 1px;
-        }
-
-        .bell-container,
-        .chat-notify-container {
-            position: relative;
-            cursor: pointer;
-            margin-left: 15px;
-        }
-
-        .bell-badge,
-        .chat-badge-dot {
-            position: absolute;
-            top: -3px;
-            right: -3px;
-            width: 10px;
-            height: 10px;
-            background: #ef4444;
-            border-radius: 50%;
-            border: 2px solid white;
-            display: none;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-        }
-
-        .chat-badge-dot {
-            background: #38BDF8;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-        }
-
-        /* Blue dot for chat, red for system */
-        .badge-unread {
-            position: absolute;
-            top: -5px;
-            right: -8px;
-            background: #ef4444;
-            color: white;
-            border-radius: 10px;
-            min-width: 14px;
-            height: 14px;
-            font-size: 8px;
-            font-weight: 950;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 0 4px;
-            box-shadow: 0 2px 5px rgba(239, 68, 68, 0.5);
-            border: 1.5px solid white;
-        }
-
-        .activity-card {
-            background: white;
-            border-radius: 30px;
-            box-shadow: var(--card-shadow);
-            padding: 25px;
-            margin-bottom: 25px;
-            border: 1px solid #ffffff;
-        }
-
-        .nav-add span {
-            display: none;
-        }
-
-        .nav-item span {
-            font-size: 8px;
-            margin-top: 2px;
-        }
-
-        .ticket-item .t-body {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 200px;
-        }
-
-        .chat-hub-row {
-            padding: 22px 5px;
-            border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
-            display: flex;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .chat-hub-row:active {
-            background: #f8fafc;
-        }
-
-        .row-icon-cell {
-            width: 55px;
-            height: 50px;
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .row-icon-circ {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #ecedf2;
-            color: #1e293b;
-            font-size: 16px;
-            border: 1.5px solid white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
-        }
-
-        .row-main {
-            flex: 1;
-            padding-left: 2px;
-        }
-
-        .row-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2px;
-        }
-
-        .row-title {
-            font-size: 16px;
-            font-weight: 950;
-            color: #1e293b;
-        }
-
-        .row-date {
-            font-size: 11px;
-            font-weight: 950;
-            color: #94a3b8;
-        }
-
-        .row-subtext {
-            font-size: 13px;
-            font-weight: 900;
-            color: #64748b;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            padding-right: 40px;
-        }
-
-        .row-badge-col {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            justify-content: space-between;
-            min-width: 60px;
-        }
-
-        .chat-badge-hub {
-            background: #ef4444;
-            color: white;
-            border-radius: 20px;
-            min-width: 20px;
-            height: 20px;
-            font-size: 10px;
-            font-weight: 950;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 6px;
-            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
-            margin-top: 5px;
-        }
-
-        .chat-bubble {
-            max-width: 80%;
-            padding: 14px 20px;
-            border-radius: 24px;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 8px;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-        }
-
-        .chat-bubble.me {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #0ea5e9, #0284c7);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .chat-bubble.them {
-            align-self: flex-start;
-            background: white;
-            color: #1e293b;
-            border-bottom-left-radius: 4px;
-            border: 1px solid #f1f5f9;
-        }
-
-        .chat-meta {
-            font-size: 9px;
-            opacity: 0.6;
-            margin-bottom: 5px;
-            font-weight: 950;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .login-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10005;
-            background: radial-gradient(circle at top left, #1e293b, #0D1145);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            color: white;
-        }
-
-        .login-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(25px);
-            padding: 50px 30px;
-            border-radius: 45px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-        }
-
-        .login-logo {
-            font-size: 55px;
-            font-weight: 900;
-            color: var(--accent);
-            margin-bottom: 5px;
-            letter-spacing: 8px;
-            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-        }
-
-        .active-peers-bar {
-            display: flex;
-            gap: 18px;
-            overflow-x: auto;
-            padding: 15px 5px 25px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .active-peers-bar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .peer-node {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            min-width: 65px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .peer-node:active {
-            transform: scale(0.9);
-        }
-
-        .peer-circ {
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            background: white;
-            padding: 2px;
-            position: relative;
-            border: 1.5px solid #e2e8f0;
-        }
-
-        .peer-circ img,
-        .peer-circ .icon-placeholder {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #f1f5f9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            font-weight: 900;
-            font-size: 18px;
-        }
-
-        .peer-name-mini {
-            font-size: 10px;
-            font-weight: 950;
-            color: #64748b;
-            text-align: center;
-            max-width: 65px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-    </style>
-
-
 </head>
 
 <body>
-
     <div class="phone-frame">
-
-            <!-- Login Screen -->
-            <div id="s-login" class="login-bg" style="display:none">
-                <div class="glow-text">NIT</div>
-                <div style="font-weight:900; font-size:16px; letter-spacing:4px; margin-bottom:40px; opacity:0.8; color:var(--accent)">FIELD CONNECT</div>
-                <div class="login-card">
-                    <div style="font-weight:900; font-size:12px; margin-bottom:25px; opacity:0.8; letter-spacing:1px">ENTER EMPLOYEE ID</div>
-                    <input type="number" id="login-id" class="form-input" style="text-align:center; font-size:24px; letter-spacing:2px; height:70px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:white; border-radius:18px; width:100%; margin-bottom:20px" placeholder="0000">
-                    <button id="login-btn" class="btn-p" style="background:var(--accent); color:var(--primary);" onclick="doLogin()">SIGN IN</button>
-                    <div id="login-err" style="color:#ef4444; font-size:11px; font-weight:900; margin-top:20px; display:none">ID NOT FOUND</div>
-                </div>
-                <p style="margin-top:40px; font-size:10px; font-weight:900; opacity:0.4; letter-spacing:1px">SECURE INTEL NETWORK ACCESS</p>
+        <!-- Login -->
+        <div id="s-login" class="login-bg" style="display:none">
+            <div class="glow-text">NIT</div>
+            <div style="font-weight:900; font-size:16px; letter-spacing:5px; margin-bottom:40px; color:var(--accent)">FIELD CONNECT</div>
+            <div class="login-card">
+                <div class="lbl" style="color:white; margin-bottom:25px">ENTER EMPLOYEE ID</div>
+                <input type="number" id="login-id" style="text-align:center; font-size:28px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:white; border-radius:18px; width:100%; height:75px; margin-bottom:25px; outline:none" placeholder="0000">
+                <button class="btn-p" style="background:var(--accent); color:var(--primary)" onclick="doLogin()">SIGN IN</button>
+                <div id="login-err" style="color:#f87171; font-size:11px; font-weight:900; margin-top:20px; display:none">ID NOT FOUND</div>
             </div>
+            <p style="margin-top:60px; font-size:10px; font-weight:900; opacity:0.4; letter-spacing:2px">SECURE INTEL NETWORK ACCESS</p>
+        </div>
 
-            <!-- Sidebar Drawer -->
-            <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
-            <div id="drawer" class="drawer">
-                <div class="drawer-header">
-                    <h2 id="dr-name" style="font-size:22px; font-weight:900">Employee 0000</h2>
-                    <p id="dr-id" style="color:var(--accent); font-weight:900; font-size:14px">0000</p>
-                </div>
-                
-                <div class="drawer-item" onclick="switchScreen('stats'); closeDrawer();">
-                    <span>My Dashboard</span>
-                    <div class="drawer-icon"><i class="fas fa-th-large"></i></div>
-                </div>
-                <div class="drawer-item" onclick="switchScreen('reports', 'nav-reports'); closeDrawer();">
-                    <span>My Incidents</span>
-                    <div class="drawer-icon"><i class="fas fa-file-alt"></i></div>
-                </div>
-                <div class="drawer-item" onclick="switchScreen('support', 'nav-support'); closeDrawer();">
-                    <span>Help Center</span>
-                    <div class="drawer-icon"><i class="fas fa-headset"></i></div>
-                </div>
-                <div class="drawer-item" onclick="doLogout()" style="margin-top:30px; border-bottom:none">
-                    <span style="color:#f87171">Sign Out</span>
-                    <div class="drawer-icon" style="background:rgba(239,68,68,0.1); color:#f87171"><i class="fas fa-sign-out-alt"></i></div>
-                </div>
-
-                <div style="position:absolute; bottom:40px; left:0; width:100%; text-align:center; opacity:0.3">
-                    <span style="font-size:12px; font-weight:900; letter-spacing:1px">Arabic Language <i class="fas fa-globe" style="margin-left:5px"></i></span>
-                </div>
+        <!-- Drawer -->
+        <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
+        <div id="drawer" class="drawer">
+            <div style="margin-bottom:50px">
+                <h2 id="dr-name" style="font-size:24px; font-weight:900">Officer</h2>
+                <p id="dr-id" style="color:var(--accent); font-weight:900; font-size:14px">ID: 0000</p>
             </div>
-
-            <div class="app-container">
-                <!-- Home Screen -->
-                <div class="screen" id="s-home">
-                    <header class="header">
-                        <i class="fas fa-bars" style="font-size:20px; color:var(--primary)" onclick="openDrawer()"></i>
-                        <h1 style="font-size:16px">NIT FIELD</h1>
-                        <div style="position:relative" onclick="switchScreen('notifs')">
-                            <i class="fas fa-bell" style="font-size:20px; color:var(--primary)"></i>
-                            <div id="notif-dot" style="position:absolute; top:-2px; right:-2px; width:10px; height:10px; background:#ef4444; border-radius:50%; border:2px solid white; display:none"></div>
-                        </div>
-                    </header>
-
-                    <div style="margin-bottom:25px">
-                        <p style="font-size:14px; opacity:0.5; font-weight:700">Good Day,</p>
-                        <h2 id="hm-name" style="font-size:24px; font-weight:900; color:var(--primary)">Officer</h2>
-                    </div>
-
-                    <div class="news-board">
-                        <span class="lbl" style="color:white; opacity:0.5">HR & MANAGEMENT BROADCAST</span>
-                        <div id="news-list-home">
-                            <div style="opacity:0.3; font-size:11px">Loading news...</div>
-                        </div>
-                    </div>
-
-                    <div class="activity-card" id="latest-case-card" style="display:none">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
-                            <span class="lbl" style="margin-bottom:0">MY RECENT CASES</span>
-                            <span style="font-size:10px; font-weight:950; color:var(--accent)" onclick="switchScreen('reports')">VIEW ALL</span>
-                        </div>
-                        <div id="mini-l"></div>
-                    </div>
-
-                    <div id="no-case-card" class="activity-card" style="text-align:center; padding:40px">
-                        <div style="width:60px; height:60px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px; color:#94a3b8">
-                            <i class="fas fa-clipboard-list" style="font-size:24px"></i>
-                        </div>
-                        <p style="font-size:12px; font-weight:900; opacity:0.5">Ready for your first report</p>
-                    </div>
-                </div>
-
-                <!-- Create Screen -->
-                <div class="screen" id="s-create">
-                    <header class="header">
-                        <i class="fas fa-chevron-left" style="font-size:20px" onclick="goBack()"></i>
-                        <h1>ADD CASE</h1>
-                        <div style="width:20px"></div>
-                    </header>
-                    
-                    <span class="lbl">PROBLEM TYPE</span>
-                    <div class="type-grid">
-                        <div class="type-box active" onclick="setType('safety', this)">
-                            <i><i class="fas fa-shield-alt"></i></i>
-                            <span>Safety</span>
-                        </div>
-                        <div class="type-box" onclick="setType('materials', this)">
-                            <i><i class="fas fa-box"></i></i>
-                            <span>Materials</span>
-                        </div>
-                        <div class="type-box" onclick="setType('mechanical', this)">
-                            <i><i class="fas fa-tools"></i></i>
-                            <span>Mech.</span>
-                        </div>
-                        <div class="type-box" onclick="setType('other', this)">
-                            <i><i class="fas fa-info-circle"></i></i>
-                            <span>Other</span>
-                        </div>
-                    </div>
-
-                    <div id="sub-types" class="sub-type-grid"></div>
-
-                    <span class="lbl">WRITE PROBLEM</span>
-                        <option value="Randa Tower" selected>Randa Tower</option>
-                        <option value="NEOM Office">NEOM Office</option>
-                        <option value="Riyadh HQ">Riyadh HQ</option>
-                        <option value="Jubail Site">Jubail Site</option>
-                        <option value="Yanbu Port">Yanbu Port</option>
-                        <option value="Other Site">Other Location...</option>
-                    </select>
-
-                    <span class="lbl">ADD PHOTO</span>
-                    <div style="border:3px dashed #cbd5e1; height:100px; border-radius:20px; display:flex; align-items:center; justify-content:center; color:#94a3b8; margin-bottom:20px; cursor:pointer; background:white"
-                        onclick="document.getElementById('fIn').click()">
-                        <img id="prevImg"
-                            style="display:none; width:100%; height:100%; object-fit:cover; border-radius:18px">
-                        <span id="phold"><i class="fas fa-camera"></i> PHOTOGRAPH</span>
-                    </div>
-                    <input type="file" id="fIn" hidden onchange="handleImg(this)">
-                    <button class="btn-p" id="subBtn" onclick="doSubmit()">SUBMIT CASE</button>
-                </div>
+            <div class="drawer-item" onclick="switchScreen('stats'); closeDrawer();">
+                <span>My Dashboard</span>
+                <div class="drawer-icon"><i class="fas fa-th-large"></i></div>
             </div>
+            <div class="drawer-item" onclick="switchScreen('reports'); closeDrawer();">
+                <span>My Incidents</span>
+                <div class="drawer-icon"><i class="fas fa-file-alt"></i></div>
+            </div>
+            <div class="drawer-item" onclick="switchScreen('support'); closeDrawer();">
+                <span>Help Center</span>
+                <div class="drawer-icon"><i class="fas fa-headset"></i></div>
+            </div>
+            <div class="drawer-item" onclick="doLogout()" style="margin-top:40px; border:none">
+                <span style="color:#f87171">Sign Out</span>
+                <div class="drawer-icon" style="background:rgba(239,68,68,0.1); color:#f87171"><i class="fas fa-sign-out-alt"></i></div>
+            </div>
+        </div>
 
-            <!-- List -->
-            <div class="screen" id="s-reports">
-                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home', 'nav-home')"></i>
-                    <div class="nit-logo">ALL DATA</div>
-                    <div style="width:20px"></div>
+        <div class="app-container">
+            <!-- Home -->
+            <div class="screen" id="s-home">
+                <header class="header">
+                    <i class="fas fa-bars" onclick="openDrawer()"></i>
+                    <h1>NIT FIELD</h1>
+                    <i class="fas fa-bell" onclick="switchScreen('notifs')"></i>
                 </header>
-                <div class="content" id="full-l"></div>
-            </div>
-
-
-
-            <!-- Detail -->
-            <div class="screen" id="s-detail">
-                <header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i>
-                    <div class="nit-logo">CASE INFO</div>
-                    <div style="width:20px"></div>
-                </header>
-                <div class="content" id="det-cont"></div>
-            </div>
-
-            <div class="screen" id="s-support">
-                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home')"></i>
-                    <div class="nit-logo">HELP CENTER</div>
-                    <div style="width:20px"></div>
-                </header>
-                <div class="content">
-                    <div style="background:white; padding:25px; border-radius:28px; border:1px solid #e2e8f0;">
-                        <span class="lbl">HAVE A PERSONAL REQUEST?</span>
-                        <div style="display:flex; gap:10px; margin-bottom:10px">
-                            <input type="text" id="supp-name-disp" class="form-input readonly" readonly style="flex:2"
-                                value="---">
-                            <input type="text" id="supp-id-disp" class="form-input readonly" readonly style="flex:1"
-                                value="---">
-                        </div>
-
-                        <div style="display:flex; gap:10px; margin-bottom:20px">
-                            <input type="text" id="supp-mobile" placeholder="Mobile Number" class="form-input"
-                                style="flex:1">
-                            <input type="text" id="supp-email" placeholder="Email Address" class="form-input"
-                                style="flex:1">
-                        </div>
-
-                        <span class="lbl">SUBJECT</span>
-                        <input type="text" id="supp-subj" class="form-input" placeholder="Subject...">
-
-                        <span class="lbl">MESSAGE DETAILS</span>
-                        <textarea id="supp-msg" class="form-input" style="height:120px"
-                            placeholder="Explain the issue..."></textarea>
-
-                        <button class="btn-p" onclick="submitHelp()">SUBMIT</button>
+                <div style="margin:20px 0 30px">
+                    <p style="font-size:15px; opacity:0.5; font-weight:700">Good Day,</p>
+                    <h2 id="hm-name" style="font-size:28px; font-weight:900; color:var(--primary)">Officer</h2>
+                </div>
+                <div style="background:linear-gradient(135deg, #1e293b, #0f172a); padding:30px; border-radius:35px; color:white; margin-bottom:30px">
+                    <span class="lbl" style="color:white; opacity:0.5">HEADQUARTERS UPDATES</span>
+                    <div id="news-list-home"><div style="opacity:0.3; font-size:11px">Syncing news...</div></div>
+                </div>
+                <div id="latest-case-card" style="display:none">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                        <span class="lbl">RECENT CASES</span>
+                        <span style="font-size:11px; font-weight:900; color:var(--accent)" onclick="switchScreen('reports')">VIEW ALL</span>
                     </div>
+                    <div id="mini-l"></div>
                 </div>
             </div>
 
-            <!-- Notifs -->
-            <div class="screen" id="s-notifs">
-                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home')"></i>
-                    <div class="nit-logo">NOTIFICATIONS</div>
-                    <div style="width:20px"></div>
-                </header>
-                <div class="content" id="notif-list"></div>
+            <!-- Add Case -->
+            <div class="screen" id="s-create">
+                <header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>ADD CASE</h1><div style="width:20px"></div></header>
+                <span class="lbl">PROBLEM TYPE</span>
+                <div class="type-grid">
+                    <div class="type-box active" onclick="setType('safety', this)"><i><i class="fas fa-shield-alt"></i></i><span>Safety</span></div>
+                    <div class="type-box" onclick="setType('materials', this)"><i><i class="fas fa-box"></i></i><span>Materials</span></div>
+                    <div class="type-box" onclick="setType('mechanical', this)"><i><i class="fas fa-tools"></i></i><span>Mech.</span></div>
+                    <div class="type-box" onclick="setType('other', this)"><i><i class="fas fa-info-circle"></i></i><span>Other</span></div>
+                </div>
+                <div id="sub-types" class="sub-type-grid"></div>
+                <span class="lbl">DETAILS</span>
+                <div class="input-group"><textarea id="f-desc" placeholder="What happened?"></textarea></div>
+                <span class="lbl">SITE LOCATION</span>
+                <div class="input-group"><select id="f-site" style="width:100%; border:none; outline:none; font-weight:700; background:transparent"><option value="Randa Tower">Randa Tower</option><option value="NEOM Office">NEOM Office</option><option value="HQ">HQ</option></select></div>
+                <div class="photo-upload" onclick="document.getElementById('fIn').click()">
+                    <i class="fas fa-camera" style="font-size:30px; margin-bottom:10px"></i>
+                    <span id="phold" style="font-weight:900; font-size:12px">PHOTOGRAPH</span>
+                    <img id="prevImg" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:20px">
+                </div>
+                <input type="file" id="fIn" hidden onchange="handleImg(this)">
+                <button class="btn-p" id="subBtn" onclick="doSubmit()">SUBMIT CASE</button>
             </div>
 
             <!-- Stats -->
             <div class="screen" id="s-stats">
-                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home')"></i>
-                    <div class="nit-logo">MY DASHBOARD</div>
-                    <div style="width:20px"></div>
-                </header>
-                <div class="content">
-                    <div style="display:grid; grid-template-columns:1fr; gap:15px">
-                        <div id="card-all" class="stat-box stat-card-active"
-                            style="background:var(--primary); color:white; padding:30px; border-radius:28px"
-                            onclick="filterAndShow('all', this)">
-                            <span class="lbl" style="color:rgba(255,255,255,0.6)">TOTAL INCIDENTS</span>
-                            <h1 id="stat-total" style="font-size:40px; font-weight:900; margin-top:10px">0</h1>
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
-                            <div id="card-pending" class="stat-box"
-                                style="background:white; padding:25px; border-radius:25px; border:1.5px solid #e2e8f0; text-align:center"
-                                onclick="filterAndShow('pending', this)">
-                                <span class="lbl">PENDING</span>
-                                <h2 id="stat-pend"
-                                    style="font-size:24px; font-weight:900; color:var(--accent); margin-top:10px">0</h2>
-                            </div>
-                            <div id="card-done" class="stat-box"
-                                style="background:white; padding:25px; border-radius:25px; border:1.5px solid #e2e8f0; text-align:center"
-                                onclick="filterAndShow('done', this)">
-                                <span class="lbl">COMPLETED</span>
-                                <h2 id="stat-done"
-                                    style="font-size:24px; font-weight:900; color:var(--success); margin-top:10px">0
-                                </h2>
-                            </div>
-                        </div>
+                <header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>DASHBOARD</h1><div style="width:20px"></div></header>
+                <div class="stat-card-main">
+                    <span class="lbl" style="color:white; opacity:0.6">TOTAL INCIDENTS</span>
+                    <h1 id="stat-total" style="font-size:62px; font-weight:900">0</h1>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:30px">
+                    <div class="stat-box">
+                        <span class="lbl">PENDING</span>
+                        <div class="num" id="stat-pend" style="font-size:32px; font-weight:900; color:var(--accent); margin-top:5px">0</div>
                     </div>
-
-                    <div style="margin-top:25px">
-                        <span class="lbl" id="stat-activity-lbl">RECENT ACTIVITY</span>
-                        <div id="stat-activity" style="margin-top:10px">
-                        </div>
+                    <div class="stat-box">
+                        <span class="lbl">DONE</span>
+                        <div class="num" id="stat-done" style="font-size:32px; font-weight:900; color:#22c55e; margin-top:5px">0</div>
                     </div>
                 </div>
+                <span class="lbl">ACTIVITY LOG</span>
+                <div id="stat-activity"></div>
             </div>
 
-            <!-- Chat Selection Hub -->
-            <div class="screen" id="s-chat-list">
-                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home', 'bn-home')"></i>
-                    <div class="nit-logo">CHAT HUB</div>
-                    <div style="width:20px"></div>
-                </header>
-                <div class="content">
-                    <div
-                        style="background:#f1f5f9; padding:12px 20px; border-radius:25px; border:1.5px solid #e2e8f0; margin-bottom:20px; display:flex; align-items:center; gap:15px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02)">
-                        <i class="fas fa-search" style="color:#94a3b8; font-size:14px"></i>
-                        <input type="text" id="emp-search"
-                            style="flex:1; border:none; background:transparent; padding:4px 0; font-size:13px; font-weight:900; color:var(--primary); outline:none"
-                            placeholder="Search by name or ID..." oninput="searchPeers()">
-                    </div>
-
-                    <div id="active-peers" class="active-peers-bar"></div>
-
-                    <div id="peer-results" style="margin-bottom:20px; display:none"></div>
-                    <h3 style="font-size:14px; font-weight:950; color:var(--primary); margin:10px 5px 20px">Recent
-                        Messages</h3>
-                    <div id="chat-report-list"></div>
-                </div>
-
+            <!-- Reports -->
+            <div class="screen" id="s-reports"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>INCIDENTS</h1><div style="width:20px"></div></header><div id="full-l"></div></div>
+            <!-- Detail -->
+            <div class="screen" id="s-detail"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>DETAILS</h1><div style="width:20px"></div></header><div id="det-cont"></div></div>
+            <!-- Notifications -->
+            <div class="screen" id="s-notifs"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>ALERTS</h1><div style="width:20px"></div></header><div id="notif-list"></div></div>
+            <!-- Support -->
+            <div class="screen" id="s-support">
+                <header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>SUPPORT</h1><div style="width:20px"></div></header>
+                <div class="input-group"><input id="supp-subj" placeholder="Subject" style="border:none; width:100%; outline:none; font-weight:700"></div>
+                <div class="input-group"><textarea id="supp-msg" placeholder="Message details" style="min-height:150px"></textarea></div>
+                <button class="btn-p" onclick="submitHelp()">SEND REQUEST</button>
             </div>
-
+            <!-- Chat Hub -->
+            <div class="screen" id="s-chat-list"><header class="header"><i class="fas fa-bars" onclick="openDrawer()"></i><h1>MESSAGES</h1><div style="width:20px"></div></header><div id="chat-report-list"></div></div>
             <!-- Chat -->
             <div class="screen" id="s-chat">
-                <header class="header"><i class="fas fa-chevron-left" onclick="closeChat()"></i>
-                    <div class="nit-logo" id="chat-title">CHAT</div>
-                    <div style="width:20px"></div>
-                </header>
-                <div class="content" id="chat-msgs"
-                    style="display:flex; flex-direction:column; gap:12px; padding-bottom:140px; background: #f1f5f9;">
-                </div>
-
-                <!-- Chat Input Area (Shown when open) -->
-                <div id="chat-input-area"
-                    style="position:absolute; bottom:0; width:100%; padding:20px; background:white; display:flex; gap:10px; border-top:1.5px solid #e2e8f0; align-items:center;">
-                    <input type="text" id="chat-input" class="form-input" style="margin-bottom:0; flex:1;"
-                        placeholder="Type here...">
-                    <button class="btn-p" style="width:50px; height:50px; padding:0;" onclick="sendReportMsg()"><i
-                            class="fas fa-paper-plane"></i></button>
-                </div>
-
-
-                <!-- Chat Lock Message (Shown when closed) -->
-                <div id="chat-lock-area"
-                    style="position:absolute; bottom:0; width:100%; padding:25px; background:#f8fafc; display:none; flex-direction:column; align-items:center; text-align:center; border-top:1.5px solid #e2e8f0;">
-                    <div
-                        style="width:50px; height:50px; background:#e2e8f0; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#64748b; margin-bottom:12px">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <div style="font-weight:900; font-size:14px; color:var(--primary)">CASE RESOLVED</div>
-                    <p style="font-size:11px; color:#64748b; margin-top:4px; font-weight:900">This conversation is
-                        closed / Ready Only</p>
-                </div>
-
-            </div>
-
-            <!-- Bottom Nav Bar -->
-            <div class="navbar" style="display:none">
-                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </div>
-                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')">
-                    <i class="fas fa-history"></i>
-                    <span>Reports</span>
-                </div>
-                <div class="nav-item nav-add" id="bn-create" onclick="switchScreen('create')">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add</span>
-                </div>
-                <div class="nav-item" id="bn-chat-hub" onclick="switchScreen('chat-list')">
-                    <div style="position:relative">
-                        <i class="fas fa-comments"></i>
-                        <div id="chat-global-badge" class="badge-unread"></div>
-                    </div>
-                    <span>Chat</span>
-                </div>
-                <div class="nav-item" id="bn-help" onclick="switchScreen('support')">
-                    <i class="fas fa-headset"></i>
-                    <span>Help</span>
+                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('chat-list')"></i><h1 id="chat-title">Admin</h1><div style="width:20px"></div></header>
+                <div id="chat-msgs" class="chat-container"></div>
+                <div style="display:flex; gap:12px; margin-top:15px">
+                    <input id="chat-input" style="flex:1; padding:18px; border-radius:18px; border:1px solid #e2e8f0; outline:none; font-weight:600" placeholder="Type message...">
+                    <button class="nav-fab" style="width:55px; height:55px; margin-top:0; border:none" onclick="sendReportMsg()"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
+
+            <!-- Navbar -->
+            <nav class="navbar" id="main-nav">
+                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-home"></i><span>Home</span></div>
+                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-history"></i><span>Reports</span></div>
+                <div class="nav-fab" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
+                <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')"><i class="fas fa-comment-dots"></i><span>Chat</span></div>
+                <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>Help</span></div>
+            </nav>
         </div>
     </div>
 
-    <!-- Firebase Scripts -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck",
@@ -1327,17 +540,14 @@
             projectId: "cloude-code1",
             storageBucket: "cloude-code1.firebasestorage.app",
             messagingSenderId: "553630040386",
-            appId: "1:553630040386:web:361da3353836ac709188db",
-            measurementId: "G-GJ65XRZ57B"
+            appId: "1:553630040386:web:361da3353836ac709188db"
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const messaging = firebase.messaging();
 
-        let currentUser = null;
-        let reports = [], notifs = [], readLocally = new Set(), activeRoom = null, isDirectMode = false, imgB64 = null, unreadChats = {};
-        let chatOpenedAt = 0, currentType = 'safety', currentSubType = '';
-        let unsubChat = null, unsubSync = null, isHubStarted = false, isRenderingHub = false;
+        let currentUser = null, reports = [], lastScreen = 'home', imgB64 = null, activeRoom = null;
+        let isHubStarted = false, isRenderingHub = false, unsubSync = null, unsubChat = null;
+        let currentType = 'safety', currentSubType = '';
 
         const subCats = {
             safety: ['Fire Hazard', 'Personal Injury', 'Spillage', 'Slip/Trip'],
@@ -1345,207 +555,95 @@
             mechanical: ['Noisy Engine', 'Fluid Leak', 'Elec. Failure', 'Machine Off'],
             other: ['General inquiry', 'Personal request', 'Site observation']
         };
-        let currentFilter = 'all', lastScreen = 'home';
 
-        // CORE UI & NAVIGATION
-
-
-        function switchScreen(id, mid = null) {
-            console.log("Switching to Screen:", id);
-            // Hide all screens explicitly
-            document.querySelectorAll('.screen').forEach(s => {
-                s.classList.remove('active');
-                s.style.display = 'none';
-            });
-            // Show target screen
+        function switchScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
             const target = document.getElementById('s-' + id);
-            if (target) {
-                target.classList.add('active');
-                target.style.display = 'flex';
-            }
-
+            if (target) { target.classList.add('active'); target.style.display = 'flex'; }
             if (!['detail', 'chat'].includes(id)) lastScreen = id;
-
-            // Update bottom navigation and drawer icons
-            document.querySelectorAll('.nav-item, .drawer-item').forEach(i => i.classList.remove('active'));
-            if (id==='home') { const el=document.getElementById('bn-home'); if(el) el.classList.add('active'); }
-            if (id==='reports') { const el=document.getElementById('bn-reports'); if(el) el.classList.add('active'); sync(); }
-            if (id==='create') { const el=document.getElementById('bn-create'); if(el) el.classList.add('active'); }
-            if (id==='chat-list') { const el=document.getElementById('bn-chat-hub'); if(el) el.classList.add('active'); renderChatHub(); }
-            if (id==='support') { const el=document.getElementById('bn-help'); if(el) el.classList.add('active'); }
-            if (id==='stats') updateStats();
-
+            
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            const icons = {'home':'bn-home','reports':'bn-reports','chat-list':'bn-chat-list','support':'bn-support'};
+            if(icons[id]) document.getElementById(icons[id]).classList.add('active');
+            
             const isPop = ['chat', 'detail'].includes(id);
-            if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = isPop ? 'none' : 'flex';
-            if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = isPop ? 'none' : 'flex';
+            document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
+            if(id === 'reports') sync();
+            if(id === 'stats') updateStats();
             closeDrawer();
         }
 
         function goBack() { switchScreen(lastScreen); }
-
         function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
-        function closeDrawer() { 
-            const d = document.getElementById('drawer');
-            const o = document.getElementById('drawer-overlay');
-            if(d) d.classList.remove('active'); 
-            if(o) o.classList.remove('active'); 
-        }
+        function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
 
-        // AUTH
         async function doLogin() {
-            const idInput = document.getElementById('login-id');
-            const id = idInput.value.trim();
-            const btn = document.getElementById('login-btn');
+            const id = document.getElementById('login-id').value.trim();
             if (!id) return;
+            const btn = document.querySelector('#s-login .btn-p');
             btn.innerText = "VERIFYING..."; btn.disabled = true;
             try {
                 const snap = await db.collection('employees').where('emp_no', '==', id).get();
-                if (snap.empty) {
-                    document.getElementById('login-err').style.display = 'block';
-                    btn.innerText = "SIGN IN"; btn.disabled = false;
-                } else {
-                    currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() };
-                    localStorage.setItem('nit_user', JSON.stringify(currentUser));
-                    initApp();
-                }
-            } catch (e) { 
-                console.error(e);
-                alert("Login failed. Check connection."); 
-                btn.innerText = "SIGN IN"; btn.disabled = false; 
-            }
+                if (snap.empty) { document.getElementById('login-err').style.display = 'block'; btn.innerText = "SIGN IN"; btn.disabled = false; }
+                else { currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; localStorage.setItem('nit_user', JSON.stringify(currentUser)); initApp(); }
+            } catch (e) { alert("Error: " + e); btn.innerText = "SIGN IN"; btn.disabled = false; }
         }
 
-        function doLogout() {
-            if (currentUser) db.collection('employees').doc(String(currentUser.emp_no)).update({ is_online: false }).catch(() => { });
-            localStorage.clear(); sessionStorage.clear();
-            window.location.reload();
-        }
+        function doLogout() { localStorage.clear(); location.reload(); }
 
-        // SYNC & DATA
         function sync() {
             if (!currentUser || unsubSync) return;
             unsubSync = db.collection('reports').where('emp_no', '==', String(currentUser.emp_no)).onSnapshot(snap => {
                 reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
                 renderReports();
-                if (document.getElementById('s-stats') && document.getElementById('s-stats').classList.contains('active')) updateStats();
             });
         }
-
-        async function loadHRNews() {
-            db.collection('broadcasts').onSnapshot(snap => {
-                const h = document.getElementById('news-list-home');
-                if (!h) return;
-                const data = snap.docs.map(d => d.data());
-                h.innerHTML = data.map(n => `<div class="news-item" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:18px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.05)"><div style="font-weight:900; font-size:13px; color:white; margin-bottom:5px">${n.title}</div><div style="font-size:11px; color:rgba(255,255,255,0.6); line-height:1.4">${n.content}</div></div>`).join('') || '<div style="opacity:0.3; font-size:11px">No news</div>';
-            });
-        }
-
-        async function loadNotifs() {
-            const snap = await db.collection('notifications').where('emp_no', '==', String(currentUser.emp_no)).get();
-            notifs = snap.docs.map(d => d.data()).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-            const list = document.getElementById('notif-list');
-            if (list) list.innerHTML = notifs.map(n => `<div class="notif-card ${n.is_read ? '' : 'unread'}"><div>${n.title}</div><div style="font-size:11px; opacity:0.7">${n.message}</div></div>`).join('');
-        }
-
-        // STATS
-        function updateStats() {
-            const t = reports.length, d = reports.filter(r => (r.status||'').toLowerCase()==='done').length, p = t - d;
-            if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = t;
-            if (document.getElementById('stat-done')) document.getElementById('stat-done').innerText = d;
-            if (document.getElementById('stat-pend')) document.getElementById('stat-pend').innerText = p;
-            
-            const list = document.getElementById('stat-activity');
-            if (list) {
-                let filtered = currentFilter==='all' ? reports : reports.filter(r => (r.status||'').toLowerCase()===currentFilter);
-                list.innerHTML = filtered.map(r => `<div class="list-card" onclick="openDetail('${r.id}')"><div style="display:flex; justify-content:space-between"><div><div class="t-id">#${r.id}</div><div class="t-body">${(r.description||'').substring(0,40)}...</div></div><div class="status-badge ${r.status==='done'?'st-done':'st-pend'}">${(r.status||'OPEN').toUpperCase()}</div></div></div>`).join('') || '<div style="text-align:center; opacity:0.3">No data</div>';
-            }
-        }
-        function filterAndShow(s, el) { currentFilter = s; document.querySelectorAll('.stat-box').forEach(b=>b.classList.remove('stat-card-active')); if(el)el.classList.add('stat-card-active'); updateStats(); }
-
-        // REPORTS
-        function setType(t, e) { currentType = t; document.querySelectorAll('.type-grid .type-box').forEach(b => b.classList.remove('active')); e.classList.add('active'); renderSubTypes(); }
-        function setSubType(s) { currentSubType = s; renderSubTypes(); }
-        function renderSubTypes() {
-            const c = document.getElementById('sub-types'); if (!c) return;
-            c.innerHTML = (subCats[currentType]||[]).map(s => `<div class="sub-type-item ${currentSubType === s ? 'active' : ''}" onclick="setSubType('${s}')">${s}</div>`).join('');
-        }
-        function handleImg(input) { const f = input.files[0]; const r = new FileReader(); r.onload = (e) => { imgB64 = e.target.result; document.getElementById('prevImg').src = imgB64; document.getElementById('prevImg').style.display='block'; document.getElementById('phold').style.display='none'; }; r.readAsDataURL(f); }
-
-        async function doSubmit() {
-            const ds = document.getElementById('f-desc').value.trim(), site = document.getElementById('f-site').value;
-            if (!ds) return alert('Enter details');
-            const btn = document.getElementById('subBtn'); btn.innerText = 'Syncing...';
-            try {
-                const snap = await db.collection('reports').get();
-                let nextId = 1; if(!snap.empty) { const ids = snap.docs.map(d=>parseInt(d.id)).filter(v=>!isNaN(v)); if(ids.length) nextId = Math.max(...ids)+1; }
-                const ts = new Date().toISOString();
-                const data = { emp_no: currentUser.emp_no, type: currentType, site: site, description: currentSubType?`[${currentSubType}] ${ds}`:ds, photo_b64: imgB64, status: 'open', created_at: ts };
-                await db.collection('reports').doc(String(nextId)).set(data);
-                await db.collection('reports').doc(String(nextId)).collection('timeline').add({ event_text: 'Case Logged', event_by: 'System', color: 'var(--accent)', created_at: ts });
-                alert('Sent! #' + nextId);
-                document.getElementById('f-desc').value=''; currentSubType=''; imgB64=null; document.getElementById('prevImg').style.display='none'; document.getElementById('phold').style.display='flex'; switchScreen('reports');
-            } catch (e) { alert('Error: ' + e); }
-            btn.innerText = 'SUBMIT CASE';
-        }
-
 
         function renderReports() {
             const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
             if(!f || !m) return;
-            
-            // Full list (Reports Screen)
-            f.innerHTML = reports.map(r => `<div class="ticket-item" onclick="openDetail('${r.id}')"><div><div class="t-body" style="color:var(--accent); text-transform:uppercase; font-size:14px">${r.type}</div><div style="font-size:11px; font-weight:900">${(r.description||'').substring(0,40)}...</div><div style="font-size:9px; color:${r.status==='done'?'#22c55e':'#38bdf8'}"># CASE ${r.id} | ${(r.status||'OPEN').toUpperCase()}</div></div></div>`).join('') || 'No reports';
-            
-            // Home Screen Mini List
-            const latest = reports.slice(0,3);
-            if(latest.length > 0) {
-                if(document.getElementById('latest-case-card')) document.getElementById('latest-case-card').style.display = 'block';
-                if(document.getElementById('no-case-card')) document.getElementById('no-case-card').style.display = 'none';
-                
-                m.innerHTML = latest.map(r => {
-                    const timeStr = r.created_at ? formatTimeAgo(r.created_at) : 'Just now';
-                    return `<div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:15px; cursor:pointer" onclick="openDetail('${r.id}')">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start">
-                            <div>
-                                <div style="font-weight:900; color:var(--accent); font-size:13px">${r.type}</div>
-                                <div style="font-size:10px; opacity:0.6; margin:4px 0">${(r.description||'').substring(0,35)}...</div>
-                                <div style="font-size:9px; font-weight:950; color:rgba(0,0,0,0.3)">${timeStr}</div>
-                            </div>
-                            <div class="activity-pill ${r.status==='done'?'done':''}" style="font-size:9px">${(r.status||'OPEN').toUpperCase()}</div>
-                        </div>
-                    </div>`;
-                }).join('');
-            } else {
-                if(document.getElementById('latest-case-card')) document.getElementById('latest-case-card').style.display = 'none';
-                if(document.getElementById('no-case-card')) document.getElementById('no-case-card').style.display = 'block';
-            }
+            f.innerHTML = reports.map(r => `<div class="ticket-item" onclick="openDetail('${r.id}')"><div style="font-weight:900; color:var(--accent)">${r.type}</div><div style="font-size:12px; opacity:0.6">${(r.description||'').substring(0,40)}...</div><div style="font-size:10px; margin-top:10px; font-weight:900; color:${r.status==='done'?'#22c55e':'#38bdf8'}">#${r.id} | ${(r.status||'OPEN').toUpperCase()}</div></div>`).join('') || 'No reports';
+            m.innerHTML = reports.slice(0,3).map(r => `<div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:10px" onclick="openDetail('${r.id}')"><div style="font-weight:900; color:var(--primary)">${r.type}</div><div style="font-size:11px; opacity:0.5">${(r.description||'').substring(0,30)}...</div></div>`).join('');
+            document.getElementById('latest-case-card').style.display = reports.length ? 'block' : 'none';
         }
-
-        function formatTimeAgo(dateString) {
-            const now = new Date();
-            const date = new Date(dateString);
-            const seconds = Math.floor((now - date) / 1000);
-            if (seconds < 60) return 'Just now';
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return minutes + 'm ago';
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return hours + 'h ago';
-            const days = Math.floor(hours / 24);
-            return days + 'd ago';
-        }
-
 
         async function openDetail(id) {
             const r = reports.find(x => String(x.id) === String(id)); if (!r) return;
-            const isDone = (r.status||'').toLowerCase()==='done';
             const snap = await db.collection('reports').doc(String(id)).collection('timeline').orderBy('created_at','asc').get();
             const tl = snap.docs.map(d=>d.data());
-            document.getElementById('det-cont').innerHTML = `<div style="margin-top:20px"><div style="background:white; padding:25px; border-radius:28px; border:1px solid #e2e8f0;"><span class="lbl">Summary</span><h2 style="font-weight:900; color:var(--accent); text-transform:uppercase">${r.type}</h2><div style="display:flex; gap:15px; border-top:1px solid #f1f5f9; padding-top:15px"><div style="flex:1"><span class="lbl">Site</span><p style="font-weight:900">${r.site}</p></div><div style="flex:1"><span class="lbl">Status</span><p style="font-weight:900; color:${isDone?'#22c55e':'#38bdf8'}">${r.status||'OPEN'}</p></div></div><div style="border-top:1px solid #f1f5f9; padding-top:15px"><span class="lbl">Details</span><p style="font-weight:900">${r.description}</p></div></div>${r.photo_b64?`<img src="${r.photo_b64}" style="width:100%; border-radius:20px; margin-top:15px">`:''}<div style="margin-top:20px"><span class="lbl">Journey</span>${tl.map(t=>`<div style="display:flex; gap:10px; margin-top:10px"><div style="width:2px; background:#e2e8f0; position:relative"><div style="width:10px; height:10px; background:${t.color||'var(--accent)'}; border-radius:50%; position:absolute; left:-4px; border:2px solid white"></div></div><div style="font-size:12px; font-weight:900">${t.event_text}<br><span style="font-size:10px; opacity:0.5">${(t.created_at||'').substring(0,10)}</span></div></div>`).join('')}</div><button class="btn-p" style="margin-top:20px" onclick="openReportChat('${id}')">OPEN CASE CHAT</button></div>`;
+            document.getElementById('det-cont').innerHTML = `<div class="hero-card"><span class="lbl">Summary</span><h2 style="font-weight:900; color:var(--primary)">${r.type}</h2><p style="font-size:13px; margin-top:10px">${r.description}</p></div>${r.photo_b64?`<img src="${r.photo_b64}" style="width:100%; border-radius:28px; margin-bottom:20px">`:''}<div class="hero-card"><span class="lbl">Journey</span>${tl.map(t=>`<div style="font-size:12px; margin-top:8px"><b>${t.event_text}</b><br><span style="opacity:0.5">${t.created_at.substring(0,10)}</span></div>`).join('')}</div>`;
             switchScreen('detail');
         }
 
-        // CHAT
+        function setType(t, el) { currentType = t; document.querySelectorAll('.type-box').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderSubTypes(); }
+        function renderSubTypes() { document.getElementById('sub-types').innerHTML = (subCats[currentType]||[]).map(s=>`<div class="sub-type-item" onclick="currentSubType='${s}'; this.parentElement.querySelectorAll('.sub-type-item').forEach(x=>x.classList.remove('active')); this.classList.add('active');">${s}</div>`).join(''); }
+        function handleImg(input) { const f = input.files[0]; const r = new FileReader(); r.onload = (e) => { imgB64 = e.target.result; document.getElementById('prevImg').src = imgB64; document.getElementById('prevImg').style.display='block'; document.getElementById('phold').style.display='none'; }; r.readAsDataURL(f); }
+
+        async function doSubmit() {
+            const ds = document.getElementById('f-desc').value.trim(); if (!ds) return alert('Details required');
+            const btn = document.getElementById('subBtn'); btn.innerText = 'Syncing...';
+            try {
+                const snap = await db.collection('reports').get();
+                let nextId = 1; if(!snap.empty) { const ids = snap.docs.map(d=>parseInt(d.id)).filter(v=>!isNaN(v)); nextId = Math.max(...ids)+1; }
+                const ts = new Date().toISOString();
+                const data = { emp_no: currentUser.emp_no, type: currentType, site: document.getElementById('f-site').value, description: currentSubType?`[${currentSubType}] ${ds}`:ds, photo_b64: imgB64, status: 'open', created_at: ts };
+                await db.collection('reports').doc(String(nextId)).set(data);
+                await db.collection('reports').doc(String(nextId)).collection('timeline').add({ event_text: 'Case Logged', created_at: ts });
+                alert('Sent! #' + nextId); switchScreen('reports');
+            } catch (e) { alert('Error: ' + e); }
+            btn.innerText = 'SUBMIT CASE';
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').innerText = reports.length;
+            document.getElementById('stat-pend').innerText = reports.filter(r=>r.status!=='done').length;
+            document.getElementById('stat-done').innerText = reports.filter(r=>r.status==='done').length;
+            document.getElementById('stat-activity').innerHTML = reports.map(r=>`<div class="ticket-item">#${r.id} - ${r.type}</div>`).join('');
+        }
+
+        // CHAT HUB
         async function fetchUnreadChats() {
+            if(!currentUser) return;
             const snap = await db.collection('chat_messages').where('is_read','==',false).where('participants','array-contains',currentUser.emp_no).get();
             unreadChats = {}; snap.docs.forEach(d => { const m = d.data(); if(m.sender_no !== currentUser.emp_no) unreadChats[m.session_id] = (unreadChats[m.session_id]||0)+1; });
             updateChatBadges();
@@ -1553,119 +651,68 @@
         function updateChatBadges() {
             let t = 0; Object.values(unreadChats).forEach(v=>t+=v);
             const dot = document.getElementById('chat-global-badge'); if(dot) { dot.innerText = t>9?'9+':t; dot.style.display = t>0?'flex':'none'; }
-            if (document.getElementById('s-chat-list') && document.getElementById('s-chat-list').classList.contains('active')) renderChatHub();
         }
         async function renderChatHub() {
-            if (isRenderingHub) return; isRenderingHub = true;
+            if (isRenderingHub || !currentUser) return; isRenderingHub = true;
             const sSnap = await db.collection('chat_sessions').where('participants','array-contains',currentUser.emp_no).get();
             const data = sSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
             const c = document.getElementById('chat-report-list');
-            if(!c) return;
-            c.innerHTML = data.map(s => {
-                const unread = unreadChats[s.id]||0;
-                const isDir = s.id.startsWith('direct_');
-                return `<div class="chat-hub-row" onclick="${isDir?'openDirectChat()':`openReportChat('${s.id.replace('report_','')}')`}" style="${isDir?'background:#e0f2fe; border-color:#bae6fd':''}"><div class="row-icon-cell"><div class="row-icon-circ" style="${isDir?'background:var(--primary); color:white':''}"><i class="fas ${isDir?'fa-user-shield':'fa-comment-dots'}"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title">${isDir?'Management Support':`# CASE ${s.id.replace('report_','')}`}</span></div><div style="display:flex; justify-content:space-between; align-items:center"><div class="row-subtext">${s.last_message||''}</div>${unread>0?`<div class="chat-badge-hub">${unread}</div>`:''}</div></div></div>`;
-            }).join('') || '<p style="text-align:center; padding:40px; opacity:0.5">No chats</p>';
+            if(c) c.innerHTML = data.map(s => `<div class="ticket-item" onclick="openChat('${s.id}')"><div><b>${s.id}</b><br><small>${s.last_message||''}</small></div></div>`).join('') || '<p style="text-align:center; opacity:0.3">No chats</p>';
             isRenderingHub = false;
         }
 
-        async function openDirectChat() { setupChat(`direct_${currentUser.emp_no}`, "CIT MANAGEMENT"); }
-        async function openReportChat(rid) { setupChat(`report_${rid}`, "# CASE " + rid); }
-        async function setupChat(sid, title) {
+        async function openChat(sid) {
             activeRoom = sid;
-            document.getElementById('chat-title').innerText = title;
-            document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:20px; opacity:0.3">Syncing...</p>';
+            document.getElementById('chat-title').innerText = sid;
+            document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:20px; opacity:0.3">Loading conversation...</p>';
             switchScreen('chat');
-            chatOpenedAt = Date.now();
             if(unsubChat) unsubChat();
-            unsubChat = db.collection('chat_messages').where('session_id','==',sid).onSnapshot(snap => {
-                snap.docChanges().forEach(ch => { if(ch.type==='added'){ const d=ch.doc.data(); if(d.sender_no!==currentUser.emp_no && new Date(d.created_at).getTime()>chatOpenedAt) appendMsg(d); } });
+            unsubChat = db.collection('chat_messages').where('session_id','==',sid).orderBy('created_at','asc').onSnapshot(snap => {
+                document.getElementById('chat-msgs').innerHTML = snap.docs.map(d=>{
+                    const m = d.data(); const me = m.sender_no === currentUser.emp_no;
+                    return `<div class="chat-bubble ${me?'me':'them'}">${m.content}</div>`;
+                }).join('');
+                const mc = document.getElementById('chat-msgs'); mc.scrollTop = mc.scrollHeight;
             });
-            const snap = await db.collection('chat_messages').where('session_id','==',sid).get();
-            const msgs = snap.docs.map(d=>d.data()).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-            document.getElementById('chat-msgs').innerHTML = msgs.map(m=>renderMsg(m)).join('');
-            const mc = document.getElementById('chat-msgs'); mc.scrollTop = mc.scrollHeight;
-            markRead(sid);
         }
-        function appendMsg(m) { const c=document.getElementById('chat-msgs'); if(c) { c.innerHTML+=renderMsg(m); c.scrollTop=c.scrollHeight; } }
-        function renderMsg(m) { const me=(m.sender_no===currentUser.emp_no); return `<div class="chat-bubble ${me?'me':'them'}"><div class="chat-meta">${me?'YOU':(m.sender_name||'ADMIN')}</div><div>${m.content||m.message}</div></div>`; }
-        async function markRead(sid) { const snap=await db.collection('chat_messages').where('session_id','==',sid).where('is_read','==',false).get(); const b=db.batch(); snap.docs.forEach(d=>{ if(d.data().sender_no!==currentUser.emp_no) b.update(d.ref,{is_read:true}); }); await b.commit(); delete unreadChats[sid]; updateChatBadges(); }
-        
+
         async function sendReportMsg() {
-            const i=document.getElementById('chat-input'), val=i.value.trim(); if(!val) return;
-            const ts=new Date().toISOString(), sid=activeRoom;
-            const d={ session_id:sid, sender_no:currentUser.emp_no, sender_name:currentUser.name_en||currentUser.name||"Employee", content:val, created_at:ts, is_read:false, participants:[currentUser.emp_no,'admin'] };
-            appendMsg(d); i.value='';
+            const i=document.getElementById('chat-input'), val=i.value.trim(); if(!val || !activeRoom) return;
+            const ts=new Date().toISOString(); i.value='';
+            const d={ session_id:activeRoom, sender_no:currentUser.emp_no, content:val, created_at:ts, is_read:false, participants:[currentUser.emp_no,'admin'] };
             await db.collection('chat_messages').add(d);
-            await db.collection('chat_sessions').doc(sid).set({ participants:[currentUser.emp_no,'admin'], updated_at:ts, last_message:val.substring(0,40), type:sid.startsWith('direct')?'direct':'report' }, {merge:true});
+            await db.collection('chat_sessions').doc(activeRoom).set({ participants:[currentUser.emp_no,'admin'], updated_at:ts, last_message:val }, {merge:true});
         }
 
         async function submitHelp() {
             const s=document.getElementById('supp-subj').value, m=document.getElementById('supp-msg').value; if(!s||!m) return alert("Fill fields");
-            await db.collection('support_requests').add({ emp_no:currentUser.emp_no, name:currentUser.name_en||currentUser.name, subject:s, message:m, created_at:new Date().toISOString(), status:'pending' });
+            await db.collection('support_requests').add({ emp_no:currentUser.emp_no, subject:s, message:m, created_at:new Date().toISOString() });
             alert("Sent!"); switchScreen('home');
         }
 
-        // APP INIT
-        async function startHub() {
-            if (isHubStarted) return; isHubStarted = true;
-            loadHRNews(); loadNotifs(); sync(); renderChatHub(); fetchUnreadChats();
-            setInterval(fetchUnreadChats, 10000); setInterval(renderChatHub, 10000);
-            db.collection('employees').doc(String(currentUser.emp_no)).onSnapshot(doc => { if(doc.exists) { currentUser = {...currentUser, ...doc.data()}; updateProfileUI(); } });
-            db.collection('employees').doc(String(currentUser.emp_no)).update({ is_online: true }).catch(()=>{});
-        }
-        function updateProfileUI() {
-            if(!currentUser) return;
-            const name = currentUser.name_en || currentUser.name || "NIT Officer";
-            ['dr-name','hm-name'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerText=name; });
-            const idStr = `EMP ID: ${currentUser.emp_no}`;
-            ['dr-id','hm-id'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerText=idStr; });
-            if(document.getElementById('supp-name-disp')) document.getElementById('supp-name-disp').value = name;
-            if(document.getElementById('supp-id-disp')) document.getElementById('supp-id-disp').value = currentUser.emp_no;
-        }
-
-        function initApp() {
+        async function initApp() {
             const saved = localStorage.getItem('nit_user');
             if (saved) {
-                try {
-                    currentUser = JSON.parse(saved);
-                    document.getElementById('s-login').style.display = 'none';
-                    if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'flex';
-                    if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'flex';
-                    updateProfileUI();
-                    startHub();
-                    switchScreen('home');
-                } catch (e) {
-                    localStorage.clear();
-                    location.reload();
-                }
+                currentUser = JSON.parse(saved);
+                document.getElementById('s-login').style.display = 'none';
+                document.getElementById('dr-name').innerText = currentUser.name_en || currentUser.name || "Officer";
+                document.getElementById('dr-id').innerText = "ID: " + currentUser.emp_no;
+                document.getElementById('hm-name').innerText = currentUser.name_en || currentUser.name || "Officer";
+                
+                // Real-time news
+                db.collection('broadcasts').onSnapshot(snap => {
+                    const h = document.getElementById('news-list-home');
+                    if (h) h.innerHTML = snap.docs.map(d => `<div style="margin-bottom:10px; font-size:12px"><b>${d.data().title}</b><br>${d.data().content}</div>`).join('') || 'No news';
+                });
+                
+                sync(); switchScreen('home');
             } else {
-                document.querySelectorAll('.screen').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
+                document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
                 document.getElementById('s-login').style.display = 'flex';
-                if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'none';
-                if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'none';
+                document.getElementById('main-nav').style.display = 'none';
             }
         }
-
-
-
-
-        window.onload = () => {
-            initApp();
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('service-worker.js').then(reg => {
-                    reg.onupdatefound = () => {
-                        const installingWorker = reg.installing;
-                        installingWorker.onstatechange = () => {
-                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                window.location.reload();
-                            }
-                        };
-                    };
-                });
-            }
-        };
+        window.onload = initApp;
     </script>
 </body>
-
 </html>
