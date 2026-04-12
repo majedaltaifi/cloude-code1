@@ -580,34 +580,40 @@
         function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
 
         async function initApp() {
-            auth.onAuthStateChanged(async (u) => {
-                if (u) {
-                    const snap = await db.collection('employees').where('emp_no', '==', u.email.split('@')[0]).get();
-                    if (!snap.empty) {
-                        currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() };
-                        await fixLegacyNumbers(); // Run migration if needed
-                        sync();
-                        switchScreen('home');
-                    } else { /* Should not happen with valid email */ }
-                } else {
-                    switchScreen('login');
-                }
-            });
+            const saved = localStorage.getItem('nit_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                await fixLegacyNumbers();
+                sync();
+                switchScreen('home');
+            } else {
+                switchScreen('login');
+            }
         }
 
         async function doLogin() {
             const id = document.getElementById('login-id').value.trim();
             if (!id) return;
-            const btn = document.querySelector('#s-login .btn-p');
-            btn.innerText = "VERIFYING..."; btn.disabled = true;
+            const btn = document.querySelector('#s-login .btn-login');
+            if(btn) { btn.innerText = "VERIFYING..."; btn.disabled = true; }
             try {
-                const snap = await db.collection('employees').where('emp_no', '==', id).get();
-                if (snap.empty) { document.getElementById('login-err').style.display = 'block'; btn.innerText = "SIGN IN"; btn.disabled = false; }
-                else { currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; localStorage.setItem('nit_user', JSON.stringify(currentUser)); initApp(); }
-            } catch (e) { alert("Error: " + e); btn.innerText = "SIGN IN"; btn.disabled = false; }
+                const snap = await db.collection('employees').where('emp_no', '==', String(id)).get();
+                if (snap.empty) { 
+                    document.getElementById('login-err').style.display = 'block'; 
+                    if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
+                }
+                else { 
+                    currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; 
+                    localStorage.setItem('nit_user', JSON.stringify(currentUser)); 
+                    initApp(); 
+                }
+            } catch (e) { 
+                alert("Error: " + e); 
+                if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
+            }
         }
 
-        function doLogout() { localStorage.clear(); location.reload(); }
+        function doLogout() { localStorage.removeItem('nit_user'); location.reload(); }
 
         function sync() {
             if (!currentUser || unsubSync) return;
