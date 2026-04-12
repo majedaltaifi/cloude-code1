@@ -540,12 +540,19 @@
             `).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO INCIDENTS FOUND</div>';
             
             // Mini Home List
-            m.innerHTML = reports.slice(0,3).map(r => `
+            m.innerHTML = reports.slice(0,3).map(r => {
+                const s = (r.status||'').toLowerCase();
+                const isWorking = s === 'inprog';
+                const isDone = s === 'done';
+                
+                return `
                 <div class="case-group" onclick="openDetail('${r.id}')">
                     <div class="case-main-card">
                         <div class="type">${r.type}</div>
                         <div class="desc">${(r.description||'').substring(0,30)}...</div>
-                        <div class="status-tag">${(r.status||'OPEN').toUpperCase()}</div>
+                        <div class="status-tag" style="background:${isDone ? '#DCFCE7' : (isWorking ? '#FEF3C7' : '#E0F2FE')}; color:${isDone ? '#22c55e' : (isWorking ? '#92400E' : '#38bdf8')}">
+                            ${(r.status||'OPEN').toUpperCase()}
+                        </div>
                         <div class="id">#CASE ${r.case_num || '000'} • ${r.site || 'Site HQ'}</div>
                     </div>
                     <div class="case-log-list">
@@ -554,9 +561,24 @@
                             <div class="log-txt">Case Logged</div>
                             <div class="log-meta">${(r.created_at||'').substring(0,10)} • System</div>
                         </div>
+                        ${s !== 'open' ? `
+                        <div class="log-item">
+                            <div class="log-dot" style="background:#f59e0b"></div>
+                            <div class="log-txt">Action taken on case</div>
+                            <div class="log-meta">Admin</div>
+                        </div>
+                        ` : ''}
+                        ${isDone ? `
+                        <div class="log-item">
+                            <div class="log-dot" style="background:#22c55e"></div>
+                            <div class="log-txt">Case Successfully Closed</div>
+                            <div class="log-meta">Final Resolution</div>
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
-            `).join('') || '<p style="font-size:11px; opacity:0.3; padding:10px">No recent activity</p>';
+                `;
+            }).join('') || '<p style="font-size:11px; opacity:0.3; padding:10px">No recent activity</p>';
         }
 
 
