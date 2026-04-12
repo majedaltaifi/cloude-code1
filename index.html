@@ -624,17 +624,14 @@
             btn.disabled = true;
 
             try {
-                // Determine current case number by counting existing and seeding counter
                 const counterRef = db.collection('settings').doc('counters');
                 let caseNum = 1;
                 
                 await db.runTransaction(async (transaction) => {
                     const sfDoc = await transaction.get(counterRef);
                     if (!sfDoc.exists) {
-                        // Seed from current report count
-                        const currentSnap = await db.collection('reports').get();
-                        caseNum = currentSnap.size + 1;
-                        transaction.set(counterRef, { report_count: caseNum }, {merge:true});
+                        transaction.set(counterRef, { report_count: 1 }, {merge:true});
+                        caseNum = 1;
                     } else {
                         caseNum = (sfDoc.data().report_count || 0) + 1;
                         transaction.update(counterRef, { report_count: caseNum });
@@ -665,7 +662,7 @@
                 location.reload();
             } catch(e) { 
                 console.error("Submit Error:", e);
-                alert('Submit Failed: ' + e.message); 
+                alert('Submit Failed. Please try again.'); 
                 btn.innerHTML = oldHtml;
                 btn.disabled = false;
             }
