@@ -1609,35 +1609,47 @@
             if (rid) openDetail(rid);
         }
 
-        async function sync() {
+        let unsubSync = null;
+        function sync() {
             if (!currentUser || !currentUser.emp_no) return;
-            try {
-                console.log("Firestore Sync: Querying reports for", currentUser.emp_no, "(" + typeof currentUser.emp_no + ")");
-
-                // 1. Try with original type
-                let snap = await db.collection('reports').where('emp_no', '==', currentUser.emp_no).get();
-
-                // 2. If empty, try the alternate type (string <-> number)
-                if (snap.empty) {
-                    const altType = typeof currentUser.emp_no === 'string' ? Number(currentUser.emp_no) : String(currentUser.emp_no);
-                    if (altType !== currentUser.emp_no && (typeof altType !== 'number' || !isNaN(altType))) {
-                        console.log("Firestore Sync: Trying alternate type", altType, "(" + typeof altType + ")");
-                        snap = await db.collection('reports').where('emp_no', '==', altType).get();
+            if (unsubSync) unsubSync();
+            
+            console.log("Starting Real-time Sync for", currentUser.emp_no);
+            
+            unsubSync = db.collection('reports').where('emp_no', 'in', [currentUser.emp_no, String(currentUser.emp_no), Number(currentUser.emp_no)])
+                .onSnapshot(snap => {
+                    const newReports = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    
+                    // Logic to detect if a status changed to "Done" to notify user
+                    if (reports.length > 0) {
+                        newReports.forEach(r => {
+                            const oldR = reports.find(o => o.id === r.id);
+                            if (oldR && oldR.status !== r.status && r.status.toLowerCase() === 'done') {
+                                playNotificationSound();
+                                showBrowserNotification("Case Resolved", `Your case #${r.id.substring(0,5)} at ${r.site} is now DONE.`);
+                            }
+                        });
                     }
-                }
 
-                if (snap.empty) {
-                    console.warn("Firestore Sync: No reports found in Firestore for user", currentUser.emp_no);
-                } else {
-                    console.log(`Firestore Sync: Success! Found ${snap.docs.length} reports.`);
-                }
+                    reports = newReports;
+                    renderReports();
+                    updateStats();
+                }, e => console.error("Snapshot Sync Error:", e));
+        }
 
-                reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        function playNotificationSound() {
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.play().catch(e => { });
+        }
 
-                renderReports();
-                updateStats();
-            } catch (e) {
-                console.error("Firestore Sync Error:", e);
+        function showBrowserNotification(title, body) {
+            if (Notification.permission === "granted") {
+                new Notification(title, { body: body, icon: './icon.png' });
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(p => {
+                    if (p === "granted") new Notification(title, { body: body });
+                });
             }
         }
 
