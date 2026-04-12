@@ -1299,6 +1299,7 @@
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck",
@@ -1309,10 +1310,13 @@
             appId: "1:553630040386:web:361da3353836ac709188db",
             measurementId: "G-GJ65XRZ57B"
         };
-        firebase.initializeApp(firebaseConfig);
+        if(!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.firestore();
+        const messaging = firebase.messaging();
 
-                const API = window.location.origin;
+        const API = window.location.origin;
         let currentUser = null;
 
         let reports = [], notifs = [], readLocally = new Set(), activeRoom = null, isDirectMode = false, isP2P = false, targetPeer = null, imgB64 = null, unreadChats = {};
@@ -1346,9 +1350,12 @@
             if (!currentUser) return;
             updateProfileUI();
 
-            db.collection('employees').doc(currentUser.emp_no).get().then(docRef => {
-                if(docRef.exists) {
-                    currentUser = { ...currentUser, ...docRef.data() };
+            // Setup real-time listeners and check permissions
+            requestNotificationPermission();
+
+            db.collection('employees').doc(currentUser.emp_no).onSnapshot(doc => {
+                if(doc.exists) {
+                    currentUser = { ...currentUser, ...doc.data() };
                     localStorage.setItem('nit_user', JSON.stringify(currentUser));
                     updateProfileUI();
                 }
@@ -1359,6 +1366,27 @@
             db.collection('employees').doc(currentUser.emp_no).update({ is_online: true }).catch(()=>{});
             
             setInterval(sync, 5000); setInterval(loadNotifs, 5000); setInterval(fetchHRNews, 5000); setInterval(fetchUnreadChats, 5000); setInterval(renderChatHub, 5000);
+        }
+
+        async function requestNotificationPermission() {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    // Note: You will need to replace the publicKey below with your actual VAPID key
+                    const token = await messaging.getToken({ 
+                        valpidKey: 'YOUR_PUBLIC_VAPID_KEY_HERE' 
+                    });
+                    if (token) {
+                        console.log('FCM Token:', token);
+                        await db.collection('employees').doc(currentUser.emp_no).update({
+                            fcm_token: token,
+                            last_token_update: new Date().toISOString()
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Notification error:', error);
+            }
         }
 
         function updateProfileUI() {
