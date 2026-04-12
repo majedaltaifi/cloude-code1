@@ -79,6 +79,28 @@
         .drawer-item { display:flex; align-items:center; justify-content:space-between; padding:20px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; }
         .drawer-icon { width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--accent); }
 
+
+        .type-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px; }
+        .type-box { background:white; padding:25px; border-radius:30px; display:flex; flex-direction:column; align-items:center; gap:12px; box-shadow:0 8px 30px rgba(0,0,0,0.02); transition:0.3s; border:2.5px solid transparent; cursor:pointer; }
+        .type-box.active { border-color:var(--accent); color:var(--accent); }
+        .type-box i { font-size:32px; color:#cbd5e1; transition:0.3s; }
+        .type-box.active i { color:var(--accent); }
+        .type-box span { font-weight:900; font-size:14px; }
+
+        .sub-type-grid { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:25px; }
+        .sub-type-item { background:white; padding:12px 20px; border-radius:15px; font-size:13px; font-weight:900; color:#1e293b; box-shadow:0 5px 15px rgba(0,0,0,0.02); cursor:pointer; transition:0.3s; }
+        .sub-type-item.active { background:var(--accent); color:white; }
+
+        .write-box { background:white; padding:25px; border-radius:35px; box-shadow:0 8px 30px rgba(0,0,0,0.02); margin-bottom:25px; }
+        .write-box textarea { width:100%; border:none; outline:none; font-weight:700; font-size:16px; min-height:100px; resize:none; color:var(--primary); }
+        .write-box textarea::placeholder { color:#cbd5e1; }
+
+        .site-box { background:white; padding:18px 25px; border-radius:25px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 8px 30px rgba(0,0,0,0.02); margin-bottom:30px; }
+        .site-box select { border:none; outline:none; font-weight:900; font-size:15px; color:var(--primary); background:transparent; appearance:none; width:100%; }
+
+        .btn-p { width:100%; background:var(--primary); color:white; padding:24px; border-radius:28px; border:none; font-weight:900; letter-spacing:1px; cursor:pointer; transition:0.3s; }
+        .btn-p:active { transform:scale(0.96); }
+
         .header i { cursor:pointer; transition:0.2s; }
         .header i:active { transform:scale(0.85); opacity:0.6; }
 
@@ -178,28 +200,52 @@
                 </div>
             </div>
 
-            <!-- Add Case -->
+            <!-- Create -->
             <div class="screen" id="s-create">
-                <header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>ADD CASE</h1><div style="width:20px"></div></header>
-                <span class="lbl">PROBLEM TYPE</span>
-                <div class="type-grid">
-                    <div class="type-box active" onclick="setType('safety', this)"><i><i class="fas fa-shield-alt"></i></i><span>Safety</span></div>
-                    <div class="type-box" onclick="setType('materials', this)"><i><i class="fas fa-box"></i></i><span>Materials</span></div>
-                    <div class="type-box" onclick="setType('mechanical', this)"><i><i class="fas fa-tools"></i></i><span>Mech.</span></div>
-                    <div class="type-box" onclick="setType('other', this)"><i><i class="fas fa-info-circle"></i></i><span>Other</span></div>
+                <header class="header">
+                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
+                    <h1>ADD CASE</h1>
+                    <div style="width:24px"></div>
+                </header>
+                
+                <div style="margin-top:20px">
+                    <span class="lbl-prime">PROBLEM TYPE</span>
+                    <div class="type-grid">
+                        <div class="type-box active" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><span>Safety</span></div>
+                        <div class="type-box" onclick="setType('materials', this)"><i class="fas fa-box"></i><span>Materials</span></div>
+                        <div class="type-box" onclick="setType('mechanical', this)"><i class="fas fa-tools"></i><span>Mech.</span></div>
+                        <div class="type-box" onclick="setType('other', this)"><i class="fas fa-info-circle"></i><span>Other</span></div>
+                    </div>
+
+                    <div id="sub-types" class="sub-type-grid"></div>
+
+                    <span class="lbl-prime">WRITE PROBLEM</span>
+                    <div class="write-box">
+                        <textarea id="case-desc" placeholder="Tell us what happened..."></textarea>
+                    </div>
+
+                    <span class="lbl-prime">SELECT SITE</span>
+                    <div class="site-box">
+                        <select id="case-site">
+                            <option value="Randa Tower">Randa Tower</option>
+                            <option value="Riyadh HQ">Riyadh HQ</option>
+                            <option value="Jeddah Office">Jeddah Office</option>
+                        </select>
+                        <i class="fas fa-chevron-down" style="color:#cbd5e1"></i>
+                    </div>
+
+                    <span class="lbl-prime">ATTACHMENT (OPTIONAL)</span>
+                    <div class="write-box" onclick="document.getElementById('img-i').click()" style="display:flex; flex-direction:column; align-items:center; cursor:pointer; gap:10px">
+                        <img id="prevImg" style="display:none; width:100%; border-radius:15px">
+                        <div id="phold" style="text-align:center; color:#cbd5e1">
+                            <i class="fas fa-camera" style="font-size:30px"></i>
+                            <p style="font-size:12px; font-weight:900; margin-top:8px">TAP TO CAPTURE</p>
+                        </div>
+                    </div>
+                    <input type="file" id="img-i" accept="image/*" capture="environment" hidden onchange="handleImg(this)">
+
+                    <button class="btn-p" onclick="submitReport()" style="margin-bottom:80px">SUBMIT REPORT</button>
                 </div>
-                <div id="sub-types" class="sub-type-grid"></div>
-                <span class="lbl">DETAILS</span>
-                <div class="input-group"><textarea id="f-desc" placeholder="What happened?"></textarea></div>
-                <span class="lbl">SITE LOCATION</span>
-                <div class="input-group"><select id="f-site" style="width:100%; border:none; outline:none; font-weight:700; background:transparent"><option value="Randa Tower">Randa Tower</option><option value="NEOM Office">NEOM Office</option><option value="HQ">HQ</option></select></div>
-                <div class="photo-upload" onclick="document.getElementById('fIn').click()">
-                    <i class="fas fa-camera" style="font-size:30px; margin-bottom:10px"></i>
-                    <span id="phold" style="font-weight:900; font-size:12px">PHOTOGRAPH</span>
-                    <img id="prevImg" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:20px">
-                </div>
-                <input type="file" id="fIn" hidden onchange="handleImg(this)">
-                <button class="btn-p" id="subBtn" onclick="doSubmit()">SUBMIT CASE</button>
             </div>
 
             <!-- Stats -->
@@ -468,19 +514,42 @@
         function renderSubTypes() { document.getElementById('sub-types').innerHTML = (subCats[currentType]||[]).map(s=>`<div class="sub-type-item" onclick="currentSubType='${s}'; this.parentElement.querySelectorAll('.sub-type-item').forEach(x=>x.classList.remove('active')); this.classList.add('active');">${s}</div>`).join(''); }
         function handleImg(input) { const f = input.files[0]; const r = new FileReader(); r.onload = (e) => { imgB64 = e.target.result; document.getElementById('prevImg').src = imgB64; document.getElementById('prevImg').style.display='block'; document.getElementById('phold').style.display='none'; }; r.readAsDataURL(f); }
 
-        async function doSubmit() {
-            const ds = document.getElementById('f-desc').value.trim(); if (!ds) return alert('Details required');
-            const btn = document.getElementById('subBtn'); btn.innerText = 'Syncing...';
+        async function submitReport() {
+            const desc = document.getElementById('case-desc').value;
+            const site = document.getElementById('case-site').value;
+            if(!desc || !currentType) return alert('Please complete the details');
+            
+            const btn = document.querySelector('#s-create .btn-p');
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SYNCING...';
+            btn.disabled = true;
+
             try {
-                const snap = await db.collection('reports').get();
-                let nextId = 1; if(!snap.empty) { const ids = snap.docs.map(d=>parseInt(d.id)).filter(v=>!isNaN(v)); nextId = Math.max(...ids)+1; }
-                const ts = new Date().toISOString();
-                const data = { emp_no: currentUser.emp_no, type: currentType, site: document.getElementById('f-site').value, description: currentSubType?`[${currentSubType}] ${ds}`:ds, photo_b64: imgB64, status: 'open', created_at: ts };
-                await db.collection('reports').doc(String(nextId)).set(data);
-                await db.collection('reports').doc(String(nextId)).collection('timeline').add({ event_text: 'Case Logged', created_at: ts });
-                alert('Sent! #' + nextId); switchScreen('reports');
-            } catch (e) { alert('Error: ' + e); }
-            btn.innerText = 'SUBMIT CASE';
+                const doc = await db.collection('reports').add({
+                    user_id: currentUser.id,
+                    user_name: currentUser.name,
+                    type: currentType + (currentSubType ? ' - ' + currentSubType : ''),
+                    description: desc,
+                    site: site,
+                    status: 'open',
+                    photo_b64: imgB64 || null,
+                    created_at: new Date().toISOString()
+                });
+
+                await db.collection('reports').doc(doc.id).collection('timeline').add({
+                    event_text: 'Case Logged',
+                    author: 'System',
+                    created_at: new Date().toISOString()
+                });
+
+                alert('Sent! Ticket #' + doc.id.substring(0,6));
+                switchScreen('reports');
+                location.reload();
+            } catch(e) { 
+                alert('Connection Error'); 
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+            }
         }
 
         function updateStats() {
