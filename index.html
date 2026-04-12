@@ -640,7 +640,9 @@
 
         function filterChats() {
             const q = document.getElementById('chat-search').value.toLowerCase();
-            renderChatHub(q)
+            renderChatHub(q);
+        }
+
         async function renderChatHub(query = '') {
             if (isRenderingHub || !currentUser) return; 
             isRenderingHub = true;
