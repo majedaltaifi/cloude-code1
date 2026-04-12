@@ -932,10 +932,11 @@
             activeRoom = String(sid);
             let title = activeRoom === 'Admin' || activeRoom === 'Management' ? 'Management Support' : activeRoom;
             
-            // If it's a peer chat ID like b2p_1131_3734, extract the other ID
+            // Smarter extraction for p2p/b2p formats
             if(activeRoom.includes('_')) {
                 const parts = activeRoom.split('_');
-                const other = parts.find(p => p !== 'b2p' && p !== String(currentUser.emp_no));
+                // Exclude common prefixes and current user ID to find the partner
+                const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
                 if (other) title = 'Officer ' + other;
             }
             
