@@ -535,7 +535,7 @@
 
             dBody.innerHTML = filtered.slice(0, 20).map(r => `
                 <tr onclick="openDetail('${r.id}')" style="cursor:pointer">
-                    <td>#${String(r.id).substring(0,6)}</td>
+                    <td>#CASE ${r.case_num || '---'}</td>
                     <td>${r.emp_no}</td>
                     <td>${r.site}</td>
                     <td>${new Date(r.created_at).toLocaleDateString()}</td>
@@ -548,7 +548,7 @@
                 const bCls = s === 'open' ? 'b-open' : (s === 'inprog' ? 'b-warning' : 'b-done');
                 return `
                 <tr>
-                    <td>#${String(r.id).substring(0,6)}</td>
+                    <td>#CASE ${r.case_num || '---'}</td>
                     <td><b>${r.emp_no}</b></td>
                     <td>
                         <div style="position:relative; display:inline-block">
@@ -633,7 +633,7 @@
             body.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px">
                     <div>
-                        <span class="badge b-open" style="margin-bottom:10px; display:inline-block">REFERENCE #${String(r.id).substring(0,8)}</span>
+                        <span class="badge b-open" style="margin-bottom:10px; display:inline-block">OFFICIAL RECORD #CASE ${r.case_num || '---'}</span>
                         <h2 style="font-size:24px; font-weight:950; color:var(--primary)">${(r.type||'OTHER').toUpperCase()} REPORT</h2>
                         <p style="opacity:0.6; font-size:12px; font-weight:700">Filed by ID ${r.emp_no} • ${new Date(r.created_at).toLocaleString()}</p>
                     </div>
