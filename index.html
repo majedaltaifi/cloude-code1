@@ -1359,12 +1359,15 @@
             if (saved) {
                 currentUser = JSON.parse(saved);
                 document.getElementById('s-login').style.display = 'none';
+                document.querySelector('.navbar').style.display = 'flex';
                 updateProfileUI();
                 startHub();
+                switchScreen('home', 'bn-home'); // Force start at Home
             } else {
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
                 document.getElementById('s-login').style.display = 'flex';
                 document.querySelector('.navbar').style.display = 'none';
+                document.querySelector('.wa-fixed').style.display = 'none';
             }
         }
 
@@ -1469,19 +1472,17 @@
         }
 
         function doLogout() {
+            console.log("Logging out...");
             try {
-                localStorage.removeItem('nit_user');
                 if (currentUser && currentUser.emp_no) {
-                    const docId = String(currentUser.emp_no);
-                    db.collection('employees').doc(docId).update({ is_online: false }).catch(() => { });
+                    db.collection('employees').doc(String(currentUser.emp_no)).update({ is_online: false }).catch(() => { });
                 }
-            } catch (e) {
-                console.error("Logout error:", e);
-            }
-            // Always reload to ensure state is cleared, even if Firestore update fails
-            setTimeout(() => {
-                location.reload();
-            }, 100);
+                localStorage.clear(); // Clear EVERYTHING
+                sessionStorage.clear();
+            } catch (e) { }
+            
+            // Redirect to home without query params to avoid cache issues
+            window.location.href = window.location.pathname;
         }
 
         function initDirectWS() {
