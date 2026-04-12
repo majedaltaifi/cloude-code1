@@ -913,10 +913,20 @@
                 if(c) {
                     c.innerHTML = data.map((s, idx) => `
                         <div class="chat-row ${idx === 0 && !query ? 'active' : ''}" onclick="openChat('${s.id}')">
-                            <div class="chat-avatar"><i class="fas fa-user-shield"></i></div>
+                            <div class="chat-avatar ${s.id === 'Management' ? 'admin' : ''}">
+                                <i class="fas ${s.id === 'Management' ? 'fa-crown' : 'fa-user-shield'}"></i>
+                            </div>
                             <div class="chat-info">
                                 <div class="chat-name-meta">
-                                    <h4>${s.id === 'Management' ? 'Management Support' : s.id}</h4>
+                                    <h4>${(() => {
+                                        if(s.id === 'Management') return 'Management Support';
+                                        if(s.id.includes('_')) {
+                                            const parts = s.id.split('_');
+                                            const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
+                                            return other ? 'Officer ' + other : s.id;
+                                        }
+                                        return s.id;
+                                    })()}</h4>
                                     <span>${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
                                 </div>
                                 <div class="chat-msg-prev">${s.last_message || 'Start a new conversation'}</div>
