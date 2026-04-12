@@ -142,12 +142,6 @@
     <div class="main">
         <div class="header">
             <div><h1 id="tab-title">Executive Dashboard</h1><p style="color:var(--text-muted); font-weight:700">Real-time Operations Pulse</p></div>
-            <div style="display:flex; align-items:center; gap:15px">
-                <button onclick="playNotificationSound(); showBrowserNotification('System Alert', 'Notifications are calibrated and working!');" 
-                        style="background:var(--accent); color:var(--primary); border:none; padding:10px 20px; border-radius:10px; font-weight:900; cursor:pointer; font-size:12px">
-                    <i class="fas fa-bell"></i> TEST ALERT
-                </button>
-            </div>
         </div>
 
         <!-- DASHBOARD TAB -->
@@ -605,18 +599,6 @@
             });
             
             list.innerHTML = Object.values(sMap).map(s => `
-                <div class="header-actions">
-                <button class="btn-p" onclick="playNotificationSound(); showBrowserNotification('Test Alert', 'Notifications are working perfectly!');" style="background:var(--accent); margin-right: 10px; font-size: 12px; padding: 10px 15px;">
-                    <i class="fas fa-bell"></i> TEST ALERT
-                </button>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <span class="user-name">Majed Altaifi</span>
-                        <span class="user-role">System Administrator</span>
-                    </div>
-                    <div class="user-avatar">MA</div>
-                </div>
-            </div>
                 <div class="site-pro-card" onclick="filterBySite('${s.site}')" style="cursor:pointer">
                     <span class="site-badge">LIVE MONITOR</span>
                     <strong class="site-name">${s.site}</strong>
