@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIT Evolution Presentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Noto+Sans+Arabic:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #38bdf8;
+            --bg: #f8fafc;
+        }
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Noto Sans Arabic', 'Outfit', sans-serif;
+            background: var(--primary);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+        .slide {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            box-sizing: border-box;
+            position: absolute;
+            transition: 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+            opacity: 0;
+            transform: translateY(100%);
+            text-align: center;
+        }
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .logo {
+            width: 250px;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            background: white;
+            padding: 10px;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3));
+        }
+        h1 { font-size: 3rem; font-weight: 900; margin: 0; color: var(--accent); line-height: 1.4; }
+        h2 { font-size: 2.5rem; font-weight: 900; margin-bottom: 30px; border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        p { font-size: 1.5rem; opacity: 0.8; max-width: 800px; line-height: 1.6; }
+        
+        .box-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+            width: 90%;
+            max-width: 1000px;
+        }
+        .box {
+            background: rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            transition: 0.3s;
+        }
+        .box:hover { background: rgba(56, 189, 248, 0.1); transform: translateY(-10px); }
+        .box i { font-size: 2.5rem; color: var(--accent); margin-bottom: 15px; }
+        .box h3 { margin: 10px 0; font-size: 1.4rem; }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+        .btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn:hover { background: var(--accent); color: var(--primary); }
+
+        .progress {
+            position: fixed;
+            top: 0; left: 0; height: 5px;
+            background: var(--accent);
+            transition: 0.3s;
+            z-index: 101;
+        }
+        
+        .step-list { text-align: right; width: 100%; max-width: 800px; }
+        .step-item {
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 15px;
+            padding: 20px;
+            border-right: 5px solid var(--accent);
+            border-radius: 0 10px 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .step-num { font-weight: 900; font-size: 1.5rem; color: var(--accent); min-width: 40px; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.5rem; }
+            p { font-size: 1rem; }
+            .box-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress" id="progress"></div>
+
+    <!-- Slide 1: Welcome -->
+    <div class="slide active" id="slide-0">
+        <img src="https://www.constructionweeksaudi.com/cloud/2023/10/04/BeNyKTp9-1641473514287-1200x449.jpg" class="logo">
+        <h1>التحول الرقمي لعمليات<br>Nesma Infrastructure & Technology</h1>
+        <p>مشروع NIT Field Connect: من الفكرة إلى التميز الحقيقي</p>
+        <div style="margin-top: 50px; opacity: 0.5; letter-spacing: 2px;">بواسطة: MAJED ALTAIFI</div>
+    </div>
+
+    <!-- Slide 2: The Evolution -->
+    <div class="slide" id="slide-1">
+        <h2>مراحل تطور النظام</h2>
+        <div class="box-grid">
+            <div class="box">
+                <i class="fas fa-database"></i>
+                <h3>التأسيس (Past)</h3>
+                <p style="font-size: 1rem">قاعدة بيانات محلية، تقارير ورقية، وتواصل مشتت.</p>
+            </div>
+            <div class="box" style="border-width: 2px;">
+                <i class="fas fa-cloud"></i>
+                <h3>السحابة (Present)</h3>
+                <p style="font-size: 1rem">نظام معتمد على Firebase، ربط 5000 موظف، تواصل لحظي 24/7.</p>
+            </div>
+            <div class="box">
+                <i class="fas fa-microchip"></i>
+                <h3>الذكاء (Future)</h3>
+                <p style="font-size: 1rem">تطوير لوحات تحكم متقدمة تربط جميع الأقسام بنموذج رقمي واحد.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Success Metrics -->
+    <div class="slide" id="slide-2">
+        <h2>لماذا هذا النظام ناجح؟</h2>
+        <div style="text-align: right; font-size: 1.4rem; line-height: 2.2; max-width: 800px;">
+            <div><i class="fas fa-check-circle" style="color:var(--accent); margin-left:15px"></i> <strong>الوصول العالمي:</strong> متاح كـ PWA على أي هاتف في الميدان.</div>
+            <div><i class="fas fa-check-circle" style="color:var(--accent); margin-left:15px"></i> <strong>سرعة القرار:</strong> البلاغات تصل للإدارة في جزء من الثانية.</div>
+            <div><i class="fas fa-check-circle" style="color:var(--accent); margin-left:15px"></i> <strong>الأمان:</strong> حماية كاملة للبيانات باستخدام تقنيات Google Cloud.</div>
+            <div><i class="fas fa-check-circle" style="color:var(--accent); margin-left:15px"></i> <strong>سهولة الاستخدام:</strong> واجهة بديهية لا تتطلب تدريباً معقداً.</div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Strategic Road Map -->
+    <div class="slide" id="slide-3">
+        <h2>الخطوات القامة (Road Map)</h2>
+        <div class="step-list">
+            <div class="step-item">
+                <div class="step-num">01</div>
+                <div><strong>تحليل الاحتياجات:</strong> التواصل مع كل قسم (HR, Safety, Ops) لفهم تحدياتهم.</div>
+            </div>
+            <div class="step-item">
+                <div class="step-num">02</div>
+                <div><strong>برمجة النماذج:</strong> إضافة صفحات إدخال ذكية مخصصة لكل قسم داخل التطبيق.</div>
+            </div>
+            <div class="step-item">
+                <div class="step-num">03</div>
+                <div><strong>الربط الشامل:</strong> إنشاء قاعدة بيانات موحدة تخدم الشركة ككتلة واحدة.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: The Quote -->
+    <div class="slide" id="slide-4">
+        <i class="fas fa-quote-right" style="font-size: 3rem; color: var(--accent); opacity: 0.3; margin-bottom: 20px;"></i>
+        <p style="font-size: 2.2rem; font-weight: 600; font-style: italic;">"التحول الرقمي ليس رفاهية، بل هو المحرك الأساسي لكفاءة العمليات في Nesma IT."</p>
+        <div style="margin-top: 50px;">
+            <div style="font-weight: 900; font-size: 2rem; color: var(--accent);">ماجد الطائفي</div>
+            <div style="opacity: 0.6; font-size: 1.1rem; margin-top: 10px;">Developer & IT Solution Architect</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="nextSlide()"><i class="fas fa-chevron-down"></i></button>
+        <button class="btn" onclick="prevSlide()"><i class="fas fa-chevron-up"></i></button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progress = document.getElementById('progress');
+
+        function updateSlides() {
+            slides.forEach((s, i) => {
+                s.classList.toggle('active', i === currentSlide);
+            });
+            progress.style.width = ((currentSlide + 1) / slides.length * 100) + '%';
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlides();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlides();
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            }
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+        
+        // Touch support
+        let startY = 0;
+        window.addEventListener('touchstart', e => startY = e.touches[0].pageY);
+        window.addEventListener('touchend', e => {
+            let endY = e.changedTouches[0].pageY;
+            if (startY - endY > 50) nextSlide();
+            if (endY - startY > 50) prevSlide();
+        });
+    </script>
+</body>
+</html>
