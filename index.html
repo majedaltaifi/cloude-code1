@@ -1340,19 +1340,14 @@
             appId: "1:553630040386:web:361da3353836ac709188db",
             measurementId: "G-GJ65XRZ57B"
         };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const messaging = firebase.messaging();
 
-        const API = window.location.origin;
         let currentUser = null;
-
         let reports = [], notifs = [], readLocally = new Set(), activeRoom = null, isDirectMode = false, imgB64 = null, unreadChats = {};
-        let chatOpenedAt = 0;
-        let unsubChat = null, unsubDirect = null, unsubP2P = null;
-        let currentType = 'safety', currentSubType = '';
+        let chatOpenedAt = 0, currentType = 'safety', currentSubType = '';
+        let unsubChat = null, unsubSync = null, isHubStarted = false, isRenderingHub = false;
 
         const subCats = {
             safety: ['Fire Hazard', 'Personal Injury', 'Spillage', 'Slip/Trip'],
@@ -1362,786 +1357,245 @@
         };
         let currentFilter = 'all', lastScreen = 'home';
 
+        // CORE UI & NAVIGATION
+        function switchScreen(id, mid = null) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById('s-' + id);
+            if (target) target.classList.add('active');
 
+            if (!['detail', 'chat'].includes(id)) lastScreen = id;
 
-        async function loadHRNews() {
-            try {
-                db.collection('broadcasts').onSnapshot(snap => {
-                    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    updateHRNewsUI(data);
-                });
-            } catch (e) { console.error("HR sync error:", e); }
+            document.querySelectorAll('.nav-item, .drawer-item').forEach(i => i.classList.remove('active'));
+            if (id==='home') document.getElementById('bn-home').classList.add('active');
+            if (id==='reports') { document.getElementById('bn-reports').classList.add('active'); sync(); }
+            if (id==='create') document.getElementById('bn-create').classList.add('active');
+            if (id==='chat-list') { document.getElementById('bn-chat-hub').classList.add('active'); renderChatHub(); }
+            if (id==='support') document.getElementById('bn-help').classList.add('active');
+            if (id==='stats') updateStats();
+
+            const isPop = ['chat', 'detail'].includes(id);
+            document.querySelector('.navbar').style.display = isPop ? 'none' : 'flex';
+            document.querySelector('.wa-fixed').style.display = isPop ? 'none' : 'flex';
+            closeDrawer();
         }
 
-        function updateHRNewsUI(data) {
-            const list = document.getElementById('news-list-home');
-            if (!list) return;
-            if (data.length === 0) {
-                list.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:11px; font-weight:900">No active broadcasts currently.</div>`;
-                return;
-            }
-            list.innerHTML = data.map(b => `
-                <div class="news-item" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:18px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.05)">
-                    <div style="font-weight:900; font-size:13px; color:white; margin-bottom:5px">${b.title}</div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.6); line-height:1.4">${b.content}</div>
-                </div>
-            `).join('');
-        }
+        function goBack() { switchScreen(lastScreen); }
+        function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
+        function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
 
-        async function loadNotifs() {
-            if (!currentUser) return;
-            try {
-                const snap = await db.collection('notifications').where('emp_no', '==', String(currentUser.emp_no)).orderBy('created_at', 'desc').limit(20).get();
-                notifs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderNotifsUI();
-            } catch (e) { }
-        }
-
-        function renderNotifsUI() {
-            const list = document.getElementById('notif-list');
-            if (!list) return;
-            if (notifs.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.3">No notifications yet</div>';
-                return;
-            }
-            list.innerHTML = notifs.map(n => `
-                <div class="notif-card ${n.is_read ? '' : 'unread'}" onclick="markNotifRead('${n.id}')">
-                    ${n.is_read ? '' : '<div class="dot"></div>'}
-                    <div style="font-size:10px; font-weight:950; color:var(--accent); margin-bottom:5px">${new Date(n.created_at).toLocaleString()}</div>
-                    <div style="font-size:13px; font-weight:900; color:var(--primary)">${n.title}</div>
-                    <div style="font-size:12px; color:#64748b; margin-top:5px">${n.message}</div>
-                </div>
-            `).join('');
-
-            const bell = document.getElementById('bell-dot');
-            if (bell) bell.style.display = notifs.some(n => !n.is_read) ? 'block' : 'none';
-        }
-
-        function markNotifRead(id) {
-            db.collection('notifications').doc(id).update({ is_read: true }).then(() => loadNotifs());
-        }
-
-        function filterAndShow(status, element = null) {
-            currentFilter = status;
-            const activity = document.getElementById('stat-activity');
-            if (!activity) return;
-            document.querySelectorAll('.stat-box').forEach(b => b.classList.remove('stat-card-active'));
-            if (element) element.classList.add('stat-card-active');
-
-            let filtered = reports;
-            if (status !== 'all') filtered = reports.filter(r => (r.status || '').toLowerCase() === status);
-
-            activity.innerHTML = filtered.map(r => `
-                <div class="list-card" onclick="openDetail('${r.id}')">
-                    <div style="display:flex; justify-content:space-between; align-items:center">
-                        <div>
-                            <div class="t-id">#${String(r.id).substring(0, 8)}</div>
-                            <div class="t-body">${(r.description || '').substring(0, 50)}...</div>
-                        </div>
-                        <div class="status-badge ${r.status === 'done' ? 'st-done' : 'st-pend'}">${r.status.toUpperCase()}</div>
-                    </div>
-                </div>
-            `).join('') || '<div style="text-align:center; padding:30px; opacity:0.3">No matching cases</div>';
-        }
-
-        function updateStats() {
-            const total = reports.length;
-            const done = reports.filter(r => (r.status || '').toLowerCase() === 'done').length;
-            const pend = total - done;
-            if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
-            if (document.getElementById('stat-done')) document.getElementById('stat-done').innerText = done;
-            if (document.getElementById('stat-pend')) document.getElementById('stat-pend').innerText = pend;
-            filterAndShow(currentFilter);
-        }
-
-        function setType(t, e) {
-            currentType = t;
-            document.querySelectorAll('.type-grid .type-box').forEach(b => b.classList.remove('active'));
-            e.classList.add('active');
-            renderSubTypes();
-        }
-
-        function setSubType(s) {
-            currentSubType = s;
-            renderSubTypes();
-        }
-
-        function renderSubTypes() {
-            const container = document.getElementById('sub-types');
-            if (!container) return;
-            const items = subCats[currentType] || [];
-            container.innerHTML = items.map(s => `
-                <div class="sub-type-item ${currentSubType === s ? 'active' : ''}" onclick="setSubType('${s}')">${s}</div>
-            `).join('');
-        }
-
-        async function submitHelp() {
-            const subj = document.getElementById('supp-subj').value;
-            const msg = document.getElementById('supp-msg').value;
-            if (!subj || !msg) return alert("Please fill fields");
-            await db.collection('support_requests').add({
-                emp_no: currentUser.emp_no, name: currentUser.name || currentUser.name_en, subject: subj, message: msg, created_at: new Date().toISOString(), status: 'pending'
-            });
-            alert("Sent!"); switchScreen('home');
-        }
-
-        let isHubStarted = false;
-        function updateProfileUI() {
-            if (!currentUser) return;
-            const nameEl = document.getElementById('dr-name');
-            const idEl = document.getElementById('dr-id');
-            const homeName = document.querySelector('#s-home .profile-card h3');
-            const homeId = document.querySelector('#s-home .profile-card p');
-
-            if (nameEl) nameEl.innerText = currentUser.name || 'Unknown';
-            if (idEl) idEl.innerText = 'EMP ID: ' + (currentUser.emp_no || '0000');
-            if (homeName) homeName.innerText = currentUser.name || 'Unknown';
-            if (homeId) homeId.innerText = 'ID: ' + (currentUser.emp_no || '0000');
-        }
-
-        function doLogout() {
-            try {
-                if (currentUser && currentUser.emp_no) {
-                    db.collection('employees').doc(String(currentUser.emp_no)).update({ is_online: false }).catch(() => { });
-                }
-                localStorage.clear();
-                sessionStorage.clear();
-            } catch (e) { }
-            window.location.href = window.location.pathname;
-        }
-
-        async function startHub() {
-            if (isHubStarted) return;
-            isHubStarted = true;
-            console.log("Initializing Hub Observers...");
-            loadHRNews();
-            loadNotifs();
-            sync();
-            startChatHub();
-            requestNotificationPermission();
-
-            db.collection('employees').doc(String(currentUser.emp_no)).onSnapshot(doc => {
-                if (doc.exists) {
-                    currentUser = { ...currentUser, ...doc.data() };
-                    localStorage.setItem('nit_user', JSON.stringify(currentUser));
-                    updateProfileUI();
-                }
-            }, err => {
-                console.error("Employee sync error:", err);
-            });
-
-            sync(); loadNotifs(); initDirectWS();
-            renderSubTypes(); fetchHRNews(); fetchUnreadChats(); renderChatHub();
-            db.collection('employees').doc(String(currentUser.emp_no)).update({ is_online: true }).catch(() => { });
-
-            setInterval(sync, 5000); setInterval(loadNotifs, 5000); setInterval(loadHRNews, 5000); setInterval(fetchUnreadChats, 5000); setInterval(renderChatHub, 5000);
-        }
-
-        async function requestNotificationPermission() {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    // Using the actual VAPID key from the user console
-                    const token = await messaging.getToken({
-                        vapidKey: 'BGKnHACfCh_rN3J_ivDu9o5z1d7MK7K8ajdYy-h51aDfg2-EKeSpWOID6k1Rcy4wSzPflC1OtV27Zh6pVDGTWXY'
-                    });
-                    if (token) {
-                        console.log('FCM Token:', token);
-                        await db.collection('employees').doc(String(currentUser.emp_no)).update({
-                            fcm_token: token,
-                            last_token_update: new Date().toISOString()
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error('Notification error:', error);
-            }
-        }
-
-        function updateProfileUI() {
-            if (!currentUser) return;
-            const engName = currentUser.name_en || currentUser.name || currentUser.name_ar || 'NIT Officer';
-            const siteRaw = currentUser.site || 'Field Operations';
-            const siteEng = siteRaw.match(/\((.*?)\)/) ? siteRaw.match(/\((.*?)\)/)[1] : siteRaw.replace(/[^\x00-\x7F]/g, "").trim() || siteRaw;
-
-            document.getElementById('dr-name').innerText = engName;
-            document.getElementById('dr-id').innerText = currentUser.emp_no;
-            document.getElementById('hm-name').innerText = engName;
-            document.getElementById('hm-id').innerText = `EMP ID: ${currentUser.emp_no} • ${siteEng}`;
-            document.getElementById('supp-name-disp').value = engName;
-            document.getElementById('supp-id-disp').value = currentUser.emp_no;
-        }
-
+        // AUTH
         async function doLogin() {
             const id = document.getElementById('login-id').value.trim();
-            const err = document.getElementById('login-err');
             const btn = document.getElementById('login-btn');
             if (!id) return;
-            
-            btn.innerText = "VERIFYING...";
-            btn.disabled = true;
-            err.style.display = 'none';
-
+            btn.innerText = "VERIFYING..."; btn.disabled = true;
             try {
                 const snap = await db.collection('employees').where('emp_no', '==', id).get();
                 if (snap.empty) {
-                    err.style.display = 'block';
-                    btn.innerText = "SIGN IN";
-                    btn.disabled = false;
+                    document.getElementById('login-err').style.display = 'block';
+                    btn.innerText = "SIGN IN"; btn.disabled = false;
                 } else {
                     currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() };
                     localStorage.setItem('nit_user', JSON.stringify(currentUser));
                     initApp();
                 }
-            } catch (e) {
-                console.error("Login Error:", e);
-                err.innerText = "CONNECTION ERROR";
-                err.style.display = 'block';
-                btn.innerText = "SIGN IN";
-                btn.disabled = false;
-            }
+            } catch (e) { alert("Login failed. Check connection."); btn.innerText = "SIGN IN"; btn.disabled = false; }
         }
 
         function doLogout() {
-            console.log("Logging out...");
-            try {
-                if (currentUser && currentUser.emp_no) {
-                    db.collection('employees').doc(String(currentUser.emp_no)).update({ is_online: false }).catch(() => { });
-                }
-                localStorage.clear(); // Clear EVERYTHING
-                sessionStorage.clear();
-            } catch (e) { }
-            
-            // Redirect to home without query params to avoid cache issues
-            window.location.href = window.location.pathname;
+            if (currentUser) db.collection('employees').doc(String(currentUser.emp_no)).update({ is_online: false }).catch(() => { });
+            localStorage.clear(); sessionStorage.clear();
+            window.location.reload();
         }
 
-        function initDirectWS() {
-            if (unsubDirect) unsubDirect();
-            const sid = `direct_${currentUser.emp_no}`;
-            unsubDirect = db.collection('chat_messages').where('session_id', '==', sid).where('created_at', '>', new Date().toISOString()).onSnapshot(snap => {
-                snap.docChanges().forEach(change => {
-                    if (change.type === 'added') {
-                        const d = change.doc.data();
-                        const isCur = isDirectMode && activeRoom === 'admin';
-                        if (d.role === 'admin') {
-                            if (!isCur) {
-                                showToast(`Admin: ${d.message || d.content}`);
-                                unreadChats[sid] = (unreadChats[sid] || 0) + 1;
-                                updateChatBadges();
-                            } else {
-                                appendMsg(d);
-                            }
-                        }
-                    }
-                });
+        // SYNC & DATA
+        function sync() {
+            if (!currentUser || unsubSync) return;
+            unsubSync = db.collection('reports').where('emp_no', '==', String(currentUser.emp_no)).onSnapshot(snap => {
+                reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                renderReports();
+                if (document.getElementById('s-stats').classList.contains('active')) updateStats();
             });
         }
 
-        async function fetchHRNews() {
-            try {
-                const snap = await db.collection('broadcasts').limit(5).get();
-                hrNews = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-                renderHRNews();
-            } catch (e) { }
-        }
-
-        async function fetchUnreadChats() {
-            try {
-                const snap = await db.collection('chat_messages').where('is_read', '==', false).where('participants', 'array-contains', currentUser.emp_no).get();
-                unreadChats = {};
-                snap.docs.forEach(doc => {
-                    const d = doc.data();
-                    if (d.sender_no !== currentUser.emp_no) {
-                        unreadChats[d.session_id] = (unreadChats[d.session_id] || 0) + 1;
-                    }
-                });
-                updateChatBadges();
-            } catch (e) { }
-        }
-
-        function updateChatBadges() {
-            let total = 0; Object.values(unreadChats).forEach(c => total += c);
-            const dot = document.getElementById('chat-global-badge');
-            if (dot) {
-                dot.innerText = total > 9 ? '9+' : total;
-                dot.style.display = total > 0 ? 'flex' : 'none';
-            }
-            const navBadge = document.querySelector('#bn-chat-hub .badge-unread');
-            if (navBadge) {
-                navBadge.innerText = total > 9 ? '9+' : total;
-                navBadge.style.display = total > 0 ? 'flex' : 'none';
-            }
-            if (document.getElementById('s-chat-list').classList.contains('active')) renderChatHub();
-        }
-
-        async function markChatRead(sid) {
-            try {
-                // Remove the is_read filter from the database query to avoid composite index requirement
-                const snap = await db.collection('chat_messages').where('session_id', '==', sid).get();
-                const batch = db.batch();
-                snap.docs.forEach(doc => {
-                    const d = doc.data();
-                    if (d.sender_no !== currentUser.emp_no && d.is_read === false) {
-                        batch.update(doc.ref, { is_read: true });
-                    }
-                });
-                await batch.commit();
-                delete unreadChats[sid]; updateChatBadges();
-            } catch (e) { console.error("Mark read error:", e); }
-        }
-
-        function renderHRNews() {
-            const h = document.getElementById('news-list-home');
-            if (!h || !hrNews || !hrNews.length) return;
-            h.innerHTML = hrNews.map(n => {
-                const iconCls = n.icon ? (n.icon.startsWith('fa-') ? `fas ${n.icon}` : n.icon) : 'fas fa-info-circle';
-                return `<div class="news-item"><div class="news-icon"><i class="${iconCls}"></i></div><div class="news-txt"><span class="news-label">${n.title}</span><span class="news-value">${n.content}</span></div></div>`;
-            }).join('');
+        async function loadHRNews() {
+            db.collection('broadcasts').onSnapshot(snap => {
+                const h = document.getElementById('news-list-home');
+                if (!h) return;
+                const data = snap.docs.map(d => d.data());
+                h.innerHTML = data.map(n => `<div class="news-item" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:18px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.05)"><div style="font-weight:900; font-size:13px; color:white; margin-bottom:5px">${n.title}</div><div style="font-size:11px; color:rgba(255,255,255,0.6); line-height:1.4">${n.content}</div></div>`).join('') || '<div style="opacity:0.3; font-size:11px">No news</div>';
+            });
         }
 
         async function loadNotifs() {
-            if (!currentUser || !currentUser.emp_no) return;
-            try {
-                // Modified to avoid composite index requirements in Firebase
-                const snap = await db.collection('notifications').where('emp_no', 'in', [currentUser.emp_no, null]).get();
-                notifs = snap.docs.map(d => {
-                    let n = { id: d.id, ...d.data() };
-                    if (readLocally.has(n.id)) n.is_read = true;
-                    return n;
-                }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort client-side
+            const snap = await db.collection('notifications').where('emp_no', '==', String(currentUser.emp_no)).get();
+            notifs = snap.docs.map(d => d.data()).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+            const list = document.getElementById('notif-list');
+            if (list) list.innerHTML = notifs.map(n => `<div class="notif-card ${n.is_read ? '' : 'unread'}"><div>${n.title}</div><div style="font-size:11px; opacity:0.7">${n.message}</div></div>`).join('');
+        }
 
-                renderNotifs();
-            } catch (e) {
-                console.error("Firestore Notif Error:", e);
+        // STATS
+        function updateStats() {
+            const t = reports.length, d = reports.filter(r => (r.status||'').toLowerCase()==='done').length, p = t - d;
+            if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = t;
+            if (document.getElementById('stat-done')) document.getElementById('stat-done').innerText = d;
+            if (document.getElementById('stat-pend')) document.getElementById('stat-pend').innerText = p;
+            
+            const list = document.getElementById('stat-activity');
+            if (list) {
+                let filtered = currentFilter==='all' ? reports : reports.filter(r => (r.status||'').toLowerCase()===currentFilter);
+                list.innerHTML = filtered.map(r => `<div class="list-card" onclick="openDetail('${r.id}')"><div style="display:flex; justify-content:space-between"><div><div class="t-id">#${r.id}</div><div class="t-body">${(r.description||'').substring(0,40)}...</div></div><div class="status-badge ${r.status==='done'?'st-done':'st-pend'}">${r.status.toUpperCase()}</div></div></div>`).join('') || '<div style="text-align:center; opacity:0.3">No data</div>';
             }
         }
+        function filterAndShow(s, el) { currentFilter = s; document.querySelectorAll('.stat-box').forEach(b=>b.classList.remove('stat-card-active')); if(el)el.classList.add('stat-card-active'); updateStats(); }
 
-        let unsubSync = null;
-        function sync() {
-            if (!currentUser || !currentUser.emp_no) return;
-            if (unsubSync) unsubSync();
-            
-            const targetId = String(currentUser.emp_no);
-            console.log("Starting Real-time Sync for ID:", targetId);
-            
-            unsubSync = db.collection('reports').where('emp_no', '==', targetId)
-                .onSnapshot(snap => {
-                    const newReports = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-                        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                    
-                    if (reports.length > 0) {
-                        newReports.forEach(r => {
-                            const oldR = reports.find(o => o.id === r.id);
-                            if (oldR && oldR.status !== r.status && r.status.toLowerCase() === 'done') {
-                                playNotificationSound();
-                            }
-                        });
-                    }
-
-                    reports = newReports;
-                    renderReports();
-                    updateStats();
-                }, e => {
-                    db.collection('reports').where('emp_no', '==', targetId).get().then(snap => {
-                        reports = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                        renderReports();
-                        updateStats();
-                    });
-                });
+        // REPORTS
+        function setType(t, e) { currentType = t; document.querySelectorAll('.type-grid .type-box').forEach(b => b.classList.remove('active')); e.classList.add('active'); renderSubTypes(); }
+        function setSubType(s) { currentSubType = s; renderSubTypes(); }
+        function renderSubTypes() {
+            const c = document.getElementById('sub-types'); if (!c) return;
+            c.innerHTML = (subCats[currentType]||[]).map(s => `<div class="sub-type-item ${currentSubType === s ? 'active' : ''}" onclick="setSubType('${s}')">${s}</div>`).join('');
         }
-
-        function playNotificationSound() {
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-            audio.play().catch(e => { });
-        }
-
-        function switchScreen(id, mid = null) {
-            const active = document.querySelector('.screen.active');
-            if (active && !['detail', 'chat'].includes(id)) lastScreen = active.id.replace('s-', '');
-
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            const target = document.getElementById('s-' + id);
-            if (target) target.classList.add('active');
-
-            document.querySelectorAll('.drawer-item').forEach(i => i.classList.remove('active'));
-            if (mid) { const m = document.getElementById(mid); if (m) m.classList.add('active'); }
-
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if (id === 'home') document.getElementById('bn-home').classList.add('active');
-            if (id === 'reports') document.getElementById('bn-reports').classList.add('active');
-            if (id === 'create') document.getElementById('bn-create').classList.add('active');
-            if (id === 'chat-list') document.getElementById('bn-chat-hub').classList.add('active');
-
-            const isChatOrDetail = (id === 'chat' || id === 'detail');
-            document.querySelector('.navbar').style.display = isChatOrDetail ? 'none' : 'flex';
-            document.querySelector('.wa-fixed').style.display = isChatOrDetail ? 'none' : 'flex';
-
-            if (id === 'home' || id === 'reports') sync();
-            if (id === 'chat-list') renderChatHub();
-            if (id === 'notifs') loadNotifs();
-            if (id === 'stats') updateStats();
-            closeDrawer();
-        }
-
-        function goBack() { switchScreen(lastScreen); }
-        function handleImg(input) { const f = input.files[0]; const r = new FileReader(); r.onload = (e) => { imgB64 = e.target.result; document.getElementById('prevImg').src = imgB64; document.getElementById('prevImg').style.display = 'block'; document.getElementById('phold').style.display = 'none'; }; r.readAsDataURL(f); }
+        function handleImg(input) { const f = input.files[0]; const r = new FileReader(); r.onload = (e) => { imgB64 = e.target.result; document.getElementById('prevImg').src = imgB64; document.getElementById('prevImg').style.display='block'; document.getElementById('phold').style.display='none'; }; r.readAsDataURL(f); }
 
         async function doSubmit() {
-            const ds = document.getElementById('f-desc').value.trim();
-            const chosenSite = document.getElementById('f-site').value;
+            const ds = document.getElementById('f-desc').value.trim(), site = document.getElementById('f-site').value;
             if (!ds) return alert('Enter details');
-            document.getElementById('subBtn').innerText = 'Syncing...';
+            const btn = document.getElementById('subBtn'); btn.innerText = 'Syncing...';
             try {
-                let nextId = 1;
                 const snap = await db.collection('reports').get();
-                if (!snap.empty) {
-                    const ids = snap.docs.map(d => parseInt(d.id)).filter(id => !isNaN(id));
-                    if (ids.length > 0) nextId = Math.max(...ids) + 1;
-                }
-
-                const tsString = new Date().toISOString();
-                const dOnly = tsString.split('T')[0];
-                const dsBody = currentSubType ? `[${currentSubType}] ${ds}` : ds;
-                const reportData = {
-                    emp_no: currentUser.emp_no, type: currentType, priority: 'Normal', site: chosenSite, description: dsBody, photo_b64: imgB64,
-                    status: 'open', created_at: tsString, created_on: dOnly, updated_on: dOnly
-                };
-
-                await db.collection('reports').doc(String(nextId)).set(reportData);
-                await db.collection('reports').doc(String(nextId)).collection('timeline').add({
-                    event_text: 'Case Logged', event_by: 'System', color: 'var(--accent)', created_at: tsString
-                });
-                alert('Sent! Case #' + nextId);
-                document.getElementById('f-desc').value = ''; currentSubType = ''; renderSubTypes(); imgB64 = null; document.getElementById('prevImg').style.display = 'none'; document.getElementById('phold').style.display = 'flex'; switchScreen('reports');
-            } catch (e) { alert('Connection Error: ' + e); }
-            document.getElementById('subBtn').innerText = 'SUBMIT CASE';
+                let nextId = 1; if(!snap.empty) { const ids = snap.docs.map(d=>parseInt(d.id)).filter(v=>!isNaN(v)); if(ids.length) nextId = Math.max(...ids)+1; }
+                const ts = new Date().toISOString();
+                const data = { emp_no: currentUser.emp_no, type: currentType, site: site, description: currentSubType?`[${currentSubType}] ${ds}`:ds, photo_b64: imgB64, status: 'open', created_at: ts };
+                await db.collection('reports').doc(String(nextId)).set(data);
+                await db.collection('reports').doc(String(nextId)).collection('timeline').add({ event_text: 'Case Logged', event_by: 'System', color: 'var(--accent)', created_at: ts });
+                alert('Sent! #' + nextId);
+                document.getElementById('f-desc').value=''; currentSubType=''; imgB64=null; document.getElementById('prevImg').style.display='none'; document.getElementById('phold').style.display='flex'; switchScreen('reports');
+            } catch (e) { alert('Error: ' + e); }
+            btn.innerText = 'SUBMIT CASE';
         }
 
         function renderReports() {
             const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
-            const card = document.getElementById('latest-case-card'), none = document.getElementById('no-case-card');
-            if (!f || !m) return;
-            f.innerHTML = reports.map(i => {
-                const isClosed = (i.status || '').toLowerCase() === 'done';
-                return `<div class="ticket-item" onclick="lastScreen='reports'; openDetail('${i.id}')" style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div class="t-body" style="color:var(--accent); text-transform:uppercase; font-size:14px; margin-bottom:2px">${i.type}</div>
-                        <div style="font-size:11px; font-weight:900; color:var(--primary)">${(i.description || '').substring(0, 45)}...</div>
-                        <div style="font-size:9px; font-weight:950; color:${isClosed ? '#22c55e' : '#38bdf8'}; margin-top:4px"># CASE ${String(i.id || '')} | ${isClosed ? 'DONE' : 'IN PROG'}</div>
-                    </div>
-                </div>`;
-            }).join('') || 'No data';
-
-            if (reports.length === 0) {
-                if (card) card.style.display = 'none';
-                if (none) none.style.display = 'block';
-                return;
-            }
-            if (card) card.style.display = 'block';
-            if (none) none.style.display = 'none';
-
-            m.innerHTML = reports.slice(0, 3).map(i => {
-                const isDone = (i.status || '').toLowerCase() === 'done';
-                return `
-                    <div style="margin-bottom:25px; border-bottom:1.5px solid #f1f5f9; padding-bottom:15px">
-                        <div style="background:#f8fafc; padding:15px; border-radius:18px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="lastScreen='home'; openDetail('${i.id}')">
-                            <div>
-                                <div style="font-size:14px; font-weight:900; color:var(--accent); text-transform:uppercase; margin-bottom:2px">${i.type}</div>
-                                <div style="font-size:11px; font-weight:900; color:var(--primary)">${(i.description || '').substring(0, 30)}...</div>
-                                <div style="font-size:9px; font-weight:950; color:#94a3b8; margin-top:4px"># CASE ${String(i.id || '')} • ${i.site}</div>
-                            </div>
-                            <div class="activity-pill ${isDone ? 'done' : ''}" style="font-size:9px">${isDone ? 'CLOSED' : 'RUNNING'}</div>
-                        </div>
-                        <div id="home-tl-${i.id}" style="margin-top:15px; padding-left:5px">
-                            <div style="font-size:10px; opacity:0.5">Syncing history...</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            reports.slice(0, 3).forEach(i => loadLatestTimeline(i.id, `home-tl-${i.id}`));
-        }
-
-        async function loadLatestTimeline(id, containerId) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            try {
-                const rData = reports.find(r => r.id === id);
-                const isDone = rData && (rData.status || '').toLowerCase() === 'done';
-                const snap = await db.collection('reports').doc(id).collection('timeline').orderBy('created_at', 'asc').get();
-                let events = [];
-                snap.docs.forEach(d => events.push(d.data()));
-                if (isDone) events.push({ color: 'var(--success)', event_text: 'Case Resolved', created_at: rData.updated_on || '', event_by: 'Management' });
-                container.innerHTML = events.slice(-3).map((t, idx, arr) => `
-                    <div style="display:flex; gap:12px; margin-bottom:12px">
-                        <div style="width:2px; background:#e2e8f0; position:relative; margin:4px 0">
-                            <div style="position:absolute; top:0; left:-3.5px; width:9px; height:9px; background:${t.color || 'var(--accent)'}; border-radius:50%; border:2px solid white; box-shadow:0 0 0 1px #f1f5f9"></div>
-                            ${idx < arr.length - 1 ? '<div style="position:absolute; top:10px; bottom:-12px; left:0px; width:2px; background:#e2e8f0"></div>' : ''}
-                        </div>
-                        <div>
-                            <div style="font-size:10px; font-weight:900; color:var(--primary)">${t.event_text}</div>
-                            <div style="font-size:8px; color:#94a3b8; font-weight:950; margin-top:1px">${(t.created_at || '').substring(0, 10)}${t.event_by ? ' • ' + t.event_by : ''}</div>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (e) { }
+            if(!f || !m) return;
+            f.innerHTML = reports.map(r => `<div class="ticket-item" onclick="openDetail('${r.id}')"><div><div class="t-body" style="color:var(--accent); text-transform:uppercase; font-size:14px">${r.type}</div><div style="font-size:11px; font-weight:900">${(r.description||'').substring(0,40)}...</div><div style="font-size:9px; color:${r.status==='done'?'#22c55e':'#38bdf8'}"># CASE ${r.id} | ${r.status.toUpperCase()}</div></div></div>`).join('') || 'No reports';
+            m.innerHTML = reports.slice(0,3).map(r => `<div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:10px" onclick="openDetail('${r.id}')"><div style="display:flex; justify-content:space-between"><div><div style="font-weight:900; color:var(--accent)">${r.type}</div><div style="font-size:11px; opacity:0.7">${(r.description||'').substring(0,30)}...</div></div><div class="activity-pill ${r.status==='done'?'done':''}">${r.status.toUpperCase()}</div></div></div>`).join('');
         }
 
         async function openDetail(id) {
-            try {
-                const rData = reports.find(r => r.id === id);
-                if (!rData) return;
-                const status = (rData.status || '').toLowerCase();
-                const isDone = status === 'done';
-                let img = rData.photo_b64 ? `<div style="margin-top:20px; border-radius:20px; overflow:hidden; border:1px solid #e2e8f0"><img src="${rData.photo_b64}" style="width:100%; display:block"></div>` : '';
-                const desc = rData.description || '';
-
-                const snap = await db.collection('reports').doc(id).collection('timeline').orderBy('created_at', 'asc').get();
-                let tl = snap.docs.map(d => d.data());
-
-                document.getElementById('det-cont').innerHTML = `
-                    <div style="margin-top:20px">
-                        <div style="background:white; padding:25px; border-radius:28px; border:1px solid #e2e8f0;">
-                            <span class="lbl">Summary</span>
-                            <h2 style="font-weight:900; color:var(--accent); font-size:17px; margin-bottom:15px; text-transform:uppercase">${rData.type}</h2>
-                            <div style="display:flex; gap:15px; border-top:1.5px solid #f1f5f9; padding-top:15px">
-                                <div style="flex:1"><span class="lbl">Site</span><p style="font-weight:900; font-size:14px">${rData.site}</p></div>
-                                <div style="flex:1"><span class="lbl">Status</span><p style="font-weight:900; font-size:14px; color:${isDone ? '#22c55e' : '#38bdf8'}">${isDone ? 'Closed' : 'Running'}</p></div>
-                            </div>
-                            <div style="border-top:1.5px solid #f1f5f9; padding-top:15px; margin-top:0px">
-                                <span class="lbl">Case Details</span>
-                                <p style="font-weight:900; font-size:14px; color:var(--primary)">${desc || 'No additional details provided.'}</p>
-                            </div>
-                        </div>
-                        ${img}
-                        <div style="margin-top:30px">
-                            <span class="lbl">FULL CASE JOURNEY</span>
-                            <div style="margin-top:15px">
-                                ${tl.map((t, idx) => `
-                                    <div style="display:flex; gap:15px; margin-bottom:20px">
-                                        <div style="width:2px; background:#e2e8f0; position:relative; margin:5px 0">
-                                            <div style="position:absolute; top:0; left:-4px; width:10px; height:10px; background:${t.color || 'var(--accent)'}; border-radius:50%; border:2px solid white; box-shadow:0 0 0 2px #f1f5f9"></div>
-                                            ${idx < tl.length - 1 || isDone ? '<div style="position:absolute; top:10px; bottom:-20px; left:0px; width:2px; background:#e2e8f0"></div>' : ''}
-                                        </div>
-                                        <div>
-                                            <div style="font-size:13px; font-weight:900; color:var(--primary)">${t.event_text}</div>
-                                            <div style="font-size:10px; color:#94a3b8; font-weight:950; margin-top:2px">${(t.created_at || '').substring(0, 10)} • ${t.event_by}</div>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                                ${isDone ? `
-                                    <div style="display:flex; gap:15px; margin-bottom:20px">
-                                        <div style="width:2px; background:transparent; position:relative; margin:5px 0">
-                                            <div style="position:absolute; top:0; left:-4px; width:10px; height:10px; background:var(--success); border-radius:50%; border:2px solid white; box-shadow:0 0 0 2px #f1f5f9"></div>
-                                        </div>
-                                        <div>
-                                            <div style="font-size:13px; font-weight:900; color:var(--primary)">Case Resolved</div>
-                                            <div style="font-size:10px; color:var(--success); font-weight:950; margin-top:2px">${rData.updated_on}</div>
-                                        </div>
-                                    </div>
-                                ` : ''}
-
-                            </div>
-                        </div>
-                    </div>
-                `;
-                switchScreen('detail');
-            } catch (e) { }
+            const r = reports.find(x => String(x.id) === String(id)); if (!r) return;
+            const isDone = (r.status||'').toLowerCase()==='done';
+            const snap = await db.collection('reports').doc(String(id)).collection('timeline').orderBy('created_at','asc').get();
+            const tl = snap.docs.map(d=>d.data());
+            document.getElementById('det-cont').innerHTML = `<div style="margin-top:20px"><div style="background:white; padding:25px; border-radius:28px; border:1px solid #e2e8f0;"><span class="lbl">Summary</span><h2 style="font-weight:900; color:var(--accent); text-transform:uppercase">${r.type}</h2><div style="display:flex; gap:15px; border-top:1px solid #f1f5f9; padding-top:15px"><div style="flex:1"><span class="lbl">Site</span><p style="font-weight:900">${r.site}</p></div><div style="flex:1"><span class="lbl">Status</span><p style="font-weight:900; color:${isDone?'#22c55e':'#38bdf8'}">${r.status}</p></div></div><div style="border-top:1px solid #f1f5f9; padding-top:15px"><span class="lbl">Details</span><p style="font-weight:900">${r.description}</p></div></div>${r.photo_b64?`<img src="${r.photo_b64}" style="width:100%; border-radius:20px; margin-top:15px">`:''}<div style="margin-top:20px"><span class="lbl">Journey</span>${tl.map(t=>`<div style="display:flex; gap:10px; margin-top:10px"><div style="width:2px; background:#e2e8f0; position:relative"><div style="width:10px; height:10px; background:${t.color||'var(--accent)'}; border-radius:50%; position:absolute; left:-4px; border:2px solid white"></div></div><div style="font-size:12px; font-weight:900">${t.event_text}<br><span style="font-size:10px; opacity:0.5">${t.created_at.substring(0,10)}</span></div></div>`).join('')}</div><button class="btn-p" style="margin-top:20px" onclick="openReportChat('${id}')">OPEN CASE CHAT</button></div>`;
+            switchScreen('detail');
         }
 
+        // CHAT
+        async function fetchUnreadChats() {
+            const snap = await db.collection('chat_messages').where('is_read','==',false).where('participants','array-contains',currentUser.emp_no).get();
+            unreadChats = {}; snap.docs.forEach(d => { const m = d.data(); if(m.sender_no !== currentUser.emp_no) unreadChats[m.session_id] = (unreadChats[m.session_id]||0)+1; });
+            updateChatBadges();
+        }
+        function updateChatBadges() {
+            let t = 0; Object.values(unreadChats).forEach(v=>t+=v);
+            const dot = document.getElementById('chat-global-badge'); if(dot) { dot.innerText = t>9?'9+':t; dot.style.display = t>0?'flex':'none'; }
+            if (document.getElementById('s-chat-list').classList.contains('active')) renderChatHub();
+        }
         async function renderChatHub() {
-            if (isRenderingHub) return;
-            isRenderingHub = true;
-
-            const container = document.getElementById('chat-report-list');
-            if (!container) { isRenderingHub = false; return; }
-
-            try {
-                const sSnap = await db.collection('chat_sessions').where('participants', 'array-contains', currentUser.emp_no).get();
-
-                const seenSids = new Set();
-                const sessionData = [];
-
-                for (const doc of sSnap.docs) {
-                    const sid = doc.id;
-                    if (seenSids.has(sid)) continue;
-                    seenSids.add(sid);
-
-                    const d = doc.data();
-                    const unread = unreadChats[sid] || 0;
-                    const time = new Date(d.updated_at || d.created_at || new Date()).getTime();
-
-                    if (sid.startsWith('direct_')) {
-                        sessionData.push({ time, html: `<div class="chat-hub-row" onclick="openDirectChat()" style="background:#e0f2fe; border-radius:24px; margin-bottom:15px; border:1px solid #bae6fd; padding:18px"><div class="row-icon-cell"><div class="row-icon-circ" style="background:var(--primary); color:white; width:46px; height:46px;"><i class="fas fa-user-shield"></i></div></div><div class="row-main" style="padding-left:10px"><div class="row-header"><span class="row-title" style="font-size:15px">Management Support</span><span class="row-date" style="color:var(--accent)">${time ? new Date(time).toLocaleDateString('en-GB') : ''}</span></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px"><div class="row-subtext" style="color:#64748b; font-size:13px; font-weight:900">${d.last_message || 'Direct communication...'}</div>${unread > 0 ? `<div class="chat-badge-hub" style="margin-top:0">${unread}</div>` : ''}</div></div></div>` });
-                    } else if (sid.startsWith('report_')) {
-                        const rid = sid.replace('report_', '');
-                        const rData = reports.find(r => String(r.id) === rid);
-                        if (!rData || (rData.status || '').toLowerCase() === 'done') continue;
-                        sessionData.push({ time, html: `<div class="chat-hub-row" onclick="openReportChat('${rid}', 'chat-list')"><div class="row-icon-cell"><div class="row-icon-circ"><i class="fas fa-comment-dots"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title"># CASE ${rid}</span><span class="row-date">${time ? new Date(time).toLocaleDateString('en-GB') : ''}</span></div><div style="display:flex; justify-content:space-between; align-items:flex-start"><div class="row-subtext">${d.last_message || ''}</div>${unread > 0 ? `<div class="chat-badge-hub">${unread}</div>` : ''}</div></div></div>` });
-                    }
-                }
-
-                sessionData.sort((a, b) => b.time - a.time);
-                container.innerHTML = sessionData.map(s => s.html).join('') || '<p style="text-align:center; padding:40px; opacity:0.5; font-weight:900">No active conversations found</p>';
-            } catch (e) { console.error("Chat hub error:", e); }
+            if (isRenderingHub) return; isRenderingHub = true;
+            const sSnap = await db.collection('chat_sessions').where('participants','array-contains',currentUser.emp_no).get();
+            const data = sSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+            const c = document.getElementById('chat-report-list');
+            c.innerHTML = data.map(s => {
+                const unread = unreadChats[s.id]||0;
+                const isDir = s.id.startsWith('direct_');
+                return `<div class="chat-hub-row" onclick="${isDir?'openDirectChat()':`openReportChat('${s.id.replace('report_','')}')`}" style="${isDir?'background:#e0f2fe; border-color:#bae6fd':''}"><div class="row-icon-cell"><div class="row-icon-circ" style="${isDir?'background:var(--primary); color:white':''}"><i class="fas ${isDir?'fa-user-shield':'fa-comment-dots'}"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title">${isDir?'Management Support':`# CASE ${s.id.replace('report_','')}`}</span></div><div style="display:flex; justify-content:space-between; align-items:center"><div class="row-subtext">${s.last_message||''}</div>${unread>0?`<div class="chat-badge-hub">${unread}</div>`:''}</div></div></div>`;
+            }).join('') || '<p style="text-align:center; padding:40px; opacity:0.5">No chats</p>';
             isRenderingHub = false;
         }
 
-        async function openDirectChat() {
-            lastScreen = 'chat-list';
-            activeRoom = 'admin';
-            isDirectMode = true;
-            markChatRead(`direct_${currentUser.emp_no}`);
-
-            document.getElementById('chat-input-area').style.display = 'flex';
-            document.getElementById('chat-lock-area').style.display = 'none';
-            document.getElementById('chat-title').innerText = "CIT MANAGEMENT";
-            document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:20px; opacity:0.5; font-weight:900">Syncing with Management...</p>';
+        async function openDirectChat() { setupChat(`direct_${currentUser.emp_no}`, "CIT MANAGEMENT"); }
+        async function openReportChat(rid) { setupChat(`report_${rid}`, "# CASE " + rid); }
+        async function setupChat(sid, title) {
+            activeRoom = sid;
+            document.getElementById('chat-title').innerText = title;
+            document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:20px; opacity:0.3">Syncing...</p>';
             switchScreen('chat');
-
-            try {
-                const snap = await db.collection('chat_messages').where('session_id', '==', `direct_${currentUser.emp_no}`).get();
-                const msgs = snap.docs.map(m => m.data()).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                document.getElementById('chat-msgs').innerHTML = msgs.map(m => renderMsg(m)).join('');
-                const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
-            } catch (e) { }
-        }
-
-        async function openReportChat(rid, from = 'detail') {
-            lastScreen = from;
-            activeRoom = String(rid);
-            isDirectMode = false;
-
-            const rData = reports.find(r => r.id == rid);
-            const isClosed = rData && (rData.status || '').toLowerCase() === 'done';
-
-            document.getElementById('chat-input-area').style.display = isClosed ? 'none' : 'flex';
-            document.getElementById('chat-lock-area').style.display = isClosed ? 'flex' : 'none';
-            document.getElementById('chat-title').innerText = "# CASE " + String(rid);
-
-            switchScreen('chat');
-            markChatRead(`report_${rid}`);
             chatOpenedAt = Date.now();
-            initChatWS(`report_${rid}`);
-
-            try {
-                const snap = await db.collection('chat_messages').where('session_id', '==', `report_${rid}`).get();
-                const msgs = snap.docs.map(m => m.data()).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                document.getElementById('chat-msgs').innerHTML = msgs.map(m => renderMsg(m)).join('');
-                const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
-            } catch (e) { }
-        }
-
-        function initChatWS(sid) {
-            if (unsubChat) unsubChat();
-            unsubChat = db.collection('chat_messages').where('session_id', '==', sid).onSnapshot(snap => {
-                snap.docChanges().forEach(change => {
-                    if (change.type === 'added') {
-                        const d = change.doc.data();
-                        const msgTime = new Date(d.created_at).getTime();
-                        if (d.sender_no !== currentUser.emp_no && msgTime > chatOpenedAt) {
-                            appendMsg(d);
-                        }
-                    }
-                });
+            if(unsubChat) unsubChat();
+            unsubChat = db.collection('chat_messages').where('session_id','==',sid).onSnapshot(snap => {
+                snap.docChanges().forEach(ch => { if(ch.type==='added'){ const d=ch.doc.data(); if(d.sender_no!==currentUser.emp_no && new Date(d.created_at).getTime()>chatOpenedAt) appendMsg(d); } });
             });
+            const snap = await db.collection('chat_messages').where('session_id','==',sid).get();
+            const msgs = snap.docs.map(d=>d.data()).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+            document.getElementById('chat-msgs').innerHTML = msgs.map(m=>renderMsg(m)).join('');
+            const mc = document.getElementById('chat-msgs'); mc.scrollTop = mc.scrollHeight;
+            markRead(sid);
         }
-
-        function appendMsg(m) { const c = document.getElementById('chat-msgs'); c.innerHTML += renderMsg(m); c.scrollTop = c.scrollHeight; }
-
-        function renderMsg(m) {
-            let isMe = (m.sender_no === currentUser.emp_no);
-            let sName = m.sender_name;
-            if (!sName || sName === 'Unknown') sName = (m.role === 'admin' ? 'ADMIN' : 'Colleague');
-            const senderDisp = isMe ? 'YOU' : sName;
-            return `<div class="chat-bubble ${isMe ? 'me' : 'them'}"><div class="chat-meta">${senderDisp.toUpperCase()}</div><div>${m.content || m.message || ''}</div></div>`;
-        }
-
+        function appendMsg(m) { const c=document.getElementById('chat-msgs'); c.innerHTML+=renderMsg(m); c.scrollTop=c.scrollHeight; }
+        function renderMsg(m) { const me=(m.sender_no===currentUser.emp_no); return `<div class="chat-bubble ${me?'me':'them'}"><div class="chat-meta">${me?'YOU':(m.sender_name||'ADMIN')}</div><div>${m.content||m.message}</div></div>`; }
+        async function markRead(sid) { const snap=await db.collection('chat_messages').where('session_id','==',sid).where('is_read','==',false).get(); const b=db.batch(); snap.docs.forEach(d=>{ if(d.data().sender_no!==currentUser.emp_no) b.update(d.ref,{is_read:true}); }); await b.commit(); delete unreadChats[sid]; updateChatBadges(); }
+        
         async function sendReportMsg() {
-            const i = document.getElementById('chat-input'), msg = i.value.trim();
-            if (!msg) return;
-
-            const myName = currentUser.name_en || currentUser.name_ar || currentUser.name || "Employee";
-            let participants = [];
-            let sid = '';
-
-            if (isDirectMode) {
-                participants = [currentUser.emp_no, 'admin'];
-                sid = `direct_${currentUser.emp_no}`;
-            } else {
-                participants = [currentUser.emp_no, 'admin'];
-                sid = `report_${activeRoom}`;
-            }
-
-            const ts = new Date().toISOString();
-            const d = {
-                message: msg, content: msg, role: 'employee', sender_name: myName, sender_no: currentUser.emp_no,
-                session_id: sid, participants: participants, is_read: false, created_at: ts
-            };
-
-            appendMsg(d);
-            i.value = '';
-
-            try {
-                await db.collection('chat_messages').add(d);
-                await db.collection('chat_sessions').doc(sid).set({
-                    participants: participants,
-                    updated_at: ts,
-                    last_message: `${myName}: ${msg}`.substring(0, 50),
-                    type: isDirectMode ? 'direct' : 'report'
-                }, { merge: true });
-            } catch (e) { console.error("Chat persistence error:", e); }
+            const i=document.getElementById('chat-input'), val=i.value.trim(); if(!val) return;
+            const ts=new Date().toISOString(), sid=activeRoom;
+            const d={ session_id:sid, sender_no:currentUser.emp_no, sender_name:currentUser.name_en||currentUser.name||"Employee", content:val, created_at:ts, is_read:false, participants:[currentUser.emp_no,'admin'] };
+            appendMsg(d); i.value='';
+            await db.collection('chat_messages').add(d);
+            await db.collection('chat_sessions').doc(sid).set({ participants:[currentUser.emp_no,'admin'], updated_at:ts, last_message:val.substring(0,40), type:sid.startsWith('direct')?'direct':'report' }, {merge:true});
         }
 
-        function closeChat() {
-            if (unsubChat) { unsubChat(); unsubChat = null; }
-            switchScreen(lastScreen === 'chat-list' ? 'chat-list' : 'detail');
+        async function submitHelp() {
+            const s=document.getElementById('supp-subj').value, m=document.getElementById('supp-msg').value; if(!s||!m) return alert("Fill fields");
+            await db.collection('support_requests').add({ emp_no:currentUser.emp_no, name:currentUser.name_en||currentUser.name, subject:s, message:m, created_at:new Date().toISOString(), status:'pending' });
+            alert("Sent!"); switchScreen('home');
         }
 
-        function showToast(m) { const t = document.getElementById('notif-toast'); document.getElementById('toast-msg').innerText = m; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 4000); }
-        function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
-        function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
+        // APP INIT
+        async function startHub() {
+            if (isHubStarted) return; isHubStarted = true;
+            loadHRNews(); loadNotifs(); sync(); renderChatHub(); fetchUnreadChats();
+            setInterval(fetchUnreadChats, 10000); setInterval(renderChatHub, 10000);
+            db.collection('employees').doc(String(currentUser.emp_no)).onSnapshot(doc => { if(doc.exists) { currentUser = {...currentUser, ...doc.data()}; updateProfileUI(); } });
+            db.collection('employees').doc(String(currentUser.emp_no)).update({ is_online: true }).catch(()=>{});
+        }
+        function updateProfileUI() {
+            if(!currentUser) return;
+            const name = currentUser.name_en || currentUser.name || "NIT Officer";
+            ['dr-name','hm-name'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerText=name; });
+            const idStr = `EMP ID: ${currentUser.emp_no}`;
+            ['dr-id','hm-id'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerText=idStr; });
+            if(document.getElementById('supp-name-disp')) document.getElementById('supp-name-disp').value = name;
+            if(document.getElementById('supp-id-disp')) document.getElementById('supp-id-disp').value = currentUser.emp_no;
+        }
+
 
         function initApp() {
-            console.log("App Initializing...");
             const saved = localStorage.getItem('nit_user');
+            console.log("Init App Request, Saved Session:", !!saved);
             if (saved) {
                 try {
                     currentUser = JSON.parse(saved);
-                    // EMERGENCY CHECK: If the user data is corrupted or missing a name, force logout!
-                    if (!currentUser || (!currentUser.name && !currentUser.name_en && !currentUser.name_ar)) {
-                        console.warn("Corrupted user data detected, forcing logout.");
-                        localStorage.clear();
-                        sessionStorage.clear();
-                        document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-                        document.getElementById('s-login').style.display = 'flex';
-                        if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'none';
-                        if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'none';
-                        return; 
-                    }
-                    
                     document.getElementById('s-login').style.display = 'none';
                     if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'flex';
                     if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'flex';
                     updateProfileUI();
                     startHub();
-                    switchScreen('home', 'bn-home');
+                    switchScreen('home');
                 } catch (e) {
-                    console.error("Init Error:", e);
+                    console.error("Session Parse Error:", e);
                     localStorage.clear();
-                    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-                    document.getElementById('s-login').style.display = 'flex';
-                    if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'none';
-                    if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'none';
+                    location.reload();
                 }
             } else {
-                console.log("No user session found.");
                 document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
                 document.getElementById('s-login').style.display = 'flex';
                 if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'none';
                 if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'none';
             }
         }
+
 
         window.onload = () => {
             initApp();
