@@ -2159,12 +2159,28 @@
         function initApp() {
             const saved = localStorage.getItem('nit_user');
             if (saved) {
-                currentUser = JSON.parse(saved);
-                document.getElementById('s-login').style.display = 'none';
-                document.querySelector('.navbar').style.display = 'flex';
-                updateProfileUI();
-                startHub();
-                switchScreen('home', 'bn-home');
+                try {
+                    currentUser = JSON.parse(saved);
+                    // EMERGENCY CHECK: If the user data is corrupted or missing a name, force logout!
+                    if (!currentUser || (!currentUser.name && !currentUser.name_en && !currentUser.name_ar)) {
+                        console.warn("Corrupted user data detected, forcing logout.");
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        document.getElementById('s-login').style.display = 'flex';
+                        document.querySelector('.navbar').style.display = 'none';
+                        return; // Stop here and show login
+                    }
+                    
+                    document.getElementById('s-login').style.display = 'none';
+                    document.querySelector('.navbar').style.display = 'flex';
+                    updateProfileUI();
+                    startHub();
+                    switchScreen('home', 'bn-home');
+                } catch (e) {
+                    localStorage.clear();
+                    document.getElementById('s-login').style.display = 'flex';
+                    document.querySelector('.navbar').style.display = 'none';
+                }
             } else {
                 document.getElementById('s-login').style.display = 'flex';
                 document.querySelector('.navbar').style.display = 'none';
