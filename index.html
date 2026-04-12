@@ -722,12 +722,22 @@
 
             const actEl = document.getElementById('stat-activity');
             if(actEl) {
-                actEl.innerHTML = filtered.map(r=>`
-                    <div class="ticket-item" onclick="openDetail('${r.id}')">
-                        <div style="font-weight:950; color:var(--primary)">#CASE ${r.case_num || '---'}</div>
-                        <div style="font-size:11px; color:var(--accent); font-weight:900; margin-top:2px">${r.type.toUpperCase()} • ${(r.status||'OPEN').toUpperCase()}</div>
-                    </div>
-                `).join('') || '<div style="text-align:center; padding:30px; opacity:0.5; font-weight:900">NO RECORDS FOUND</div>';
+                actEl.innerHTML = filtered.map(r=>{
+                    const isDone = (r.status||'').toLowerCase() === 'done';
+                    return `
+                        <div class="ticket-item" onclick="openDetail('${r.id}')" style="background:white; margin-bottom:15px; border-radius:24px; padding:22px; border:1px solid #f1f5f9; box-shadow:0 4px 12px rgba(0,0,0,0.015)">
+                            <div style="display:flex; justify-content:space-between; align-items:center">
+                                <div style="font-weight:950; color:var(--primary); font-size:15px">#CASE ${r.case_num || '---'}</div>
+                                <div style="font-size:10px; padding:5px 12px; border-radius:10px; font-weight:950; background:${isDone ? '#DCFCE7' : '#E0F2FE'}; color:${isDone ? '#22c55e' : '#38bdf8'}">
+                                    ${(r.status||'OPEN').toUpperCase()}
+                                </div>
+                            </div>
+                            <div style="font-size:12px; color:var(--text-muted); font-weight:900; margin-top:10px; text-transform:uppercase; letter-spacing:0.5px">
+                                ${r.type} • Site HQ
+                            </div>
+                        </div>
+                    `;
+                }).join('') || '<div style="text-align:center; padding:30px; opacity:0.5; font-weight:900">NO RECORDS FOUND</div>';
             }
         }
 
