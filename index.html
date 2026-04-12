@@ -516,8 +516,10 @@
             unsubSync = db.collection('reports').where('emp_no', '==', String(currentUser.emp_no)).onSnapshot(snap => {
                 reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
                 renderReports();
+                if(typeof updateStats === 'function') updateStats(); // Critical: Update dashboard numbers & list
             });
         }
+    
 
 
 
