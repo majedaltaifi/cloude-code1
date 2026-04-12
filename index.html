@@ -15,7 +15,7 @@
         :root {
             --primary: #0f172a;
             --accent: #38bdf8;
-            --bg: #f1f5f9;
+            --bg: #f8fafc;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
@@ -23,57 +23,51 @@
         .phone-frame { width:380px; height:820px; background:#000; border-radius:55px; position:relative; padding:12px; border:8px solid #334155; }
         .phone-frame::before { content:''; position:absolute; top:25px; left:50%; transform:translateX(-50%); width:120px; height:30px; background:#000; border-radius:20px; z-index:1000; }
         .app-container { width:100%; height:100%; background:#f8fafc; border-radius:45px; overflow:hidden; display:flex; flex-direction:column; position:relative; }
-        .screen { display:none; flex:1; flex-direction:column; padding:0 20px; overflow-y:auto; padding-bottom:120px; }
+        .screen { display:none; flex:1; flex-direction:column; padding:0 20px; overflow-y:auto; padding-bottom:140px; }
         .screen.active { display:flex; }
 
-        /* FIXED HEADER */
         .header { background:var(--primary); padding:55px 25px 25px; display:flex; justify-content:space-between; align-items:center; color:white; margin:0 -20px 20px -20px; }
         .header h1 { font-size:18px; font-weight:900; letter-spacing:2px; }
 
-        /* PROFILE CARD */
-        .profile-card { background:white; padding:22px 25px; border-radius:30px; display:flex; align-items:center; gap:15px; box-shadow:0 10px 30px rgba(0,0,0,0.03); border-left:6px solid var(--accent); margin-bottom:25px; }
-        .profile-card h2 { font-size:22px; font-weight:900; color:#1e293b; }
-        .profile-card p { font-size:11px; font-weight:900; color:var(--accent); margin-top:4px; }
+        .profile-card { background:white; padding:25px; border-radius:40px; display:flex; align-items:center; gap:15px; box-shadow:0 10px 40px rgba(0,0,0,0.03); border-left:8px solid var(--accent); margin-bottom:25px; }
+        .profile-card h2 { font-size:24px; font-weight:900; color:#1e293b; }
+        .profile-card p { font-size:12px; font-weight:900; color:var(--accent); margin-top:4px; }
 
-        /* BROADCAST CARD */
-        .broadcast-card { background:#1e293b; padding:25px; border-radius:35px; color:white; margin-bottom:25px; }
-        .broadcast-item { display:flex; align-items:center; gap:15px; margin-bottom:15px; }
-        .broadcast-icon { width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--accent); border:1px solid rgba(255,255,255,0.1); }
-        .broadcast-item p { font-size:14px; font-weight:900; color:var(--accent); margin-top:2px; }
-        .broadcast-item span { font-size:9px; font-weight:900; opacity:0.5; text-transform:uppercase; display:block; }
+        .broadcast-card { background:#1e293b; padding:30px; border-radius:45px; color:white; margin-bottom:30px; }
+        .broadcast-item { display:flex; align-items:center; gap:18px; margin-bottom:20px; }
+        .broadcast-icon { width:45px; height:45px; background:rgba(255,255,255,0.05); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--accent); border:1px solid rgba(255,255,255,0.1); }
+        .broadcast-item p { font-size:16px; font-weight:900; color:var(--accent); margin-top:2px; }
+        .broadcast-item span { font-size:10px; font-weight:900; opacity:0.5; text-transform:uppercase; display:block; }
 
-        /* TIMELINE */
-        .recent-box { margin-bottom:20px; }
-        .recent-box-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
-        .recent-box-header h3 { font-size:12px; font-weight:900; color:#94a3b8; }
-        .recent-box-header a { font-size:12px; font-weight:900; color:var(--accent); text-decoration:none; }
+        /* RECENT CASES SECTION */
+        .recent-section { margin-bottom:30px; }
+        .recent-section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .recent-section-header h3 { font-size:12px; font-weight:900; color:#94a3b8; letter-spacing:1px; }
+        .recent-section-header a { font-size:12px; font-weight:900; color:var(--accent); text-decoration:none; display:flex; align-items:center; gap:4px; }
 
-        .timeline { position:relative; padding-left:15px; margin-left:10px; border-left:1.5px solid #f1f5f9; }
-        .tm-item { position:relative; margin-bottom:20px; }
-        .tm-dot { position:absolute; left:-21.5px; top:12px; width:11px; height:11px; background:var(--accent); border:2px solid white; border-radius:50%; box-shadow:0 0 10px rgba(56,189,248,0.4); }
-        .tm-card { background:white; padding:18px 22px; border-radius:22px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 5px 15px rgba(0,0,0,0.01); }
-        .tm-card .title { font-size:13px; font-weight:900; color:var(--primary); }
-        .tm-card .status { font-size:9px; font-weight:900; color:#cbd5e1; }
+        .case-group { margin-bottom:40px; }
+        .case-main-card { background:white; padding:25px; border-radius:35px; box-shadow:0 8px 25px rgba(0,0,0,0.02); margin-bottom:20px; position:relative; }
+        .case-main-card .type { font-size:18px; font-weight:900; color:var(--accent); text-transform:uppercase; margin-bottom:5px; }
+        .case-main-card .desc { font-size:14px; font-weight:900; color:#1e293b; opacity:0.8; }
+        .case-main-card .id { font-size:11px; font-weight:900; color:#cbd5e1; margin-top:10px; }
+        .case-main-card .status-tag { position:absolute; right:25px; top:40%; transform:translateY(-50%); font-size:10px; font-weight:900; color:#94a3b8; }
 
-        /* NAVBAR & FAB SYSTEM */
-        .navbar { position:absolute; bottom:0; left:0; width:100%; height:95px; background:white; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-around; padding-bottom:15px; z-index:200; }
-        .nav-item { display:flex; flex-direction:column; align-items:center; color:#cbd5e1; flex:1; cursor:pointer; gap:3px; }
+        .case-log-list { padding-left:20px; margin-left:15px; border-left:1.5px solid #f1f5f9; }
+        .log-item { position:relative; padding-bottom:25px; padding-left:20px; }
+        .log-dot { position:absolute; left:-26.5px; top:4px; width:11px; height:11px; border-radius:50%; border:2px solid white; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+        .log-txt { font-size:14px; font-weight:900; color:#1e293b; }
+        .log-meta { font-size:10px; font-weight:900; color:#cbd5e1; margin-top:3px; }
+
+        /* NAV & FAB */
+        .navbar { position:absolute; bottom:0; left:0; width:100%; height:100px; background:white; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-around; padding-bottom:20px; z-index:200; }
+        .nav-item { display:flex; flex-direction:column; align-items:center; color:#cbd5e1; flex:1; cursor:pointer; gap:4px; }
         .nav-item.active { color:var(--primary); }
-        .nav-item i { font-size:20px; }
-        .nav-item span { font-size:8px; font-weight:900; text-transform:uppercase; }
+        .nav-item i { font-size:22px; }
+        .nav-item span { font-size:9px; font-weight:900; text-transform:uppercase; }
 
-        .fab-container { position:absolute; bottom:45px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:12px; z-index:300; }
-        .btn-add { width:68px; height:68px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:28px; border:6px solid white; box-shadow:0 15px 35px rgba(56,189,248,0.4); cursor:pointer; }
-        .btn-wa { width:48px; height:48px; background:#22c55e; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:24px; box-shadow:0 8px 20px rgba(34,197,94,0.3); cursor:pointer; }
-
-        /* OTHER SCREENS */
-        .form-card { background:white; padding:25px; border-radius:30px; margin-top:20px; }
-        .btn-p { width:100%; background:var(--primary); color:white; padding:22px; border-radius:24px; border:none; font-weight:900; letter-spacing:1px; cursor:pointer; }
-        
-        .drawer { position:absolute; top:0; left:0; width:280px; height:100%; background:var(--primary); z-index:5000; padding:60px 25px; transition:0.4s ease; color:white; transform:translateX(-100%); }
-        .drawer.active { transform:translateX(0); }
-        .drawer-item { display:flex; align-items:center; justify-content:space-between; padding:20px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
-        .drawer-icon { width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--accent); }
+        .fab-zone { position:absolute; bottom:55px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:15px; z-index:300; }
+        .plus-btn { width:74px; height:74px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:32px; border:6px solid white; box-shadow:0 15px 35px rgba(56,189,248,0.4); cursor:pointer; }
+        .wa-btn { width:52px; height:52px; background:#22c55e; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:26px; box-shadow:0 10px 25px rgba(34, 197, 94, 0.3); border:4px solid white; cursor:pointer; }
 
         @media (max-width: 500px) {
             .phone-frame { width: 100%; height: 100vh; border-radius: 0; border: none; padding: 0; }
@@ -128,9 +122,9 @@
             <!-- Home Screen -->
             <div class="screen" id="s-home">
                 <header class="header">
-                    <i class="fas fa-bars" style="font-size:22px" onclick="openDrawer()"></i>
+                    <i class="fas fa-bars" style="font-size:24px" onclick="openDrawer()"></i>
                     <h1>NIT FIELD</h1>
-                    <i class="fas fa-bell" style="font-size:22px" onclick="switchScreen('notifs')"></i>
+                    <i class="fas fa-bell" style="font-size:24px" onclick="switchScreen('notifs')"></i>
                 </header>
 
                 <div class="profile-card">
@@ -156,12 +150,12 @@
                     </div>
                 </div>
 
-                <div class="recent-box">
-                    <div class="recent-box-header">
+                <div class="recent-section">
+                    <div class="recent-section-header">
                         <h3>MY RECENT CASES</h3>
-                        <a href="#" onclick="switchScreen('reports')">VIEW ALL <i class="fas fa-chevron-right" style="font-size:9px"></i></a>
+                        <a href="#" onclick="switchScreen('reports')">VIEW ALL <i class="fas fa-chevron-right" style="font-size:10px"></i></a>
                     </div>
-                    <div id="mini-l" class="timeline"></div>
+                    <div id="mini-l"></div>
                 </div>
             </div>
 
@@ -244,9 +238,9 @@
                 <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>Help</span></div>
             </nav>
 
-            <div class="fab-container" id="fab-hub">
-                <div class="btn-add" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
-                <div class="btn-wa" onclick="window.open('https://wa.me/966500000000')"><i class="fab fa-whatsapp"></i></div>
+            <div class="fab-zone" id="fab-hub">
+                <div class="plus-btn" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
+                <div class="wa-btn" onclick="window.open('https://wa.me/966500000000')"><i class="fab fa-whatsapp"></i></div>
             </div>
         </div>
     </div>
@@ -326,11 +320,31 @@
             f.innerHTML = reports.map(r => `<div class="ticket-item" onclick="openDetail('${r.id}')"><div style="font-weight:900; color:var(--accent)">${r.type}</div><div style="font-size:12px; opacity:0.6">${(r.description||'').substring(0,40)}...</div><div style="font-size:10px; margin-top:10px; font-weight:900; color:${r.status==='done'?'#22c55e':'#38bdf8'}">#${r.id} | ${(r.status||'OPEN').toUpperCase()}</div></div>`).join('') || 'No reports';
             
             m.innerHTML = reports.slice(0,3).map(r => `
-                <div class="tm-item" onclick="openDetail('${r.id}')">
-                    <div class="tm-dot"></div>
-                    <div class="tm-card">
-                        <div class="title">${r.type.toUpperCase()}</div>
-                        <div class="status">${(r.status||'OPEN').toUpperCase()}</div>
+                <div class="case-group" onclick="openDetail('${r.id}')">
+                    <div class="case-main-card">
+                        <div class="type">${r.type}</div>
+                        <div class="desc">${(r.description||'').substring(0,30)}...</div>
+                        <div class="status-tag">${(r.status||'OPEN').toUpperCase()}</div>
+                        <div class="id"># CASE ${(r.id||'--').substring(0,6)} • Randa Tower</div>
+                    </div>
+                    <div class="case-log-list">
+                        <div class="log-item">
+                            <div class="log-dot" style="background:#38bdf8"></div>
+                            <div class="log-txt">Case Logged</div>
+                            <div class="log-meta">2024-04-08 • System</div>
+                        </div>
+                        ${r.status === 'done' ? `
+                        <div class="log-item">
+                            <div class="log-dot" style="background:#22c55e"></div>
+                            <div class="log-txt">Status updated to DONE</div>
+                            <div class="log-meta">2024-04-08 • Admin</div>
+                        </div>
+                        <div class="log-item" style="padding-bottom:0">
+                            <div class="log-dot" style="background:#22c55e"></div>
+                            <div class="log-txt">Case Resolved</div>
+                            <div class="log-meta">2024-04-08 • Management</div>
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
             `).join('') || '<p style="font-size:11px; opacity:0.3; padding:10px">No recent activity</p>';
