@@ -1358,34 +1358,53 @@
         let currentFilter = 'all', lastScreen = 'home';
 
         // CORE UI & NAVIGATION
+
+
         function switchScreen(id, mid = null) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            console.log("Switching to Screen:", id);
+            // Hide all screens explicitly
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+                s.style.display = 'none';
+            });
+            // Show target screen
             const target = document.getElementById('s-' + id);
-            if (target) target.classList.add('active');
+            if (target) {
+                target.classList.add('active');
+                target.style.display = 'flex';
+            }
 
             if (!['detail', 'chat'].includes(id)) lastScreen = id;
 
+            // Update bottom navigation and drawer icons
             document.querySelectorAll('.nav-item, .drawer-item').forEach(i => i.classList.remove('active'));
-            if (id==='home') document.getElementById('bn-home').classList.add('active');
-            if (id==='reports') { document.getElementById('bn-reports').classList.add('active'); sync(); }
-            if (id==='create') document.getElementById('bn-create').classList.add('active');
-            if (id==='chat-list') { document.getElementById('bn-chat-hub').classList.add('active'); renderChatHub(); }
-            if (id==='support') document.getElementById('bn-help').classList.add('active');
+            if (id==='home') { const el=document.getElementById('bn-home'); if(el) el.classList.add('active'); }
+            if (id==='reports') { const el=document.getElementById('bn-reports'); if(el) el.classList.add('active'); sync(); }
+            if (id==='create') { const el=document.getElementById('bn-create'); if(el) el.classList.add('active'); }
+            if (id==='chat-list') { const el=document.getElementById('bn-chat-hub'); if(el) el.classList.add('active'); renderChatHub(); }
+            if (id==='support') { const el=document.getElementById('bn-help'); if(el) el.classList.add('active'); }
             if (id==='stats') updateStats();
 
             const isPop = ['chat', 'detail'].includes(id);
-            document.querySelector('.navbar').style.display = isPop ? 'none' : 'flex';
-            document.querySelector('.wa-fixed').style.display = isPop ? 'none' : 'flex';
+            if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = isPop ? 'none' : 'flex';
+            if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = isPop ? 'none' : 'flex';
             closeDrawer();
         }
 
         function goBack() { switchScreen(lastScreen); }
+
         function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
-        function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
+        function closeDrawer() { 
+            const d = document.getElementById('drawer');
+            const o = document.getElementById('drawer-overlay');
+            if(d) d.classList.remove('active'); 
+            if(o) o.classList.remove('active'); 
+        }
 
         // AUTH
         async function doLogin() {
-            const id = document.getElementById('login-id').value.trim();
+            const idInput = document.getElementById('login-id');
+            const id = idInput.value.trim();
             const btn = document.getElementById('login-btn');
             if (!id) return;
             btn.innerText = "VERIFYING..."; btn.disabled = true;
@@ -1399,7 +1418,11 @@
                     localStorage.setItem('nit_user', JSON.stringify(currentUser));
                     initApp();
                 }
-            } catch (e) { alert("Login failed. Check connection."); btn.innerText = "SIGN IN"; btn.disabled = false; }
+            } catch (e) { 
+                console.error(e);
+                alert("Login failed. Check connection."); 
+                btn.innerText = "SIGN IN"; btn.disabled = false; 
+            }
         }
 
         function doLogout() {
@@ -1414,7 +1437,7 @@
             unsubSync = db.collection('reports').where('emp_no', '==', String(currentUser.emp_no)).onSnapshot(snap => {
                 reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
                 renderReports();
-                if (document.getElementById('s-stats').classList.contains('active')) updateStats();
+                if (document.getElementById('s-stats') && document.getElementById('s-stats').classList.contains('active')) updateStats();
             });
         }
 
@@ -1444,7 +1467,7 @@
             const list = document.getElementById('stat-activity');
             if (list) {
                 let filtered = currentFilter==='all' ? reports : reports.filter(r => (r.status||'').toLowerCase()===currentFilter);
-                list.innerHTML = filtered.map(r => `<div class="list-card" onclick="openDetail('${r.id}')"><div style="display:flex; justify-content:space-between"><div><div class="t-id">#${r.id}</div><div class="t-body">${(r.description||'').substring(0,40)}...</div></div><div class="status-badge ${r.status==='done'?'st-done':'st-pend'}">${r.status.toUpperCase()}</div></div></div>`).join('') || '<div style="text-align:center; opacity:0.3">No data</div>';
+                list.innerHTML = filtered.map(r => `<div class="list-card" onclick="openDetail('${r.id}')"><div style="display:flex; justify-content:space-between"><div><div class="t-id">#${r.id}</div><div class="t-body">${(r.description||'').substring(0,40)}...</div></div><div class="status-badge ${r.status==='done'?'st-done':'st-pend'}">${(r.status||'OPEN').toUpperCase()}</div></div></div>`).join('') || '<div style="text-align:center; opacity:0.3">No data</div>';
             }
         }
         function filterAndShow(s, el) { currentFilter = s; document.querySelectorAll('.stat-box').forEach(b=>b.classList.remove('stat-card-active')); if(el)el.classList.add('stat-card-active'); updateStats(); }
@@ -1478,8 +1501,8 @@
         function renderReports() {
             const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
             if(!f || !m) return;
-            f.innerHTML = reports.map(r => `<div class="ticket-item" onclick="openDetail('${r.id}')"><div><div class="t-body" style="color:var(--accent); text-transform:uppercase; font-size:14px">${r.type}</div><div style="font-size:11px; font-weight:900">${(r.description||'').substring(0,40)}...</div><div style="font-size:9px; color:${r.status==='done'?'#22c55e':'#38bdf8'}"># CASE ${r.id} | ${r.status.toUpperCase()}</div></div></div>`).join('') || 'No reports';
-            m.innerHTML = reports.slice(0,3).map(r => `<div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:10px" onclick="openDetail('${r.id}')"><div style="display:flex; justify-content:space-between"><div><div style="font-weight:900; color:var(--accent)">${r.type}</div><div style="font-size:11px; opacity:0.7">${(r.description||'').substring(0,30)}...</div></div><div class="activity-pill ${r.status==='done'?'done':''}">${r.status.toUpperCase()}</div></div></div>`).join('');
+            f.innerHTML = reports.map(r => `<div class="ticket-item" onclick="openDetail('${r.id}')"><div><div class="t-body" style="color:var(--accent); text-transform:uppercase; font-size:14px">${r.type}</div><div style="font-size:11px; font-weight:900">${(r.description||'').substring(0,40)}...</div><div style="font-size:9px; color:${r.status==='done'?'#22c55e':'#38bdf8'}"># CASE ${r.id} | ${(r.status||'OPEN').toUpperCase()}</div></div></div>`).join('') || 'No reports';
+            m.innerHTML = reports.slice(0,3).map(r => `<div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:10px" onclick="openDetail('${r.id}')"><div style="display:flex; justify-content:space-between"><div><div style="font-weight:900; color:var(--accent)">${r.type}</div><div style="font-size:11px; opacity:0.7">${(r.description||'').substring(0,30)}...</div></div><div class="activity-pill ${r.status==='done'?'done':''}">${(r.status||'OPEN').toUpperCase()}</div></div></div>`).join('');
         }
 
         async function openDetail(id) {
@@ -1487,7 +1510,7 @@
             const isDone = (r.status||'').toLowerCase()==='done';
             const snap = await db.collection('reports').doc(String(id)).collection('timeline').orderBy('created_at','asc').get();
             const tl = snap.docs.map(d=>d.data());
-            document.getElementById('det-cont').innerHTML = `<div style="margin-top:20px"><div style="background:white; padding:25px; border-radius:28px; border:1px solid #e2e8f0;"><span class="lbl">Summary</span><h2 style="font-weight:900; color:var(--accent); text-transform:uppercase">${r.type}</h2><div style="display:flex; gap:15px; border-top:1px solid #f1f5f9; padding-top:15px"><div style="flex:1"><span class="lbl">Site</span><p style="font-weight:900">${r.site}</p></div><div style="flex:1"><span class="lbl">Status</span><p style="font-weight:900; color:${isDone?'#22c55e':'#38bdf8'}">${r.status}</p></div></div><div style="border-top:1px solid #f1f5f9; padding-top:15px"><span class="lbl">Details</span><p style="font-weight:900">${r.description}</p></div></div>${r.photo_b64?`<img src="${r.photo_b64}" style="width:100%; border-radius:20px; margin-top:15px">`:''}<div style="margin-top:20px"><span class="lbl">Journey</span>${tl.map(t=>`<div style="display:flex; gap:10px; margin-top:10px"><div style="width:2px; background:#e2e8f0; position:relative"><div style="width:10px; height:10px; background:${t.color||'var(--accent)'}; border-radius:50%; position:absolute; left:-4px; border:2px solid white"></div></div><div style="font-size:12px; font-weight:900">${t.event_text}<br><span style="font-size:10px; opacity:0.5">${t.created_at.substring(0,10)}</span></div></div>`).join('')}</div><button class="btn-p" style="margin-top:20px" onclick="openReportChat('${id}')">OPEN CASE CHAT</button></div>`;
+            document.getElementById('det-cont').innerHTML = `<div style="margin-top:20px"><div style="background:white; padding:25px; border-radius:28px; border:1px solid #e2e8f0;"><span class="lbl">Summary</span><h2 style="font-weight:900; color:var(--accent); text-transform:uppercase">${r.type}</h2><div style="display:flex; gap:15px; border-top:1px solid #f1f5f9; padding-top:15px"><div style="flex:1"><span class="lbl">Site</span><p style="font-weight:900">${r.site}</p></div><div style="flex:1"><span class="lbl">Status</span><p style="font-weight:900; color:${isDone?'#22c55e':'#38bdf8'}">${r.status||'OPEN'}</p></div></div><div style="border-top:1px solid #f1f5f9; padding-top:15px"><span class="lbl">Details</span><p style="font-weight:900">${r.description}</p></div></div>${r.photo_b64?`<img src="${r.photo_b64}" style="width:100%; border-radius:20px; margin-top:15px">`:''}<div style="margin-top:20px"><span class="lbl">Journey</span>${tl.map(t=>`<div style="display:flex; gap:10px; margin-top:10px"><div style="width:2px; background:#e2e8f0; position:relative"><div style="width:10px; height:10px; background:${t.color||'var(--accent)'}; border-radius:50%; position:absolute; left:-4px; border:2px solid white"></div></div><div style="font-size:12px; font-weight:900">${t.event_text}<br><span style="font-size:10px; opacity:0.5">${(t.created_at||'').substring(0,10)}</span></div></div>`).join('')}</div><button class="btn-p" style="margin-top:20px" onclick="openReportChat('${id}')">OPEN CASE CHAT</button></div>`;
             switchScreen('detail');
         }
 
@@ -1500,13 +1523,14 @@
         function updateChatBadges() {
             let t = 0; Object.values(unreadChats).forEach(v=>t+=v);
             const dot = document.getElementById('chat-global-badge'); if(dot) { dot.innerText = t>9?'9+':t; dot.style.display = t>0?'flex':'none'; }
-            if (document.getElementById('s-chat-list').classList.contains('active')) renderChatHub();
+            if (document.getElementById('s-chat-list') && document.getElementById('s-chat-list').classList.contains('active')) renderChatHub();
         }
         async function renderChatHub() {
             if (isRenderingHub) return; isRenderingHub = true;
             const sSnap = await db.collection('chat_sessions').where('participants','array-contains',currentUser.emp_no).get();
             const data = sSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
             const c = document.getElementById('chat-report-list');
+            if(!c) return;
             c.innerHTML = data.map(s => {
                 const unread = unreadChats[s.id]||0;
                 const isDir = s.id.startsWith('direct_');
@@ -1533,7 +1557,7 @@
             const mc = document.getElementById('chat-msgs'); mc.scrollTop = mc.scrollHeight;
             markRead(sid);
         }
-        function appendMsg(m) { const c=document.getElementById('chat-msgs'); c.innerHTML+=renderMsg(m); c.scrollTop=c.scrollHeight; }
+        function appendMsg(m) { const c=document.getElementById('chat-msgs'); if(c) { c.innerHTML+=renderMsg(m); c.scrollTop=c.scrollHeight; } }
         function renderMsg(m) { const me=(m.sender_no===currentUser.emp_no); return `<div class="chat-bubble ${me?'me':'them'}"><div class="chat-meta">${me?'YOU':(m.sender_name||'ADMIN')}</div><div>${m.content||m.message}</div></div>`; }
         async function markRead(sid) { const snap=await db.collection('chat_messages').where('session_id','==',sid).where('is_read','==',false).get(); const b=db.batch(); snap.docs.forEach(d=>{ if(d.data().sender_no!==currentUser.emp_no) b.update(d.ref,{is_read:true}); }); await b.commit(); delete unreadChats[sid]; updateChatBadges(); }
         
@@ -1570,10 +1594,8 @@
             if(document.getElementById('supp-id-disp')) document.getElementById('supp-id-disp').value = currentUser.emp_no;
         }
 
-
         function initApp() {
             const saved = localStorage.getItem('nit_user');
-            console.log("Init App Request, Saved Session:", !!saved);
             if (saved) {
                 try {
                     currentUser = JSON.parse(saved);
@@ -1584,17 +1606,18 @@
                     startHub();
                     switchScreen('home');
                 } catch (e) {
-                    console.error("Session Parse Error:", e);
                     localStorage.clear();
                     location.reload();
                 }
             } else {
-                document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+                document.querySelectorAll('.screen').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
                 document.getElementById('s-login').style.display = 'flex';
                 if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'none';
                 if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'none';
             }
         }
+
+
 
 
         window.onload = () => {
