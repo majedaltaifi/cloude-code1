@@ -621,7 +621,8 @@
             try {
                 const doc = await db.collection('reports').add({
                     user_id: currentUser.id,
-                    user_name: currentUser.name,
+                    emp_no: currentUser.emp_no,
+                    user_name: currentUser.name_en || currentUser.name,
                     type: currentType + (currentSubType ? ' - ' + currentSubType : ''),
                     description: desc,
                     site: site,
