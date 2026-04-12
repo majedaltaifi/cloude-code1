@@ -563,7 +563,7 @@
                 </tr>`;
             }).join('');
 
-            sBody.innerHTML = helpTix.map(s => `<tr><td>#${s.emp_no}</td><td>${s.emp_name || s.name}</td><td>${s.mobile || s.phone || '-'}</td><td>${s.email || '-'}</td><td>${s.subject}</td><td>${s.message}</td><td>${new Date(s.created_at || Date.now()).toLocaleDateString()}</td></tr>`).join('');
+            sBody.innerHTML = helpTix.map(s => `<tr><td>#TICKET ${s.ticket_num || '---'}</td><td>${s.emp_name || s.name}</td><td>${s.mobile || s.phone || '-'}</td><td>${s.email || '-'}</td><td>${s.subject}</td><td>${s.message}</td><td>${new Date(s.created_at || Date.now()).toLocaleDateString()}</td></tr>`).join('');
 
             
             // Build tag string

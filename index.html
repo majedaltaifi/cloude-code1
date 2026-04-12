@@ -656,7 +656,7 @@
             document.getElementById('stat-total').innerText = reports.length;
             document.getElementById('stat-pend').innerText = reports.filter(r=>r.status!=='done').length;
             document.getElementById('stat-done').innerText = reports.filter(r=>r.status==='done').length;
-            document.getElementById('stat-activity').innerHTML = reports.map(r=>`<div class="ticket-item">#${r.id} - ${r.type}</div>`).join('');
+            document.getElementById('stat-activity').innerHTML = reports.map(r=>`<div class="ticket-item">#CASE ${r.case_num || '---'} - ${r.type}</div>`).join('');
         }
 
         // CHAT HUB
@@ -768,16 +768,32 @@
             btn.disabled = true;
 
             try {
+                // Get and increment global counter for Support Tickets
+                const counterRef = db.collection('settings').doc('counters');
+                let tixNum = 1;
+                
+                await db.runTransaction(async (transaction) => {
+                    const sfDoc = await transaction.get(counterRef);
+                    if (!sfDoc.exists) {
+                        transaction.set(counterRef, { support_count: 1 }, {merge:true});
+                        tixNum = 1;
+                    } else {
+                        tixNum = (sfDoc.data().support_count || 0) + 1;
+                        transaction.update(counterRef, { support_count: tixNum });
+                    }
+                });
+
                 await db.collection('support_requests').add({ 
                     emp_no: currentUser.emp_no, 
                     emp_name: currentUser.name_en || currentUser.name,
+                    ticket_num: tixNum,
                     subject: s, 
                     message: m, 
                     mobile: mob,
                     email: em,
                     created_at: new Date().toISOString() 
                 });
-                alert("Request Sent Successfully!"); 
+                alert("Sent! Ticket #TICKET " + tixNum); 
                 switchScreen('home');
             } catch(e) { 
                 alert("Error sending request"); 
