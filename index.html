@@ -472,6 +472,22 @@
         function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
         function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
 
+        async function initApp() {
+            auth.onAuthStateChanged(async (u) => {
+                if (u) {
+                    const snap = await db.collection('employees').where('emp_no', '==', u.email.split('@')[0]).get();
+                    if (!snap.empty) {
+                        currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() };
+                        await fixLegacyNumbers(); // Run migration if needed
+                        sync();
+                        switchScreen('home');
+                    } else { /* Should not happen with valid email */ }
+                } else {
+                    switchScreen('login');
+                }
+            });
+        }
+
         async function doLogin() {
             const id = document.getElementById('login-id').value.trim();
             if (!id) return;
@@ -608,15 +624,17 @@
             btn.disabled = true;
 
             try {
-                // Get and increment global counter for Case Numbers
+                // Determine current case number by counting existing and seeding counter
                 const counterRef = db.collection('settings').doc('counters');
                 let caseNum = 1;
                 
                 await db.runTransaction(async (transaction) => {
                     const sfDoc = await transaction.get(counterRef);
                     if (!sfDoc.exists) {
-                        transaction.set(counterRef, { report_count: 1 });
-                        caseNum = 1;
+                        // Seed from current report count
+                        const currentSnap = await db.collection('reports').get();
+                        caseNum = currentSnap.size + 1;
+                        transaction.set(counterRef, { report_count: caseNum }, {merge:true});
                     } else {
                         caseNum = (sfDoc.data().report_count || 0) + 1;
                         transaction.update(counterRef, { report_count: caseNum });
@@ -646,10 +664,25 @@
                 switchScreen('reports');
                 location.reload();
             } catch(e) { 
-                alert('Connection Error'); 
+                console.error("Submit Error:", e);
+                alert('Submit Failed: ' + e.message); 
                 btn.innerHTML = oldHtml;
                 btn.disabled = false;
             }
+        }
+
+        async function fixLegacyNumbers() {
+            const snap = await db.collection('reports').where('case_num', '==', null).get();
+            if(snap.empty) return;
+            const all = await db.collection('reports').get();
+            const sorted = all.docs.map(d=>({id: d.id, ...d.data()})).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+            
+            for(let i=0; i<sorted.length; i++){
+                if(!sorted[i].case_num) {
+                    await db.collection('reports').doc(sorted[i].id).update({ case_num: i+1 });
+                }
+            }
+            await db.collection('settings').doc('counters').set({ report_count: sorted.length }, {merge:true});
         }
 
         function updateStats() {
