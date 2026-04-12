@@ -410,6 +410,7 @@
 
             if(id === 'reports') sync();
             if(id === 'stats') updateStats();
+            if(id === 'chat-list') renderChatHub();
             closeDrawer();
         }
 
@@ -620,29 +621,34 @@
             renderChatHub(q);
         }
 
-        async function renderChatHub(query = '') {
-            if (isRenderingHub || !currentUser) return; isRenderingHub = true;
-            const sSnap = await db.collection('chat_sessions').where('participants','array-contains',currentUser.emp_no).get();
-            let data = sSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
-            
-            if(query) data = data.filter(s => s.id.toLowerCase().includes(query) || (s.last_message||'').toLowerCase().includes(query));
 
-            const c = document.getElementById('chat-report-list');
-            if(c) {
-                c.innerHTML = data.map((s, idx) => `
-                    <div class="chat-row ${idx === 0 ? 'active' : ''}" onclick="openChat('${s.id}')">
-                        <div class="chat-avatar"><i class="fas fa-user-shield"></i></div>
-                        <div class="chat-info">
-                            <div class="chat-name-meta">
-                                <h4>${s.id === 'Management' ? 'Management Support' : s.id}</h4>
-                                <span>${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
+        async function renderChatHub(query = '') {
+            if (isRenderingHub || !currentUser) return; 
+            isRenderingHub = true;
+            try {
+                const myId = String(currentUser.emp_no);
+                const sSnap = await db.collection('chat_sessions').where('participants','array-contains', myId).get();
+                let data = sSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+                
+                if(query) data = data.filter(s => s.id.toLowerCase().includes(query) || (s.last_message||'').toLowerCase().includes(query));
+
+                const c = document.getElementById('chat-report-list');
+                if(c) {
+                    c.innerHTML = data.map((s, idx) => `
+                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''}" onclick="openChat('${s.id}')">
+                            <div class="chat-avatar"><i class="fas fa-user-shield"></i></div>
+                            <div class="chat-info">
+                                <div class="chat-name-meta">
+                                    <h4>${s.id === 'Management' ? 'Management Support' : s.id}</h4>
+                                    <span>${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
+                                </div>
+                                <div class="chat-msg-prev">${s.last_message || 'Start a new conversation'}</div>
                             </div>
-                            <div class="chat-msg-prev">${s.last_message || 'Start a new conversation'}</div>
                         </div>
-                    </div>
-                `).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CHATS FOUND</div>';
-            }
-            isRenderingHub = false;
+                    `).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CHATS FOUND</div>';
+                }
+            } catch(e) { console.error(e); }
+            finally { isRenderingHub = false; }
         }
 
         async function openChat(sid) {
