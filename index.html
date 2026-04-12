@@ -624,19 +624,12 @@
             btn.disabled = true;
 
             try {
+                // Atomic increment is more reliable than manual transaction for high-concurrency
                 const counterRef = db.collection('settings').doc('counters');
-                let caseNum = 1;
+                await counterRef.set({ report_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
                 
-                await db.runTransaction(async (transaction) => {
-                    const sfDoc = await transaction.get(counterRef);
-                    if (!sfDoc.exists) {
-                        transaction.set(counterRef, { report_count: 1 }, {merge:true});
-                        caseNum = 1;
-                    } else {
-                        caseNum = (sfDoc.data().report_count || 0) + 1;
-                        transaction.update(counterRef, { report_count: caseNum });
-                    }
-                });
+                const sfDoc = await counterRef.get();
+                const caseNum = sfDoc.data().report_count || 1;
 
                 const doc = await db.collection('reports').add({
                     user_id: currentUser.id,
@@ -658,28 +651,37 @@
                 });
 
                 alert('Sent! Ticket #CASE ' + caseNum);
-                switchScreen('reports');
+                switchScreen('home');
                 location.reload();
             } catch(e) { 
                 console.error("Submit Error:", e);
-                alert('Submit Failed. Please try again.'); 
+                alert('Submit Failed. Check connection and try again.'); 
                 btn.innerHTML = oldHtml;
                 btn.disabled = false;
             }
         }
 
         async function fixLegacyNumbers() {
-            const snap = await db.collection('reports').where('case_num', '==', null).get();
-            if(snap.empty) return;
-            const all = await db.collection('reports').get();
-            const sorted = all.docs.map(d=>({id: d.id, ...d.data()})).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-            
-            for(let i=0; i<sorted.length; i++){
-                if(!sorted[i].case_num) {
-                    await db.collection('reports').doc(sorted[i].id).update({ case_num: i+1 });
-                }
-            }
-            await db.collection('settings').doc('counters').set({ report_count: sorted.length }, {merge:true});
+            try {
+                const snap = await db.collection('reports').where('case_num', '==', null).limit(100).get();
+                if(snap.empty) return;
+                
+                const all = await db.collection('reports').orderBy('created_at', 'asc').get();
+                const batch = db.batch();
+                let count = 0;
+
+                all.docs.forEach((d, i) => {
+                    if(!d.data().case_num) {
+                        batch.update(d.ref, { case_num: i + 1 });
+                        count = i + 1;
+                    } else {
+                        count = d.data().case_num;
+                    }
+                });
+                
+                await batch.commit();
+                await db.collection('settings').doc('counters').set({ report_count: count }, { merge: true });
+            } catch(e) { console.error("Migration Error:", e); }
         }
 
         function updateStats() {
