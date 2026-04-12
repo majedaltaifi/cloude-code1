@@ -1372,9 +1372,9 @@
             try {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
-                    // Note: You will need to replace the publicKey below with your actual VAPID key
+                    // Using the actual VAPID key from the user console
                     const token = await messaging.getToken({ 
-                        valpidKey: 'YOUR_PUBLIC_VAPID_KEY_HERE' 
+                        vapidKey: 'BGKnHACfCh_rN3J_ivDu9o5z1d7MK7K8ajdYy-h51aDfg2-EKeSpWOID6k1Rcy4wSzPflC1OtV27Zh6pVDGTWXY' 
                     });
                     if (token) {
                         console.log('FCM Token:', token);
