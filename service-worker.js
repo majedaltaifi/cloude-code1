@@ -22,7 +22,7 @@ messaging.setBackgroundMessageHandler(function(payload) {
   return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-const CACHE_NAME = 'nit-field-app-v3';
+const CACHE_NAME = 'nit-field-app-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
