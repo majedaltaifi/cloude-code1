@@ -631,7 +631,8 @@
                 const sfDoc = await counterRef.get();
                 const caseNum = sfDoc.data().report_count || 1;
 
-                const doc = await db.collection('reports').add({
+                const reportDocRef = db.collection('reports').doc(String(caseNum));
+                await reportDocRef.set({
                     user_id: currentUser.id,
                     emp_no: currentUser.emp_no,
                     user_name: currentUser.name_en || currentUser.name,
@@ -644,7 +645,7 @@
                     created_at: new Date().toISOString()
                 });
 
-                await db.collection('reports').doc(doc.id).collection('timeline').add({
+                await reportDocRef.collection('timeline').add({
                     event_text: 'Case Logged (Serial #CASE ' + caseNum + ')',
                     author: 'System',
                     created_at: new Date().toISOString()
