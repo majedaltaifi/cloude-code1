@@ -579,36 +579,28 @@
         function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
         function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
 
-        async function initApp() {
-            const saved = localStorage.getItem('nit_user');
-            if (saved) {
-                currentUser = JSON.parse(saved);
-                await fixLegacyNumbers();
-                sync();
-                switchScreen('home');
-            } else {
-                switchScreen('login');
-            }
-        }
-
         async function doLogin() {
             const id = document.getElementById('login-id').value.trim();
             if (!id) return;
             const btn = document.querySelector('#s-login .btn-login');
             if(btn) { btn.innerText = "VERIFYING..."; btn.disabled = true; }
+            
             try {
-                const snap = await db.collection('employees').where('emp_no', '==', String(id)).get();
+                // Dual-type check for better compatibility
+                let snap = await db.collection('employees').where('emp_no', '==', id).get();
+                if(snap.empty) snap = await db.collection('employees').where('emp_no', '==', Number(id)).get();
+                if(snap.empty) snap = await db.collection('employees').where('emp_no', '==', String(id)).get();
+                
                 if (snap.empty) { 
                     document.getElementById('login-err').style.display = 'block'; 
                     if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
-                }
-                else { 
+                } else { 
                     currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; 
                     localStorage.setItem('nit_user', JSON.stringify(currentUser)); 
-                    initApp(); 
+                    initApp(); // Instant redirect
                 }
             } catch (e) { 
-                alert("Error: " + e); 
+                alert("Connection error. Please try again."); 
                 if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
             }
         }
@@ -1011,17 +1003,24 @@
             if (saved) {
                 currentUser = JSON.parse(saved);
                 document.getElementById('s-login').style.display = 'none';
-                document.getElementById('dr-name').innerText = currentUser.name_en || currentUser.name || "Officer";
-                document.getElementById('dr-id').innerText = "ID: " + currentUser.emp_no;
-                document.getElementById('hm-name').innerText = currentUser.name_en || currentUser.name || "Officer";
+                
+                // Set UI headers
+                if(document.getElementById('dr-name')) document.getElementById('dr-name').innerText = currentUser.name_en || currentUser.name || "Officer";
+                if(document.getElementById('dr-id')) document.getElementById('dr-id').innerText = "ID: " + (currentUser.emp_no || "0000");
+                if(document.getElementById('hm-name')) document.getElementById('hm-name').innerText = currentUser.name_en || currentUser.name || "Officer";
+                
+                // Instant load
+                switchScreen('home');
+                sync(); 
+                
+                // Background tasks (non-blocking)
+                fixLegacyNumbers().catch(e => console.log("Bg migration:", e));
                 
                 // Real-time news
                 db.collection('broadcasts').onSnapshot(snap => {
                     const h = document.getElementById('news-list-home');
                     if (h) h.innerHTML = snap.docs.map(d => `<div style="margin-bottom:10px; font-size:12px"><b>${d.data().title}</b><br>${d.data().content}</div>`).join('') || 'No news';
                 });
-                
-                sync(); switchScreen('home');
             } else {
                 document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
                 document.getElementById('s-login').style.display = 'flex';
