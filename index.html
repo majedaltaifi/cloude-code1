@@ -101,8 +101,29 @@
         .btn-p { width:100%; background:var(--primary); color:white; padding:24px; border-radius:28px; border:none; font-weight:900; letter-spacing:1px; cursor:pointer; transition:0.3s; }
         .btn-p:active { transform:scale(0.96); }
 
+
         .header i { cursor:pointer; transition:0.2s; }
         .header i:active { transform:scale(0.85); opacity:0.6; }
+
+        /* CHAT HUB */
+        .search-box { background:rgba(148,163,184,0.05); padding:18px 25px; border-radius:40px; display:flex; align-items:center; gap:12px; margin-bottom:30px; border:1px solid #f1f5f9; }
+        .search-box input { border:none; outline:none; background:transparent; font-weight:700; font-size:15px; width:100%; color:var(--primary); }
+        .search-box input::placeholder { color:#cbd5e1; }
+
+        .horizontal-picker { display:flex; gap:20px; overflow-x:auto; padding-bottom:30px; margin-bottom:10px; scrollbar-width:none; }
+        .horizontal-picker::-webkit-scrollbar { display:none; }
+        .picker-item { display:flex; flex-direction:column; align-items:center; gap:10px; min-width:80px; }
+        .picker-avatar { width:65px; height:65px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 15px rgba(0,0,0,0.03); border:2px solid #f1f5f9; color:var(--primary); font-size:24px; }
+        .picker-item span { font-size:11px; font-weight:900; color:#94a3b8; text-transform:uppercase; }
+
+        .chat-row { background:white; padding:20px 25px; border-radius:35px; display:flex; align-items:center; gap:15px; margin-bottom:15px; box-shadow:0 5px 20px rgba(0,0,0,0.01); cursor:pointer; }
+        .chat-row.active { background:#e0f2fe; }
+        .chat-avatar { width:55px; height:55px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:22px; }
+        .chat-info { flex:1; }
+        .chat-name-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+        .chat-name-meta h4 { font-size:16px; font-weight:900; color:#1e293b; }
+        .chat-name-meta span { font-size:10px; font-weight:900; color:var(--accent); }
+        .chat-msg-prev { font-size:13px; font-weight:700; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
 
         .zoom-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:0.3s; }
         .zoom-overlay.active { opacity:1; visibility:visible; }
@@ -290,7 +311,30 @@
                 <button class="btn-p" onclick="submitHelp()">SEND REQUEST</button>
             </div>
             <!-- Chat Hub -->
-            <div class="screen" id="s-chat-list"><header class="header"><i class="fas fa-bars" onclick="openDrawer()"></i><h1>MESSAGES</h1><div style="width:20px"></div></header><div id="chat-report-list"></div></div>
+            <div class="screen" id="s-chat-list">
+                <header class="header">
+                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
+                    <h1>CHAT HUB</h1>
+                    <div style="width:24px"></div>
+                </header>
+                
+                <div style="margin-top:20px">
+                    <div class="search-box">
+                        <i class="fas fa-search" style="color:#cbd5e1"></i>
+                        <input type="text" id="chat-search" placeholder="Search by name or ID..." oninput="filterChats()">
+                    </div>
+
+                    <div class="horizontal-picker">
+                        <div class="picker-item" onclick="openChat('Admin')">
+                            <div class="picker-avatar"><i class="fas fa-headset"></i></div>
+                            <span>Admin</span>
+                        </div>
+                    </div>
+
+                    <span class="lbl-prime">Recent Messages</span>
+                    <div id="chat-report-list" style="margin-top:20px"></div>
+                </div>
+            </div>
             <!-- Chat -->
             <div class="screen" id="s-chat">
                 <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('chat-list')"></i><h1 id="chat-title">Admin</h1><div style="width:20px"></div></header>
@@ -570,12 +614,34 @@
             let t = 0; Object.values(unreadChats).forEach(v=>t+=v);
             const dot = document.getElementById('chat-global-badge'); if(dot) { dot.innerText = t>9?'9+':t; dot.style.display = t>0?'flex':'none'; }
         }
-        async function renderChatHub() {
+
+        function filterChats() {
+            const q = document.getElementById('chat-search').value.toLowerCase();
+            renderChatHub(q);
+        }
+
+        async function renderChatHub(query = '') {
             if (isRenderingHub || !currentUser) return; isRenderingHub = true;
             const sSnap = await db.collection('chat_sessions').where('participants','array-contains',currentUser.emp_no).get();
-            const data = sSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+            let data = sSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+            
+            if(query) data = data.filter(s => s.id.toLowerCase().includes(query) || (s.last_message||'').toLowerCase().includes(query));
+
             const c = document.getElementById('chat-report-list');
-            if(c) c.innerHTML = data.map(s => `<div class="ticket-item" onclick="openChat('${s.id}')"><div><b>${s.id}</b><br><small>${s.last_message||''}</small></div></div>`).join('') || '<p style="text-align:center; opacity:0.3">No chats</p>';
+            if(c) {
+                c.innerHTML = data.map((s, idx) => `
+                    <div class="chat-row ${idx === 0 ? 'active' : ''}" onclick="openChat('${s.id}')">
+                        <div class="chat-avatar"><i class="fas fa-user-shield"></i></div>
+                        <div class="chat-info">
+                            <div class="chat-name-meta">
+                                <h4>${s.id === 'Management' ? 'Management Support' : s.id}</h4>
+                                <span>${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
+                            </div>
+                            <div class="chat-msg-prev">${s.last_message || 'Start a new conversation'}</div>
+                        </div>
+                    </div>
+                `).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CHATS FOUND</div>';
+            }
             isRenderingHub = false;
         }
 
