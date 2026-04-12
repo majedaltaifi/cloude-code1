@@ -761,7 +761,7 @@
                 // Add to timeline
                 await db.collection('reports').doc(String(rid)).collection('timeline').add({
                     event_text: `Status updated to ${val.toUpperCase()}`,
-                    event_by: 'Admin',
+                    author: 'Admin',
                     color: val === 'done' ? 'var(--success)' : 'var(--accent)',
                     created_at: new Date().toISOString()
                 });
