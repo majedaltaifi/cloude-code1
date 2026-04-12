@@ -49,7 +49,8 @@
             transition: all 0.3s ease;
         }
 
-        @media (max-width: 800px), (max-height: 800px) {
+        @media (max-width: 800px),
+        (max-height: 800px) {
             body {
                 background: #f1f5f9;
                 padding: 0;
@@ -57,6 +58,7 @@
                 display: block;
                 height: 100%;
             }
+
             .phone-frame {
                 width: 100% !important;
                 height: 100% !important;
@@ -67,14 +69,17 @@
                 max-width: none !important;
                 max-height: none !important;
             }
+
             .app-container {
                 border-radius: 0 !important;
                 height: 100vh !important;
                 width: 100vw !important;
             }
+
             .header {
                 padding-top: env(safe-area-inset-top, 40px);
             }
+
             .navbar {
                 padding-bottom: env(safe-area-inset-bottom, 20px);
                 height: calc(85px + env(safe-area-inset-bottom, 0px));
@@ -293,22 +298,34 @@
             transform: translateY(-2px);
         }
 
-        .online-dot { 
-            position: absolute; 
-            top: -2px; 
-            right: -2px; 
-            width: 13px; 
-            height: 13px; 
-            background: #22c55e; 
-            border-radius: 50%; 
-            border: 2px solid white; 
+        .online-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 13px;
+            height: 13px;
+            background: #22c55e;
+            border-radius: 50%;
+            border: 2px solid white;
             box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
             animation: pulse-green 1.5s infinite;
         }
-        @keyframes pulse-green { 
-            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 
-            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } 
+
+        @keyframes pulse-green {
+            0% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+            }
+
+            100% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
         }
 
         .nav-add {
@@ -963,9 +980,11 @@
         <div class="app-container">
             <!-- Login Screen -->
             <div id="s-login" class="login-bg" style="display:none">
-                <img src="https://www.constructionweeksaudi.com/cloud/2023/10/04/BeNyKTp9-1641473514287-1200x449.jpg" 
-                     style="width: 250px; margin-bottom: 30px; border-radius: 15px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));">
-                <div style="font-weight:900; font-size:16px; letter-spacing:3px; margin-bottom:40px; opacity:0.8; color:var(--accent)">FIELD CONNECT</div>
+                <img src="https://www.constructionweeksaudi.com/cloud/2023/10/04/BeNyKTp9-1641473514287-1200x449.jpg"
+                    style="width: 250px; margin-bottom: 30px; border-radius: 15px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));">
+                <div
+                    style="font-weight:900; font-size:16px; letter-spacing:3px; margin-bottom:40px; opacity:0.8; color:var(--accent)">
+                    FIELD CONNECT</div>
                 <div class="login-card">
                     <div style="font-weight:900; font-size:14px; margin-bottom:25px; opacity:0.8">ENTER EMPLOYEE ID
                     </div>
@@ -978,7 +997,8 @@
                         style="color:#ef4444; font-size:11px; font-weight:900; margin-top:20px; display:none">ID NOT
                         FOUND</div>
                 </div>
-                <p style="margin-top:40px; font-size:10px; font-weight:900; opacity:0.4; letter-spacing:1px">SECURE INTEL NETWORK ACCESS</p>
+                <p style="margin-top:40px; font-size:10px; font-weight:900; opacity:0.4; letter-spacing:1px">SECURE
+                    INTEL NETWORK ACCESS</p>
             </div>
 
             <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
@@ -995,7 +1015,8 @@
                         Center</span><i class="fas fa-headset"></i></div>
                 <div class="menu-item" onclick="doLogout(); closeDrawer();"><span style="color:#ef4444">Sign
                         Out</span><i class="fas fa-sign-out-alt" style="color:#ef4444"></i></div>
-                <div class="menu-item" onclick="closeDrawer()" style="margin-top:auto; border:none; display:flex; flex-direction:column; align-items:flex-start;">
+                <div class="menu-item" onclick="closeDrawer()"
+                    style="margin-top:auto; border:none; display:flex; flex-direction:column; align-items:flex-start;">
                     <span style="opacity:0.3; margin-bottom:10px">Developed by majed altaifi</span>
                     <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
                         <span style="opacity:0.3">Arabic Language</span><i class="fas fa-globe" style="opacity:0.3"></i>
@@ -1017,7 +1038,8 @@
             <div class="screen active" id="s-home">
                 <header class="header">
                     <i class="fas fa-bars" onclick="openDrawer()"></i>
-                    <img src="https://www.constructionweeksaudi.com/cloud/2023/10/04/BeNyKTp9-1641473514287-1200x449.jpg" style="height:25px; object-fit:contain">
+                    <img src="https://www.constructionweeksaudi.com/cloud/2023/10/04/BeNyKTp9-1641473514287-1200x449.jpg"
+                        style="height:25px; object-fit:contain">
                     <div class="bell-container" onclick="switchScreen('notifs')">
                         <i class="fas fa-bell"></i>
                         <div id="bell-dot" class="bell-badge"></div>
@@ -1310,7 +1332,7 @@
             appId: "1:553630040386:web:361da3353836ac709188db",
             measurementId: "G-GJ65XRZ57B"
         };
-        if(!firebase.apps.length) {
+        if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.firestore();
@@ -1353,18 +1375,20 @@
             // Setup real-time listeners and check permissions
             requestNotificationPermission();
 
-            db.collection('employees').doc(currentUser.emp_no).onSnapshot(doc => {
-                if(doc.exists) {
+            db.collection('employees').doc(String(currentUser.emp_no)).onSnapshot(doc => {
+                if (doc.exists) {
                     currentUser = { ...currentUser, ...doc.data() };
                     localStorage.setItem('nit_user', JSON.stringify(currentUser));
                     updateProfileUI();
                 }
-            }).catch(e => { });
+            }, err => {
+                console.error("Employee sync error:", err);
+            });
 
             sync(); loadNotifs(); initDirectWS();
             renderSubTypes(); fetchHRNews(); fetchUnreadChats(); renderChatHub();
-            db.collection('employees').doc(currentUser.emp_no).update({ is_online: true }).catch(()=>{});
-            
+            db.collection('employees').doc(String(currentUser.emp_no)).update({ is_online: true }).catch(() => { });
+
             setInterval(sync, 5000); setInterval(loadNotifs, 5000); setInterval(fetchHRNews, 5000); setInterval(fetchUnreadChats, 5000); setInterval(renderChatHub, 5000);
         }
 
@@ -1373,12 +1397,12 @@
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     // Using the actual VAPID key from the user console
-                    const token = await messaging.getToken({ 
-                        vapidKey: 'BGKnHACfCh_rN3J_ivDu9o5z1d7MK7K8ajdYy-h51aDfg2-EKeSpWOID6k1Rcy4wSzPflC1OtV27Zh6pVDGTWXY' 
+                    const token = await messaging.getToken({
+                        vapidKey: 'BGKnHACfCh_rN3J_ivDu9o5z1d7MK7K8ajdYy-h51aDfg2-EKeSpWOID6k1Rcy4wSzPflC1OtV27Zh6pVDGTWXY'
                     });
                     if (token) {
                         console.log('FCM Token:', token);
-                        await db.collection('employees').doc(currentUser.emp_no).update({
+                        await db.collection('employees').doc(String(currentUser.emp_no)).update({
                             fcm_token: token,
                             last_token_update: new Date().toISOString()
                         });
@@ -1411,7 +1435,7 @@
             try {
                 // First try: Normal ID search
                 let docSnap = await db.collection('employees').doc(id).get();
-                
+
                 // Second try: If number, try padded version (0001)
                 if (!docSnap.exists && /^\d+$/.test(id)) {
                     const padded = id.padStart(4, '0');
@@ -1427,7 +1451,7 @@
                 }
 
                 if (!docSnap || !docSnap.exists) throw new Error('ID_NOT_FOUND');
-                
+
                 currentUser = docSnap.data();
                 if (!currentUser.emp_no) currentUser.emp_no = id;
                 localStorage.setItem('nit_user', JSON.stringify(currentUser));
@@ -1436,7 +1460,7 @@
                 document.querySelector('.navbar').style.display = 'flex';
                 switchScreen('home', 'bn-home');
                 updateProfileUI();
-                db.collection('employees').doc(currentUser.emp_no).update({ is_online: true }).catch(()=>{});
+                db.collection('employees').doc(currentUser.emp_no).update({ is_online: true }).catch(() => { });
                 startHub();
             } catch (e) {
                 err.style.display = 'block';
@@ -1445,11 +1469,19 @@
         }
 
         function doLogout() {
-            localStorage.removeItem('nit_user');
-            if(currentUser) {
-                db.collection('employees').doc(currentUser.emp_no).update({ is_online: false }).catch(()=>{});
+            try {
+                localStorage.removeItem('nit_user');
+                if (currentUser && currentUser.emp_no) {
+                    const docId = String(currentUser.emp_no);
+                    db.collection('employees').doc(docId).update({ is_online: false }).catch(() => { });
+                }
+            } catch (e) {
+                console.error("Logout error:", e);
             }
-            location.reload();
+            // Always reload to ensure state is cleared, even if Firestore update fails
+            setTimeout(() => {
+                location.reload();
+            }, 100);
         }
 
         function initDirectWS() {
@@ -1477,7 +1509,7 @@
         async function fetchHRNews() {
             try {
                 const snap = await db.collection('broadcasts').limit(5).get();
-                hrNews = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+                hrNews = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
                 renderHRNews();
             } catch (e) { }
         }
@@ -1488,7 +1520,7 @@
                 unreadChats = {};
                 snap.docs.forEach(doc => {
                     const d = doc.data();
-                    if(d.sender_no !== currentUser.emp_no) {
+                    if (d.sender_no !== currentUser.emp_no) {
                         unreadChats[d.session_id] = (unreadChats[d.session_id] || 0) + 1;
                     }
                 });
@@ -1518,8 +1550,8 @@
                 const batch = db.batch();
                 snap.docs.forEach(doc => {
                     const d = doc.data();
-                    if(d.sender_no !== currentUser.emp_no && d.is_read === false) {
-                        batch.update(doc.ref, {is_read: true});
+                    if (d.sender_no !== currentUser.emp_no && d.is_read === false) {
+                        batch.update(doc.ref, { is_read: true });
                     }
                 });
                 await batch.commit();
@@ -1542,11 +1574,11 @@
                 // Modified to avoid composite index requirements in Firebase
                 const snap = await db.collection('notifications').where('emp_no', 'in', [currentUser.emp_no, null]).get();
                 notifs = snap.docs.map(d => {
-                    let n = {id: d.id, ...d.data()};
+                    let n = { id: d.id, ...d.data() };
                     if (readLocally.has(n.id)) n.is_read = true;
                     return n;
-                }).sort((a,b) => new Date(b.created_at) - new Date(a.created_at)); // Sort client-side
-                
+                }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort client-side
+
                 renderNotifs();
             } catch (e) {
                 console.error("Firestore Notif Error:", e);
@@ -1573,7 +1605,7 @@
             readLocally.add(id);
             const idx = notifs.findIndex(x => x.id === id);
             if (idx !== -1) { notifs[idx].is_read = true; renderNotifs(); }
-            try { await db.collection('notifications').doc(id).update({is_read: true}); } catch (e) { }
+            try { await db.collection('notifications').doc(id).update({ is_read: true }); } catch (e) { }
             if (rid) openDetail(rid);
         }
 
@@ -1581,10 +1613,10 @@
             if (!currentUser || !currentUser.emp_no) return;
             try {
                 console.log("Firestore Sync: Querying reports for", currentUser.emp_no, "(" + typeof currentUser.emp_no + ")");
-                
+
                 // 1. Try with original type
                 let snap = await db.collection('reports').where('emp_no', '==', currentUser.emp_no).get();
-                
+
                 // 2. If empty, try the alternate type (string <-> number)
                 if (snap.empty) {
                     const altType = typeof currentUser.emp_no === 'string' ? Number(currentUser.emp_no) : String(currentUser.emp_no);
@@ -1600,11 +1632,11 @@
                     console.log(`Firestore Sync: Success! Found ${snap.docs.length} reports.`);
                 }
 
-                reports = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                
-                renderReports(); 
+                reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                renderReports();
                 updateStats();
-            } catch (e) { 
+            } catch (e) {
                 console.error("Firestore Sync Error:", e);
             }
         }
@@ -1618,7 +1650,7 @@
             if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
             if (document.getElementById('stat-done')) document.getElementById('stat-done').innerText = done;
             if (document.getElementById('stat-pend')) document.getElementById('stat-pend').innerText = pend;
-            
+
             filterAndShow(currentFilter);
         }
 
@@ -1644,7 +1676,7 @@
             activity.innerHTML = filtered.map(r => `
                 <div style="background:white; padding:15px; border-radius:18px; border:1.5px solid #f1f5f9; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;" onclick="lastScreen='stats'; openDetail('${r.id}')">
                     <div style="flex:1">
-                        <div style="font-size:12px; font-weight:900; color:var(--primary)">${(r.description||'').substring(0, 35)}...</div>
+                        <div style="font-size:12px; font-weight:900; color:var(--primary)">${(r.description || '').substring(0, 35)}...</div>
                         <div style="font-size:9px; font-weight:950; color:${(r.status || '').toLowerCase() === 'done' ? '#22c55e' : '#38bdf8'}; margin-top:3px">${(r.type || '').toUpperCase()} | ${(r.status || '').toUpperCase()}</div>
                     </div>
                     <i class="fas fa-chevron-right" style="color:#cbd5e1; font-size:12px"></i>
@@ -1715,7 +1747,7 @@
                 await db.collection('reports').doc(String(nextId)).collection('timeline').add({
                     event_text: 'Case Logged', event_by: 'System', color: 'var(--accent)', created_at: tsString
                 });
-                alert('Sent! Case #' + nextId); 
+                alert('Sent! Case #' + nextId);
                 document.getElementById('f-desc').value = ''; currentSubType = ''; renderSubTypes(); imgB64 = null; document.getElementById('prevImg').style.display = 'none'; document.getElementById('phold').style.display = 'flex'; switchScreen('reports');
             } catch (e) { alert('Connection Error: ' + e); }
             document.getElementById('subBtn').innerText = 'SUBMIT CASE';
@@ -1746,7 +1778,7 @@
                 return `<div class="ticket-item" onclick="lastScreen='reports'; openDetail('${i.id}')" style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
                         <div class="t-body" style="color:var(--accent); text-transform:uppercase; font-size:14px; margin-bottom:2px">${i.type}</div>
-                        <div style="font-size:11px; font-weight:900; color:var(--primary)">${(i.description||'').substring(0, 45)}...</div>
+                        <div style="font-size:11px; font-weight:900; color:var(--primary)">${(i.description || '').substring(0, 45)}...</div>
                         <div style="font-size:9px; font-weight:950; color:${isClosed ? '#22c55e' : '#38bdf8'}; margin-top:4px"># CASE ${String(i.id || '')} | ${isClosed ? 'DONE' : 'IN PROG'}</div>
                     </div>
                 </div>`;
@@ -1802,7 +1834,7 @@
                         </div>
                         <div>
                             <div style="font-size:10px; font-weight:900; color:var(--primary)">${t.event_text}</div>
-                            <div style="font-size:8px; color:#94a3b8; font-weight:950; margin-top:1px">${(t.created_at||'').substring(0,10)}${t.event_by ? ' • ' + t.event_by : ''}</div>
+                            <div style="font-size:8px; color:#94a3b8; font-weight:950; margin-top:1px">${(t.created_at || '').substring(0, 10)}${t.event_by ? ' • ' + t.event_by : ''}</div>
                         </div>
                     </div>
                 `).join('');
@@ -1812,7 +1844,7 @@
         async function openDetail(id) {
             try {
                 const rData = reports.find(r => r.id === id);
-                if(!rData) return;
+                if (!rData) return;
                 const status = (rData.status || '').toLowerCase();
                 const isDone = status === 'done';
                 let img = rData.photo_b64 ? `<div style="margin-top:20px; border-radius:20px; overflow:hidden; border:1px solid #e2e8f0"><img src="${rData.photo_b64}" style="width:100%; display:block"></div>` : '';
@@ -1821,7 +1853,7 @@
                 const userDetail = desc.replace(subType, '').trim();
 
                 const snap = await db.collection('reports').doc(id).collection('timeline').orderBy('created_at', 'asc').get();
-                let tl = snap.docs.map(d=>d.data());
+                let tl = snap.docs.map(d => d.data());
 
                 document.getElementById('det-cont').innerHTML = `
                     <div style="margin-top:20px">
@@ -1849,7 +1881,7 @@
                                         </div>
                                         <div>
                                             <div style="font-size:13px; font-weight:900; color:var(--primary)">${t.event_text}</div>
-                                            <div style="font-size:10px; color:#94a3b8; font-weight:950; margin-top:2px">${(t.created_at||'').substring(0,10)} • ${t.event_by}</div>
+                                            <div style="font-size:10px; color:#94a3b8; font-weight:950; margin-top:2px">${(t.created_at || '').substring(0, 10)} • ${t.event_by}</div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1879,16 +1911,16 @@
             if (!q) { resBox.style.display = 'none'; return; }
             try {
                 let emps = [];
-                if(!isNaN(q)) {
-                    const snap = await db.collection('employees').where('emp_no','==', q).get();
-                    if(!snap.empty) emps.push(snap.docs[0].data());
+                if (!isNaN(q)) {
+                    const snap = await db.collection('employees').where('emp_no', '==', q).get();
+                    if (!snap.empty) emps.push(snap.docs[0].data());
                 } else {
                     const snap = await db.collection('employees').where('name_en', '>=', q).where('name_en', '<=', q + '\uf8ff').limit(10).get();
-                    emps = snap.docs.map(d=>d.data());
+                    emps = snap.docs.map(d => d.data());
                 }
                 resBox.style.display = 'block';
                 resBox.innerHTML = '<span class="lbl">FOUND COLLEAGUES</span>' + emps.filter(e => e.emp_no != currentUser.emp_no).map(e => `
-                    <div style="background:white; padding:12px 18px; border-radius:15px; border:1.5px solid #f1f5f9; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="openPrivateChat('${e.emp_no}', '${(e.name_en || e.name).replace(/'/g,"\\'")}')">
+                    <div style="background:white; padding:12px 18px; border-radius:15px; border:1.5px solid #f1f5f9; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="openPrivateChat('${e.emp_no}', '${(e.name_en || e.name).replace(/'/g, "\\'")}')">
                         <div>
                             <div style="font-size:13px; font-weight:950; color:var(--primary)">${e.name_en || e.name}</div>
                             <div style="font-size:10px; font-weight:900; color:var(--accent)">ID: #${e.emp_no} • ${e.department}</div>
@@ -1917,9 +1949,9 @@
             switchScreen('chat');
             chatOpenedAt = Date.now();
             initChatWS(activeRoom);
-            
+
             try {
-            const snap = await db.collection('chat_messages').where('session_id', '==', activeRoom).get();
+                const snap = await db.collection('chat_messages').where('session_id', '==', activeRoom).get();
                 const msgs = snap.docs.map(m => m.data()).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
                 document.getElementById('chat-msgs').innerHTML = msgs.map(m => renderMsg(m)).join('');
                 const c = document.getElementById('chat-msgs'); c.scrollTop = c.scrollHeight;
@@ -1940,7 +1972,7 @@
             try {
                 const sidDir = `direct_${currentUser.emp_no}`;
                 const sSnap = await db.collection('chat_sessions').where('participants', 'array-contains', currentUser.emp_no).get();
-                
+
                 // Track IDs to prevent duplicates
                 const seenSids = new Set();
                 const sessionData = [];
@@ -1963,7 +1995,7 @@
                         try {
                             const eSnap = await db.collection('employees').doc(otherID).get();
                             if (eSnap.exists) tName = eSnap.data().name_en || eSnap.data().name_ar || tName;
-                        } catch (e) {}
+                        } catch (e) { }
                         sessionData.push({ time, html: `<div class="chat-hub-row" onclick="openPrivateChat('${otherID}', '${tName.replace(/'/g, "\\'")}')"><div class="row-icon-cell"><div class="row-icon-circ"><i class="fas fa-user"></i></div></div><div class="row-main"><div class="row-header"><span class="row-title">${tName}</span><span class="row-date">${time ? new Date(time).toLocaleDateString('en-GB') : ''}</span></div><div style="display:flex; justify-content:space-between; align-items:flex-start"><div class="row-subtext">${d.last_message || ''}</div>${unread > 0 ? `<div class="chat-badge-hub">${unread}</div>` : ''}</div></div></div>` });
                     } else if (sid.startsWith('report_')) {
                         const rid = sid.replace('report_', '');
@@ -1978,7 +2010,7 @@
                     const hSnap = await db.collection('chat_messages').where('session_id', '==', sidDir).limit(1).get();
                     if (!hSnap.empty) {
                         const allMsgs = await db.collection('chat_messages').where('session_id', '==', sidDir).get();
-                        const lastM = allMsgs.docs.map(d => d.data()).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
+                        const lastM = allMsgs.docs.map(d => d.data()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
                         const time = new Date(lastM.created_at).getTime();
                         sessionData.push({ time, html: `<div class="chat-hub-row" onclick="openDirectChat()" style="background:#e0f2fe; border-radius:24px; margin-bottom:15px; border:1px solid #bae6fd; padding:18px"><div class="row-icon-cell"><div class="row-icon-circ" style="background:var(--primary); color:white; width:46px; height:46px;"><i class="fas fa-user-shield"></i></div></div><div class="row-main" style="padding-left:10px"><div class="row-header"><span class="row-title" style="font-size:15px">Management Support</span><span class="row-date">${new Date(time).toLocaleDateString('en-GB')}</span></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px"><div class="row-subtext" style="color:#64748b; font-size:13px; font-weight:900">${lastM.content || lastM.message || ''}</div>${unreadChats[sidDir] > 0 ? `<div class="chat-badge-hub">${unreadChats[sidDir]}</div>` : ''}</div></div></div>` });
                     }
@@ -2021,12 +2053,12 @@
             document.getElementById('chat-input-area').style.display = isClosed ? 'none' : 'flex';
             document.getElementById('chat-lock-area').style.display = isClosed ? 'flex' : 'none';
             document.getElementById('chat-title').innerText = "# CASE " + String(rid);
-            
+
             switchScreen('chat');
             markChatRead(`report_${rid}`);
             chatOpenedAt = Date.now();
             initChatWS(`report_${rid}`);
-            
+
             try {
                 const snap = await db.collection('chat_messages').where('session_id', '==', `report_${rid}`).get();
                 const msgs = snap.docs.map(m => m.data()).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
@@ -2053,7 +2085,7 @@
         }
 
         function appendMsg(m) { const c = document.getElementById('chat-msgs'); c.innerHTML += renderMsg(m); c.scrollTop = c.scrollHeight; }
-        
+
         function renderMsg(m) {
             let isMe = false;
             if (m.sender_no && m.sender_no !== 'Unknown' && m.sender_no !== 'admin') {
@@ -2085,16 +2117,16 @@
                 participants = [currentUser.emp_no, targetPeer.emp_no];
                 sid = activeRoom;
             } else {
-                participants = [currentUser.emp_no, 'admin']; 
+                participants = [currentUser.emp_no, 'admin'];
                 sid = `report_${activeRoom}`;
             }
 
             const ts = new Date().toISOString();
-            const d = { 
-                message: msg, content: msg, role: 'employee', sender_name: myName, sender_no: currentUser.emp_no, 
-                session_id: sid, participants: participants, is_read: false, created_at: ts 
+            const d = {
+                message: msg, content: msg, role: 'employee', sender_name: myName, sender_no: currentUser.emp_no,
+                session_id: sid, participants: participants, is_read: false, created_at: ts
             };
-            
+
             appendMsg(d);
             i.value = '';
 
@@ -2118,7 +2150,7 @@
         function showToast(m) { const t = document.getElementById('notif-toast'); document.getElementById('toast-msg').innerText = m; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 4000); }
         function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
         function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
-        
+
         window.onload = () => {
             initApp();
             if ('serviceWorker' in navigator) {
