@@ -1358,11 +1358,15 @@
             }
         }
 
+        let isHubStarted = false;
         async function startHub() {
-            if (!currentUser) return;
-            updateProfileUI();
-
-            // Setup real-time listeners and check permissions
+            if (isHubStarted) return;
+            isHubStarted = true;
+            console.log("Initializing Hub Observers...");
+            loadHRNews();
+            loadNotifs();
+            sync();
+            startChatHub();
             requestNotificationPermission();
 
             db.collection('employees').doc(String(currentUser.emp_no)).onSnapshot(doc => {
@@ -1565,14 +1569,15 @@
             if (!currentUser || !currentUser.emp_no) return;
             if (unsubSync) unsubSync();
             
-            console.log("Starting Real-time Sync for", currentUser.emp_no);
+            // Use String conversion to match Firestore doc ID types and avoid index errors
+            const targetId = String(currentUser.emp_no);
+            console.log("Starting Real-time Sync for ID:", targetId);
             
-            unsubSync = db.collection('reports').where('emp_no', 'in', [currentUser.emp_no, String(currentUser.emp_no), Number(currentUser.emp_no)])
+            unsubSync = db.collection('reports').where('emp_no', '==', targetId)
                 .onSnapshot(snap => {
                     const newReports = snap.docs.map(d => ({ id: d.id, ...d.data() }))
                         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                     
-                    // Logic to detect if a status changed to "Done" to notify user
                     if (reports.length > 0) {
                         newReports.forEach(r => {
                             const oldR = reports.find(o => o.id === r.id);
@@ -1586,7 +1591,14 @@
                     reports = newReports;
                     renderReports();
                     updateStats();
-                }, e => console.error("Snapshot Sync Error:", e));
+                }, e => {
+                    console.error("Snapshot Sync Error:", e);
+                    // Fallback to non-sorted if index is not ready
+                    db.collection('reports').where('emp_no', '==', targetId).get().then(snap => {
+                        reports = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                        renderReports(); updateStats();
+                    });
+                });
         }
 
         function playNotificationSound() {
