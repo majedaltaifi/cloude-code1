@@ -109,12 +109,23 @@
 
 
         /* CHAT SCREEN */
-        .chat-container { flex:1; overflow-y:auto; padding:30px 20px; display:flex; flex-direction:column; gap:20px; background:#f8fafc; }
-        .chat-bubble { position:relative; padding:18px 25px; border-radius:30px; max-width:85%; font-size:15px; font-weight:700; line-height:1.5; box-shadow:0 8px 20px rgba(0,0,0,0.02); }
-        .chat-bubble.me { background:var(--accent); color:white; align-self:flex-end; border-bottom-right-radius:5px; }
-        .chat-bubble.them { background:white; color:var(--primary); align-self:flex-start; border-bottom-left-radius:5px; }
-        .chat-bubble::before { content:'YOU'; position:absolute; top:-20px; right:15px; font-size:9px; font-weight:900; color:#94a3b8; letter-spacing:1px; }
-        .chat-bubble.them::before { content:'OFFICER'; left:15px; right:auto; }
+        .chat-container { flex:1; overflow-y:auto; padding:30px 20px; display:flex; flex-direction:column; gap:25px; background:#f8fafc; }
+        .chat-msg-row { display: flex; align-items: flex-end; gap: 12px; max-width: 85%; }
+        .chat-msg-row.me { align-self: flex-end; flex-direction: row-reverse; }
+        .chat-msg-row.them { align-self: flex-start; }
+
+        .chat-avatar-mini { width: 35px; height: 35px; border-radius: 12px; background: white; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: #94a3b8; border: 1px solid #f1f5f9; flex-shrink: 0; }
+        .chat-avatar-mini.admin { background: var(--primary); color: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
+
+        .chat-bubble { position:relative; padding:15px 20px; border-radius:22px; font-size:14px; font-weight:700; line-height:1.5; box-shadow:0 5px 15px rgba(0,0,0,0.02); }
+        .chat-bubble.me { background:var(--accent); color:white; border-bottom-right-radius:2px; }
+        .chat-bubble.them { background:white; color:var(--primary); border-bottom-left-radius:2px; }
+        .chat-bubble.admin { background: var(--primary); color: white; border: 1.5px solid var(--accent); box-shadow: 0 0 20px rgba(56, 189, 248, 0.25); }
+
+        .chat-bubble::before { content:attr(data-author); position:absolute; top:-18px; font-size:9px; font-weight:950; color:#94a3b8; letter-spacing:1px; white-space: nowrap; }
+        .chat-bubble.me::before { right:5px; }
+        .chat-bubble.them::before { left:5px; }
+        .chat-bubble.admin::before { color: var(--accent); font-weight: 950; }
 
         .chat-input-hub { background:white; padding:15px 25px 40px; border-top:1px solid #f1f5f9; display:flex; align-items:center; gap:12px; }
         .chat-input-pill { flex:1; background:#f8fafc; border-radius:30px; padding:18px 25px; border:1px solid #f1f5f9; outline:none; font-weight:700; font-size:15px; }
@@ -937,8 +948,20 @@
                     const msgs = snap.docs.map(d => d.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
                     
                     document.getElementById('chat-msgs').innerHTML = msgs.map(m => {
-                        const me = String(m.sender_no) === String(currentUser.emp_no);
-                        return `<div class="chat-bubble ${me ? 'me' : 'them'}">${m.content}</div>`;
+                        const isMe = String(m.sender_no) === String(currentUser.emp_no);
+                        // Identify admin by special ID or if in Support room
+                        const isAdmin = String(m.sender_no).toLowerCase() === 'admin' || String(m.sender_no).toLowerCase() === 'management';
+                        const author = isAdmin ? 'THE ADMIN' : (isMe ? 'YOU' : 'OFFICER ' + m.sender_no);
+                        const icon = isAdmin ? 'fa-crown' : 'fa-user-shield';
+                        
+                        return `
+                            <div class="chat-msg-row ${isMe ? 'me' : 'them'}">
+                                ${!isMe ? `<div class="chat-avatar-mini ${isAdmin ? 'admin' : ''}"><i class="fas ${icon}"></i></div>` : ''}
+                                <div class="chat-bubble ${isMe ? 'me' : 'them'} ${isAdmin ? 'admin' : ''}" data-author="${author}">
+                                    ${m.content}
+                                </div>
+                            </div>
+                        `;
                     }).join('');
                     const mc = document.getElementById('chat-msgs');
                     mc.scrollTop = mc.scrollHeight;
