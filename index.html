@@ -339,9 +339,9 @@
                     </div>
 
                     <div class="horizontal-picker">
-                        <div class="picker-item" onclick="openChat('Admin')">
+                        <div class="picker-item" onclick="openChat('Management')">
                             <div class="picker-avatar"><i class="fas fa-headset"></i></div>
-                            <span>Admin</span>
+                            <span>Support</span>
                         </div>
                     </div>
 
@@ -640,17 +640,25 @@
 
         function filterChats() {
             const q = document.getElementById('chat-search').value.toLowerCase();
-            renderChatHub(q);
-        }
-
-
+            renderChatHub(q)
         async function renderChatHub(query = '') {
             if (isRenderingHub || !currentUser) return; 
             isRenderingHub = true;
             try {
-                const myId = String(currentUser.emp_no);
-                const sSnap = await db.collection('chat_sessions').where('participants','array-contains', myId).get();
-                let data = sSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+                const myIdStr = String(currentUser.emp_no);
+                const myIdNum = Number(currentUser.emp_no);
+                
+                // Query both string and number to be safe
+                const [snap1, snap2] = await Promise.all([
+                    db.collection('chat_sessions').where('participants','array-contains', myIdStr).get(),
+                    db.collection('chat_sessions').where('participants','array-contains', myIdNum).get()
+                ]);
+                
+                let sessionsMap = {};
+                snap1.docs.forEach(d => sessionsMap[d.id] = {id:d.id, ...d.data()});
+                snap2.docs.forEach(d => sessionsMap[d.id] = {id:d.id, ...d.data()});
+                
+                let data = Object.values(sessionsMap).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
                 
                 if(query) data = data.filter(s => s.id.toLowerCase().includes(query) || (s.last_message||'').toLowerCase().includes(query));
 
@@ -673,8 +681,6 @@
             finally { isRenderingHub = false; }
         }
 
-
-
         async function openChat(sid) {
             activeRoom = String(sid);
             document.getElementById('chat-title').innerText = activeRoom === 'Admin' || activeRoom === 'Management' ? 'Management Support' : activeRoom;
@@ -683,17 +689,18 @@
             
             if(unsubChat) unsubChat();
             
-            // Robust listener with error handling and flexible matching
+            // Fetch without orderBy first (safer against index issues)
             unsubChat = db.collection('chat_messages')
                 .where('session_id', '==', activeRoom)
-                .orderBy('created_at', 'asc')
                 .onSnapshot(snap => {
                     if (snap.empty) {
                         document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO MESSAGES YET</p>';
                         return;
                     }
-                    document.getElementById('chat-msgs').innerHTML = snap.docs.map(d => {
-                        const m = d.data();
+                    // Sort manually in JS
+                    const msgs = snap.docs.map(d => d.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                    
+                    document.getElementById('chat-msgs').innerHTML = msgs.map(m => {
                         const me = String(m.sender_no) === String(currentUser.emp_no);
                         return `<div class="chat-bubble ${me ? 'me' : 'them'}">${m.content}</div>`;
                     }).join('');
@@ -701,14 +708,6 @@
                     mc.scrollTop = mc.scrollHeight;
                 }, err => {
                     console.error("Chat Error:", err);
-                    // Fallback without ordering if index is missing
-                    db.collection('chat_messages').where('session_id', '==', activeRoom).get().then(s => {
-                         document.getElementById('chat-msgs').innerHTML = s.docs.map(d => {
-                            const m = d.data();
-                            const me = String(m.sender_no) === String(currentUser.emp_no);
-                            return `<div class="chat-bubble ${me ? 'me' : 'them'}">${m.content}</div>`;
-                        }).join('');
-                    });
                 });
         }
 
