@@ -456,148 +456,146 @@
             position: absolute;
             top: 0;
             left: -100%;
-            width: 280px;
+            width: 85%;
             height: 100%;
-            background: #0b0e37;
-            z-index: 10001;
-            transition: 0.4s ease;
-            padding: 40px 25px;
+            background: var(--primary);
+            z-index: 1000;
+            padding: 50px 30px;
+            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             color: white;
-            display: flex;
-            flex-direction: column;
         }
 
         .drawer.active {
             left: 0;
         }
 
-        .drawer-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 10000;
-            display: none;
+        .drawer-header {
+            margin-bottom: 50px;
         }
 
-        .drawer-overlay.active {
-            display: block;
-        }
-
-        .drawer-user {
-            margin-bottom: 40px;
-        }
-
-        .drawer-user h3 {
-            font-size: 18px;
-            font-weight: 900;
-        }
-
-        .menu-item {
+        .drawer-item {
             display: flex;
             align-items: center;
-            justify-content: flex-end;
-            gap: 15px;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.05);
             cursor: pointer;
-            color: white;
-            text-decoration: none;
         }
 
-        .menu-item span {
+        .drawer-item span {
             font-size: 14px;
             font-weight: 900;
         }
 
-        .menu-item i {
-            width: 35px;
-            height: 35px;
+        .drawer-icon {
+            width: 40px;
+            height: 40px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
             color: var(--accent);
         }
 
-        .chat-bubble {
-            max-width: 85%;
-            padding: 12px 18px;
-            border-radius: 20px;
-            font-size: 14px;
-            position: relative;
-            margin-bottom: 5px;
-            line-height: 1.4;
+        .drawer-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999;
+            transition: 0.3s;
         }
 
-        .chat-bubble.me {
-            align-self: flex-end;
-            background: var(--accent);
-            color: white;
-            border-bottom-right-radius: 4px;
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
         }
 
-        .chat-bubble.them {
-            align-self: flex-start;
+        /* Home section items */
+        .activity-card {
             background: white;
-            color: var(--primary);
-            border-bottom-left-radius: 4px;
-            border: 1px solid #e2e8f0;
+            padding: 22px;
+            border-radius: 28px;
+            margin-bottom: 20px;
         }
 
-        .chat-meta {
+        .news-board {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 25px;
+            border-radius: 30px;
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        .activity-pill {
+            padding: 4px 10px;
+            border-radius: 6px;
             font-size: 9px;
-            opacity: 0.6;
-            margin-bottom: 4px;
-            font-weight: 900;
+            font-weight: 950;
+            letter-spacing: 0.5px;
+            background: #f0f9ff;
+            color: var(--accent);
+        }
+
+        .activity-pill.done {
+            background: #f0fdf4;
+            color: #22c55e;
+        }
+
+        .lbl {
+            font-size: 10px;
+            font-weight: 950;
+            opacity: 0.4;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
         }
 
         .ticket-item {
             background: white;
-            padding: 15px;
-            border-radius: 18px;
+            padding: 20px;
+            border-radius: 22px;
             margin-bottom: 12px;
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
+            border: 1px solid #f1f5f9;
         }
 
-        .t-id {
-            font-size: 10px;
-            color: #94a3b8;
-            font-weight: 950;
+        /* Chat bubbles */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px 0;
         }
 
-        .t-body {
+        .chat-bubble {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 18px;
             font-size: 13px;
             font-weight: 900;
-            color: var(--primary);
-            margin-top: 4px;
+            line-height: 1.5;
         }
 
-        .stat-card-active {
-            border: 3px solid var(--accent) !important;
-            transform: scale(1.02);
-            transition: 0.2s ease;
-            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.1) !important;
+        .chat-bubble.me {
+            background: var(--accent);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
         }
 
-        .notif-card {
+        .chat-bubble.them {
             background: white;
-            padding: 20px;
-            border-radius: 20px;
-            border: 1.5px solid #f1f5f9;
-            margin-bottom: 15px;
-            position: relative;
-            cursor: pointer;
+            color: var(--primary);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            border: 1px solid #e2e8f0;
         }
-
-        .notif-card.unread {
-            border: 1.5px solid var(--accent);
-        }
+    </style>
 
         .notif-card .dot {
             position: absolute;
@@ -991,129 +989,121 @@
 <body>
 
     <div class="phone-frame">
-        <div class="app-container">
+
             <!-- Login Screen -->
             <div id="s-login" class="login-bg" style="display:none">
-                <div style="font-weight:900; font-size:42px; border:2px solid var(--accent); padding:10px 20px; border-radius:10px; box-shadow:0 0 20px var(--accent); margin-bottom:40px; color:var(--accent)">NIT</div>
-                <div style="font-weight:900; font-size:16px; letter-spacing:3px; margin-bottom:40px; opacity:0.8; color:var(--accent)">FIELD CONNECT</div>
+                <div class="glow-text">NIT</div>
+                <div style="font-weight:900; font-size:16px; letter-spacing:4px; margin-bottom:40px; opacity:0.8; color:var(--accent)">FIELD CONNECT</div>
                 <div class="login-card">
-                    <div style="font-weight:900; font-size:14px; margin-bottom:25px; opacity:0.8">ENTER ACCESS ID</div>
-                    <input type="number" id="login-id" class="form-input" style="text-align:center; font-size:24px; letter-spacing:2px; height:80px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:white" placeholder="0000" maxlength="8">
-                    <button id="login-btn" class="btn-p" style="background:var(--accent); margin-top:10px" onclick="doLogin()">SIGN IN</button>
+                    <div style="font-weight:900; font-size:12px; margin-bottom:25px; opacity:0.8; letter-spacing:1px">ENTER EMPLOYEE ID</div>
+                    <input type="number" id="login-id" class="form-input" style="text-align:center; font-size:24px; letter-spacing:2px; height:70px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.1); color:white; border-radius:18px; width:100%; margin-bottom:20px" placeholder="0000">
+                    <button id="login-btn" class="btn-p" style="background:var(--accent); color:var(--primary);" onclick="doLogin()">SIGN IN</button>
                     <div id="login-err" style="color:#ef4444; font-size:11px; font-weight:900; margin-top:20px; display:none">ID NOT FOUND</div>
                 </div>
                 <p style="margin-top:40px; font-size:10px; font-weight:900; opacity:0.4; letter-spacing:1px">SECURE INTEL NETWORK ACCESS</p>
             </div>
 
+            <!-- Sidebar Drawer -->
             <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
             <div id="drawer" class="drawer">
-                <div class="drawer-user">
-                    <h3 id="dr-name">---</h3>
-                    <p id="dr-id" style="font-size:12px; color:var(--accent); font-weight:900; margin-top:5px">#0000</p>
+                <div class="drawer-header">
+                    <h2 id="dr-name" style="font-size:22px; font-weight:900">Employee 0000</h2>
+                    <p id="dr-id" style="color:var(--accent); font-weight:900; font-size:14px">0000</p>
                 </div>
-                <div class="menu-item" onclick="doLogout(); closeDrawer();" style="border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(239, 68, 68, 0.1);">
-                    <span style="color:#ef4444; font-weight: 900;">Sign Out</span>
-                    <i class="fas fa-sign-out-alt" style="color:#ef4444"></i>
+                
+                <div class="drawer-item" onclick="switchScreen('stats'); closeDrawer();">
+                    <span>My Dashboard</span>
+                    <div class="drawer-icon"><i class="fas fa-th-large"></i></div>
                 </div>
-                <div class="menu-item" onclick="switchScreen('stats'); closeDrawer();"><span>My Dashboard</span><i
-                        class="fas fa-th-large"></i></div>
-                <div class="menu-item" onclick="switchScreen('reports', 'nav-reports'); closeDrawer();"><span>My
-                        Incidents</span><i class="fas fa-file-alt"></i></div>
-                <div class="menu-item" onclick="switchScreen('support', 'nav-support'); closeDrawer();"><span>Help
-                        Center</span><i class="fas fa-headset"></i></div>
-                <div class="menu-item" onclick="closeDrawer()"
-                    style="margin-top:auto; border:none; display:flex; flex-direction:column; align-items:flex-start;">
-                    <span style="opacity:0.3; margin-bottom:10px">Developed by majed altaifi</span>
-                    <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="opacity:0.3">Arabic Language</span><i class="fas fa-globe" style="opacity:0.3"></i>
-                    </div>
+                <div class="drawer-item" onclick="switchScreen('reports', 'nav-reports'); closeDrawer();">
+                    <span>My Incidents</span>
+                    <div class="drawer-icon"><i class="fas fa-file-alt"></i></div>
+                </div>
+                <div class="drawer-item" onclick="switchScreen('support', 'nav-support'); closeDrawer();">
+                    <span>Help Center</span>
+                    <div class="drawer-icon"><i class="fas fa-headset"></i></div>
+                </div>
+                <div class="drawer-item" onclick="doLogout()" style="margin-top:30px; border-bottom:none">
+                    <span style="color:#f87171">Sign Out</span>
+                    <div class="drawer-icon" style="background:rgba(239,68,68,0.1); color:#f87171"><i class="fas fa-sign-out-alt"></i></div>
+                </div>
+
+                <div style="position:absolute; bottom:40px; left:0; width:100%; text-align:center; opacity:0.3">
+                    <span style="font-size:12px; font-weight:900; letter-spacing:1px">Arabic Language <i class="fas fa-globe" style="margin-left:5px"></i></span>
                 </div>
             </div>
 
-
-            <div id="notif-toast" class="toast">
-                <div style="font-size:10px; font-weight:900; color:var(--accent);">NEW MESSAGE</div>
-                <div id="toast-msg" style="font-size:13px; font-weight:900; color:var(--primary); margin-top:4px;">Admin
-                    replied.</div>
-            </div>
-
-            <div class="wa-fixed" onclick="window.open('https://wa.me/+966500000000')"><i class="fab fa-whatsapp"></i>
-            </div>
-
-            <!-- Home -->
-            <div class="screen" id="s-home">
-                <header class="header">
-                    <i class="fas fa-bars" onclick="openDrawer()"></i>
-                    <div class="logo-area">
-                        <div style="font-weight:900; font-size:18px; border:1px solid var(--accent); padding:2px 8px; border-radius:4px; color:var(--accent); box-shadow:0 0 10px var(--accent)">NIT</div>
-                    </div>
-                    <div class="bell-container" onclick="switchScreen('notifs')">
-                        <i class="fas fa-bell"></i>
-                        <div id="bell-dot" class="bell-badge"></div>
-                    </div>
-                </header>
-                <div class="content">
-                    <div class="hero-card">
-                        <div class="profile-line">
-                            <div id="hm-name" style="font-weight:900; color:var(--primary); font-size:18px">---</div>
-                            <div id="hm-id"
-                                style="font-size:11px; color:var(--accent); font-weight:900; margin-top:3px">ID: ---
-                            </div>
+            <div class="app-container">
+                <!-- Home Screen -->
+                <div class="screen" id="s-home">
+                    <header class="header">
+                        <i class="fas fa-bars" style="font-size:20px; color:var(--primary)" onclick="openDrawer()"></i>
+                        <h1 style="font-size:16px">NIT FIELD</h1>
+                        <div style="position:relative" onclick="switchScreen('notifs')">
+                            <i class="fas fa-bell" style="font-size:20px; color:var(--primary)"></i>
+                            <div id="notif-dot" style="position:absolute; top:-2px; right:-2px; width:10px; height:10px; background:#ef4444; border-radius:50%; border:2px solid white; display:none"></div>
                         </div>
-                    </div>
+                    </header>
 
+                    <div style="margin-bottom:25px">
+                        <p style="font-size:14px; opacity:0.5; font-weight:700">Good Day,</p>
+                        <h2 id="hm-name" style="font-size:24px; font-weight:900; color:var(--primary)">Officer</h2>
+                    </div>
 
                     <div class="news-board">
-                        <div
-                            style="font-size:10px; font-weight:950; opacity:0.6; margin-bottom:18px; letter-spacing:1px">
-                            HR & MANAGEMENT BROADCAST</div>
+                        <span class="lbl" style="color:white; opacity:0.5">HR & MANAGEMENT BROADCAST</span>
                         <div id="news-list-home">
-                            <div style="color:rgba(255,255,255,0.4); font-size:11px; font-weight:900">Synchronizing
-                                broadcast data...</div>
+                            <div style="opacity:0.3; font-size:11px">Loading news...</div>
                         </div>
                     </div>
+
                     <div class="activity-card" id="latest-case-card" style="display:none">
-                        <div
-                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
                             <span class="lbl" style="margin-bottom:0">MY RECENT CASES</span>
-                            <div style="font-size:9px; font-weight:950; color:var(--accent)"
-                                onclick="switchScreen('reports', 'nav-reports')">VIEW ALL <i
-                                    class="fas fa-chevron-right" style="margin-left:4px"></i></div>
+                            <span style="font-size:10px; font-weight:950; color:var(--accent)" onclick="switchScreen('reports')">VIEW ALL</span>
                         </div>
                         <div id="mini-l"></div>
                     </div>
-                    <div id="no-case-card"
-                        style="text-align:center; padding:30px; background:white; border-radius:25px; border:1.5px solid #f1f5f9; display:none">
-                        <i class="fas fa-inbox" style="font-size:30px; color:#cbd5e1; margin-bottom:15px"></i>
-                        <div class="lbl">NO RECENT CASES</div>
+
+                    <div id="no-case-card" class="activity-card" style="text-align:center; padding:40px">
+                        <div style="width:60px; height:60px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px; color:#94a3b8">
+                            <i class="fas fa-clipboard-list" style="font-size:24px"></i>
+                        </div>
+                        <p style="font-size:12px; font-weight:900; opacity:0.5">Ready for your first report</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- Create -->
-            <div class="screen" id="s-create">
-                <header class="header"><i class="fas fa-chevron-left" onclick="switchScreen('home', 'nav-home')"></i>
-                    <div class="nit-logo">ADD CASE</div>
-                    <div style="width:20px"></div>
-                </header>
-                <div class="content">
+                <!-- Create Screen -->
+                <div class="screen" id="s-create">
+                    <header class="header">
+                        <i class="fas fa-chevron-left" style="font-size:20px" onclick="goBack()"></i>
+                        <h1>ADD CASE</h1>
+                        <div style="width:20px"></div>
+                    </header>
+                    
                     <span class="lbl">PROBLEM TYPE</span>
                     <div class="type-grid">
-                        <div class="type-box active" onclick="setType('safety', this)"><i
-                                class="fas fa-shield-alt"></i><span>Safety</span></div>
-                        <div class="type-box" onclick="setType('materials', this)"><i
-                                class="fas fa-box"></i><span>Materials</span></div>
-                        <div class="type-box" onclick="setType('mechanical', this)"><i
-                                class="fas fa-tools"></i><span>Mech.</span></div>
-                        <div class="type-box" onclick="setType('other', this)"><i
-                                class="fas fa-info-circle"></i><span>Other</span></div>
+                        <div class="type-box active" onclick="setType('safety', this)">
+                            <i><i class="fas fa-shield-alt"></i></i>
+                            <span>Safety</span>
+                        </div>
+                        <div class="type-box" onclick="setType('materials', this)">
+                            <i><i class="fas fa-box"></i></i>
+                            <span>Materials</span>
+                        </div>
+                        <div class="type-box" onclick="setType('mechanical', this)">
+                            <i><i class="fas fa-tools"></i></i>
+                            <span>Mech.</span>
+                        </div>
+                        <div class="type-box" onclick="setType('other', this)">
+                            <i><i class="fas fa-info-circle"></i></i>
+                            <span>Other</span>
+                        </div>
                     </div>
-                    <div id="sub-types" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px"></div>
-                    <span class="lbl">WRITE PROBLEM</span>
-                    <textarea id="f-desc" class="form-input" style="height:120px"
-                        placeholder="Tell us what happened..."></textarea>
 
-                    <select id="f-site" class="form-input" style="padding-right:40px">
+                    <div id="sub-types" class="sub-type-grid"></div>
+
+                    <span class="lbl">WRITE PROBLEM</span>
                         <option value="Randa Tower" selected>Randa Tower</option>
                         <option value="NEOM Office">NEOM Office</option>
                         <option value="Riyadh HQ">Riyadh HQ</option>
