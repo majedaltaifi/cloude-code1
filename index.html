@@ -1498,12 +1498,52 @@
             btn.innerText = 'SUBMIT CASE';
         }
 
+
         function renderReports() {
             const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
             if(!f || !m) return;
+            
+            // Full list (Reports Screen)
             f.innerHTML = reports.map(r => `<div class="ticket-item" onclick="openDetail('${r.id}')"><div><div class="t-body" style="color:var(--accent); text-transform:uppercase; font-size:14px">${r.type}</div><div style="font-size:11px; font-weight:900">${(r.description||'').substring(0,40)}...</div><div style="font-size:9px; color:${r.status==='done'?'#22c55e':'#38bdf8'}"># CASE ${r.id} | ${(r.status||'OPEN').toUpperCase()}</div></div></div>`).join('') || 'No reports';
-            m.innerHTML = reports.slice(0,3).map(r => `<div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:10px" onclick="openDetail('${r.id}')"><div style="display:flex; justify-content:space-between"><div><div style="font-weight:900; color:var(--accent)">${r.type}</div><div style="font-size:11px; opacity:0.7">${(r.description||'').substring(0,30)}...</div></div><div class="activity-pill ${r.status==='done'?'done':''}">${(r.status||'OPEN').toUpperCase()}</div></div></div>`).join('');
+            
+            // Home Screen Mini List
+            const latest = reports.slice(0,3);
+            if(latest.length > 0) {
+                if(document.getElementById('latest-case-card')) document.getElementById('latest-case-card').style.display = 'block';
+                if(document.getElementById('no-case-card')) document.getElementById('no-case-card').style.display = 'none';
+                
+                m.innerHTML = latest.map(r => {
+                    const timeStr = r.created_at ? formatTimeAgo(r.created_at) : 'Just now';
+                    return `<div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:15px; cursor:pointer" onclick="openDetail('${r.id}')">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start">
+                            <div>
+                                <div style="font-weight:900; color:var(--accent); font-size:13px">${r.type}</div>
+                                <div style="font-size:10px; opacity:0.6; margin:4px 0">${(r.description||'').substring(0,35)}...</div>
+                                <div style="font-size:9px; font-weight:950; color:rgba(0,0,0,0.3)">${timeStr}</div>
+                            </div>
+                            <div class="activity-pill ${r.status==='done'?'done':''}" style="font-size:9px">${(r.status||'OPEN').toUpperCase()}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } else {
+                if(document.getElementById('latest-case-card')) document.getElementById('latest-case-card').style.display = 'none';
+                if(document.getElementById('no-case-card')) document.getElementById('no-case-card').style.display = 'block';
+            }
         }
+
+        function formatTimeAgo(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const seconds = Math.floor((now - date) / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return minutes + 'm ago';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + 'h ago';
+            const days = Math.floor(hours / 24);
+            return days + 'd ago';
+        }
+
 
         async function openDetail(id) {
             const r = reports.find(x => String(x.id) === String(id)); if (!r) return;
