@@ -319,10 +319,33 @@
             <div class="screen" id="s-notifs"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>ALERTS</h1><div style="width:20px"></div></header><div id="notif-list"></div></div>
             <!-- Support -->
             <div class="screen" id="s-support">
-                <header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>SUPPORT</h1><div style="width:20px"></div></header>
-                <div class="input-group"><input id="supp-subj" placeholder="Subject" style="border:none; width:100%; outline:none; font-weight:700"></div>
-                <div class="input-group"><textarea id="supp-msg" placeholder="Message details" style="min-height:150px"></textarea></div>
-                <button class="btn-p" onclick="submitHelp()">SEND REQUEST</button>
+                <header class="header">
+                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
+                    <h1>HELP CENTER</h1>
+                    <div style="width:24px"></div>
+                </header>
+                
+                <div style="margin-top:20px">
+                    <span class="lbl-prime">OFFICER IDENTITY</span>
+                    <div class="write-box" style="background:rgba(148,163,184,0.05); border:1px solid #f1f5f9; padding:20px">
+                        <div style="font-size:16px; font-weight:900; color:var(--primary)" id="supp-name-val">---</div>
+                        <div style="font-size:12px; font-weight:700; color:var(--accent); margin-top:5px" id="supp-id-val">ID: ---</div>
+                    </div>
+
+                    <span class="lbl-prime" style="margin-top:25px">CONTACT INFO</span>
+                    <div class="write-box" style="padding:15px">
+                        <input id="supp-mobile" type="tel" placeholder="Mobile Number" style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; padding:10px 0; border-bottom:1px solid #f8fafc">
+                        <input id="supp-email" type="email" placeholder="Email Address" style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; padding:15px 0 10px 0">
+                    </div>
+
+                    <span class="lbl-prime" style="margin-top:25px">REPORT DETAILS</span>
+                    <div class="write-box" style="padding:15px">
+                        <input id="supp-subj" placeholder="Subject" style="width:100%; border:none; outline:none; font-weight:700; font-size:16px; padding:10px 0; border-bottom:1px solid #f8fafc">
+                        <textarea id="supp-msg" placeholder="Tell us more about your issue..." style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; min-height:120px; padding:15px 0; resize:none"></textarea>
+                    </div>
+
+                    <button class="btn-p" onclick="submitHelp()" style="margin-bottom:80px">SEND REQUEST</button>
+                </div>
             </div>
             <!-- Chat Hub -->
             <div class="screen" id="s-chat-list">
@@ -433,6 +456,10 @@
             if(id === 'reports') sync();
             if(id === 'stats') updateStats();
             if(id === 'chat-list') renderChatHub();
+            if(id === 'support') {
+                document.getElementById('supp-name-val').innerText = currentUser.name_en || currentUser.name || "Officer";
+                document.getElementById('supp-id-val').innerText = "ID: " + (currentUser.emp_no || "0000");
+            }
             closeDrawer();
         }
 
@@ -721,10 +748,37 @@
             await db.collection('chat_sessions').doc(activeRoom).set({ participants:[currentUser.emp_no,'admin'], updated_at:ts, last_message:val }, {merge:true});
         }
 
+
         async function submitHelp() {
-            const s=document.getElementById('supp-subj').value, m=document.getElementById('supp-msg').value; if(!s||!m) return alert("Fill fields");
-            await db.collection('support_requests').add({ emp_no:currentUser.emp_no, subject:s, message:m, created_at:new Date().toISOString() });
-            alert("Sent!"); switchScreen('home');
+            const s=document.getElementById('supp-subj').value, 
+                  m=document.getElementById('supp-msg').value,
+                  mob=document.getElementById('supp-mobile').value,
+                  em=document.getElementById('supp-email').value;
+             
+            if(!s||!m) return alert("Fill Subject and Details");
+            
+            const btn = document.querySelector('#s-support .btn-p');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
+            btn.disabled = true;
+
+            try {
+                await db.collection('support_requests').add({ 
+                    emp_no: currentUser.emp_no, 
+                    emp_name: currentUser.name_en || currentUser.name,
+                    subject: s, 
+                    message: m, 
+                    mobile: mob,
+                    email: em,
+                    created_at: new Date().toISOString() 
+                });
+                alert("Request Sent Successfully!"); 
+                switchScreen('home');
+            } catch(e) { 
+                alert("Error sending request"); 
+            } finally {
+                btn.innerHTML = 'SEND REQUEST';
+                btn.disabled = false;
+            }
         }
 
         async function initApp() {
