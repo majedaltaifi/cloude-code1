@@ -2156,6 +2156,21 @@
         function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
         function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
 
+        function initApp() {
+            const saved = localStorage.getItem('nit_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                document.getElementById('s-login').style.display = 'none';
+                document.querySelector('.navbar').style.display = 'flex';
+                updateProfileUI();
+                startHub();
+                switchScreen('home', 'bn-home');
+            } else {
+                document.getElementById('s-login').style.display = 'flex';
+                document.querySelector('.navbar').style.display = 'none';
+            }
+        }
+
         window.onload = () => {
             initApp();
             if ('serviceWorker' in navigator) {
