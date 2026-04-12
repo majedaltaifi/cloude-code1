@@ -993,14 +993,20 @@
 
             <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
             <div id="drawer" class="drawer">
+                <div class="drawer-user">
+                    <h3 id="dr-name">---</h3>
+                    <p id="dr-id" style="font-size:12px; color:var(--accent); font-weight:900; margin-top:5px">#0000</p>
+                </div>
+                <div class="menu-item" onclick="doLogout(); closeDrawer();" style="border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(239, 68, 68, 0.1);">
+                    <span style="color:#ef4444; font-weight: 900;">Sign Out</span>
+                    <i class="fas fa-sign-out-alt" style="color:#ef4444"></i>
+                </div>
                 <div class="menu-item" onclick="switchScreen('stats'); closeDrawer();"><span>My Dashboard</span><i
                         class="fas fa-th-large"></i></div>
                 <div class="menu-item" onclick="switchScreen('reports', 'nav-reports'); closeDrawer();"><span>My
                         Incidents</span><i class="fas fa-file-alt"></i></div>
                 <div class="menu-item" onclick="switchScreen('support', 'nav-support'); closeDrawer();"><span>Help
                         Center</span><i class="fas fa-headset"></i></div>
-                <div class="menu-item" onclick="doLogout(); closeDrawer();"><span style="color:#ef4444">Sign
-                        Out</span><i class="fas fa-sign-out-alt" style="color:#ef4444"></i></div>
                 <div class="menu-item" onclick="closeDrawer()"
                     style="margin-top:auto; border:none; display:flex; flex-direction:column; align-items:flex-start;">
                     <span style="opacity:0.3; margin-bottom:10px">Developed by majed altaifi</span>
@@ -1359,6 +1365,19 @@
         }
 
         let isHubStarted = false;
+        function updateProfileUI() {
+            if (!currentUser) return;
+            const nameEl = document.getElementById('dr-name');
+            const idEl = document.getElementById('dr-id');
+            const homeName = document.querySelector('#s-home .profile-card h3');
+            const homeId = document.querySelector('#s-home .profile-card p');
+
+            if (nameEl) nameEl.innerText = currentUser.name || 'Unknown';
+            if (idEl) idEl.innerText = 'EMP ID: ' + (currentUser.emp_no || '0000');
+            if (homeName) homeName.innerText = currentUser.name || 'Unknown';
+            if (homeId) homeId.innerText = 'ID: ' + (currentUser.emp_no || '0000');
+        }
+
         function doLogout() {
             try {
                 if (currentUser && currentUser.emp_no) {
