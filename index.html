@@ -930,7 +930,16 @@
 
         async function openChat(sid) {
             activeRoom = String(sid);
-            document.getElementById('chat-title').innerText = activeRoom === 'Admin' || activeRoom === 'Management' ? 'Management Support' : activeRoom;
+            let title = activeRoom === 'Admin' || activeRoom === 'Management' ? 'Management Support' : activeRoom;
+            
+            // If it's a peer chat ID like b2p_1131_3734, extract the other ID
+            if(activeRoom.includes('_')) {
+                const parts = activeRoom.split('_');
+                const other = parts.find(p => p !== 'b2p' && p !== String(currentUser.emp_no));
+                if (other) title = 'Officer ' + other;
+            }
+            
+            document.getElementById('chat-title').innerText = title;
             document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:20px; opacity:0.3">Loading conversation...</p>';
             switchScreen('chat');
             
