@@ -1041,7 +1041,7 @@
             </div>
 
             <!-- Home -->
-            <div class="screen active" id="s-home">
+            <div class="screen" id="s-home">
                 <header class="header">
                     <i class="fas fa-bars" onclick="openDrawer()"></i>
                     <div class="logo-area">
@@ -2192,10 +2192,13 @@
                     switchScreen('home', 'bn-home');
                 } catch (e) {
                     localStorage.clear();
+                    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
                     document.getElementById('s-login').style.display = 'flex';
                     document.querySelector('.navbar').style.display = 'none';
                 }
             } else {
+                // Ensure everything else is hidden
+                document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
                 document.getElementById('s-login').style.display = 'flex';
                 document.querySelector('.navbar').style.display = 'none';
             }
