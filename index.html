@@ -794,29 +794,21 @@
                   mob=document.getElementById('supp-mobile').value,
                   em=document.getElementById('supp-email').value;
              
-            if(!s||!m) return alert("Fill Subject and Details");
+            if(!s||!m) return alert("Subject and Details required");
             
             const btn = document.querySelector('#s-support .btn-p');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
             btn.disabled = true;
 
             try {
-                // Get and increment global counter for Support Tickets
+                // Atomic increment for Support Tickets
                 const counterRef = db.collection('settings').doc('counters');
-                let tixNum = 1;
+                await counterRef.set({ support_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
                 
-                await db.runTransaction(async (transaction) => {
-                    const sfDoc = await transaction.get(counterRef);
-                    if (!sfDoc.exists) {
-                        transaction.set(counterRef, { support_count: 1 }, {merge:true});
-                        tixNum = 1;
-                    } else {
-                        tixNum = (sfDoc.data().support_count || 0) + 1;
-                        transaction.update(counterRef, { support_count: tixNum });
-                    }
-                });
+                const sfDoc = await counterRef.get();
+                const tixNum = sfDoc.data().support_count || 1;
 
-                await db.collection('support_requests').add({ 
+                await db.collection('support_requests').doc(String(tixNum)).set({ 
                     emp_no: currentUser.emp_no, 
                     emp_name: currentUser.name_en || currentUser.name,
                     ticket_num: tixNum,
@@ -826,10 +818,11 @@
                     email: em,
                     created_at: new Date().toISOString() 
                 });
-                alert("Sent! Ticket #TICKET " + tixNum); 
+                alert("Success! Your Ticket Number is #TICKET " + tixNum + ". We will contact you soon."); 
                 switchScreen('home');
             } catch(e) { 
-                alert("Error sending request"); 
+                console.error("Help Submission Error:", e);
+                alert("Error sending request. Please try again."); 
             } finally {
                 btn.innerHTML = 'SEND REQUEST';
                 btn.disabled = false;
