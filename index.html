@@ -58,17 +58,18 @@
         .log-txt { font-size:14px; font-weight:900; color:#1e293b; }
         .log-meta { font-size:10px; font-weight:900; color:#cbd5e1; margin-top:3px; }
 
-        /* NAV & FAB */
+
         .navbar { position:absolute; bottom:0; left:0; width:100%; height:100px; background:white; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-around; padding-bottom:20px; z-index:200; }
         .nav-item { display:flex; flex-direction:column; align-items:center; color:#cbd5e1; flex:1; cursor:pointer; gap:4px; }
         .nav-item.active { color:var(--primary); }
         .nav-item i { font-size:22px; }
         .nav-item span { font-size:9px; font-weight:900; text-transform:uppercase; }
 
-        .fab-zone { position:absolute; bottom:55px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:15px; z-index:300; }
-        .plus-btn { width:74px; height:74px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:32px; border:6px solid white; box-shadow:0 15px 35px rgba(56,189,248,0.4); cursor:pointer; }
-        .wa-btn { width:52px; height:52px; background:#22c55e; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:26px; box-shadow:0 10px 25px rgba(34, 197, 94, 0.3); border:4px solid white; cursor:pointer; }
+        .plus-btn { position:absolute; bottom:55px; left:50%; transform:translateX(-50%); width:74px; height:74px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:32px; border:6px solid white; box-shadow:0 15px 35px rgba(56,189,248,0.4); cursor:pointer; z-index:400; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .plus-btn:active { transform: translateX(-50%) scale(0.9); }
 
+        .wa-btn { position:absolute; bottom:120px; right:25px; width:52px; height:52px; background:#22c55e; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:26px; box-shadow:0 10px 25px rgba(34, 197, 94, 0.3); border:4px solid white; cursor:pointer; z-index:1000; animation: pulse-wa 2s infinite; }
+        @keyframes pulse-wa { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
 
         .drawer { position:absolute; top:0; left:0; width:280px; height:100%; background:var(--primary); z-index:5000; padding:60px 25px; transition:0.4s ease; color:white; transform:translateX(-100%); box-shadow: 20px 0 50px rgba(0,0,0,0.3); }
         .drawer.active { transform:translateX(0); }
@@ -245,15 +246,13 @@
             <nav class="navbar" id="main-nav">
                 <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-home"></i><span>Home</span></div>
                 <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-history"></i><span>History</span></div>
-                <div style="width:80px"></div>
+                <div style="width:70px"></div>
                 <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')"><i class="fas fa-comment-dots"></i><span>Inbox</span></div>
                 <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>Help</span></div>
             </nav>
 
-            <div class="fab-zone" id="fab-hub">
-                <div class="plus-btn" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
-                <div class="wa-btn" onclick="window.open('https://wa.me/966500000000')"><i class="fab fa-whatsapp"></i></div>
-            </div>
+            <div class="plus-btn" id="main-plus" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
+            <div class="wa-btn" id="wa-float" onclick="window.open('https://wa.me/966500000000')"><i class="fab fa-whatsapp"></i></div>
         </div>
     </div>
 
@@ -298,6 +297,9 @@
             
             const isPop = ['chat', 'detail'].includes(id);
             document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
+            document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
+            document.getElementById('wa-float').style.display = 'flex';
+
             if(id === 'reports') sync();
             if(id === 'stats') updateStats();
             closeDrawer();
@@ -473,6 +475,8 @@
                 document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
                 document.getElementById('s-login').style.display = 'flex';
                 document.getElementById('main-nav').style.display = 'none';
+                document.getElementById('main-plus').style.display = 'none';
+                document.getElementById('wa-float').style.display = 'none';
             }
         }
         window.onload = initApp;
