@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NIT Field App | Auto-ID Connect</title>
+    <title>NIT Field App v2 | Auto-ID Connect</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1297,7 +1297,7 @@
             </div>
 
             <!-- Bottom Nav Bar -->
-            <div class="navbar">
+            <div class="navbar" style="display:none">
                 <div class="nav-item active" id="bn-home" onclick="switchScreen('home')">
                     <i class="fas fa-home"></i>
                     <span>Home</span>
@@ -1361,22 +1361,7 @@
         };
         let currentFilter = 'all', lastScreen = 'home', hrNews = [];
 
-        async function initApp() {
-            const saved = localStorage.getItem('nit_user');
-            if (saved) {
-                currentUser = JSON.parse(saved);
-                document.getElementById('s-login').style.display = 'none';
-                document.querySelector('.navbar').style.display = 'flex';
-                updateProfileUI();
-                startHub();
-                switchScreen('home', 'bn-home'); // Force start at Home
-            } else {
-                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-                document.getElementById('s-login').style.display = 'flex';
-                document.querySelector('.navbar').style.display = 'none';
-                document.querySelector('.wa-fixed').style.display = 'none';
-            }
-        }
+
 
         let isHubStarted = false;
         function updateProfileUI() {
@@ -2171,6 +2156,7 @@
         function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
 
         function initApp() {
+            console.log("App Initializing...");
             const saved = localStorage.getItem('nit_user');
             if (saved) {
                 try {
@@ -2180,27 +2166,33 @@
                         console.warn("Corrupted user data detected, forcing logout.");
                         localStorage.clear();
                         sessionStorage.clear();
+                        document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
                         document.getElementById('s-login').style.display = 'flex';
-                        document.querySelector('.navbar').style.display = 'none';
-                        return; // Stop here and show login
+                        if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'none';
+                        if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'none';
+                        return; 
                     }
                     
                     document.getElementById('s-login').style.display = 'none';
-                    document.querySelector('.navbar').style.display = 'flex';
+                    if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'flex';
+                    if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'flex';
                     updateProfileUI();
                     startHub();
                     switchScreen('home', 'bn-home');
                 } catch (e) {
+                    console.error("Init Error:", e);
                     localStorage.clear();
                     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
                     document.getElementById('s-login').style.display = 'flex';
-                    document.querySelector('.navbar').style.display = 'none';
+                    if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'none';
+                    if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'none';
                 }
             } else {
-                // Ensure everything else is hidden
+                console.log("No user session found.");
                 document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
                 document.getElementById('s-login').style.display = 'flex';
-                document.querySelector('.navbar').style.display = 'none';
+                if(document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'none';
+                if(document.querySelector('.wa-fixed')) document.querySelector('.wa-fixed').style.display = 'none';
             }
         }
 
