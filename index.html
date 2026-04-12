@@ -47,6 +47,15 @@
         .recent-section-header a { font-size:12px; font-weight:900; color:var(--accent); text-decoration:none; display:flex; align-items:center; gap:4px; }
 
         .case-group { margin-bottom:40px; }
+        .stat-card-main { background: var(--primary); color: white; padding: 30px; border-radius: 35px; box-shadow: 0 15px 45px rgba(13,17,69,0.25); margin-bottom: 20px; text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
+        .stat-card-main:active { transform: scale(0.95); }
+        .stat-card-main.active { border-color: var(--accent); box-shadow: 0 0 25px rgba(56,189,248,0.3); }
+
+        .stat-box { background: white; padding: 25px; border-radius: 28px; border: 1.5px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.02); cursor: pointer; transition: 0.3s; text-align: center; }
+        .stat-box:active { transform: scale(0.95); background: #f8fafc; }
+        .stat-box.active { border-color: var(--accent); background: #f0fbff; box-shadow: 0 8px 25px rgba(56,189,248,0.1); }
+        .stat-box .num { font-size: 32px; font-weight: 950; margin-top: 5px; }
+
         .case-main-card { background:white; padding:25px; border-radius:35px; box-shadow:0 8px 25px rgba(0,0,0,0.02); margin-bottom:20px; position:relative; }
         .case-main-card .type { font-size:18px; font-weight:900; color:var(--accent); text-transform:uppercase; margin-bottom:5px; }
         .case-main-card .desc { font-size:14px; font-weight:900; color:#1e293b; opacity:0.8; }
@@ -286,21 +295,21 @@
             <!-- Stats -->
             <div class="screen" id="s-stats">
                 <header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>DASHBOARD</h1><div style="width:20px"></div></header>
-                <div class="stat-card-main">
+                <div class="stat-card-main active" id="stat-card-all" onclick="updateStats('all')">
                     <span class="lbl" style="color:white; opacity:0.6">TOTAL INCIDENTS</span>
                     <h1 id="stat-total" style="font-size:62px; font-weight:900">0</h1>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:30px">
-                    <div class="stat-box">
+                    <div class="stat-box" id="stat-card-pend" onclick="updateStats('pending')">
                         <span class="lbl">PENDING</span>
-                        <div class="num" id="stat-pend" style="font-size:32px; font-weight:900; color:var(--accent); margin-top:5px">0</div>
+                        <div class="num" id="stat-pend" style="color:var(--accent)">0</div>
                     </div>
-                    <div class="stat-box">
+                    <div class="stat-box" id="stat-card-done" onclick="updateStats('done')">
                         <span class="lbl">DONE</span>
-                        <div class="num" id="stat-done" style="font-size:32px; font-weight:900; color:#22c55e; margin-top:5px">0</div>
+                        <div class="num" id="stat-done" style="color:#22c55e">0</div>
                     </div>
                 </div>
-                <span class="lbl">ACTIVITY LOG</span>
+                <span class="lbl" id="activity-lbl">ALL ACTIVITY LOG</span>
                 <div id="stat-activity"></div>
             </div>
 
@@ -685,11 +694,41 @@
             } catch(e) { console.error("Migration Error:", e); }
         }
 
-        function updateStats() {
-            document.getElementById('stat-total').innerText = reports.length;
-            document.getElementById('stat-pend').innerText = reports.filter(r=>r.status!=='done').length;
-            document.getElementById('stat-done').innerText = reports.filter(r=>r.status==='done').length;
-            document.getElementById('stat-activity').innerHTML = reports.map(r=>`<div class="ticket-item">#CASE ${r.case_num || '---'} - ${r.type}</div>`).join('');
+        let currentStatFilter = 'all';
+        function updateStats(filter) {
+            if(filter) currentStatFilter = filter;
+            const total = reports.length;
+            const pendArr = reports.filter(r=> (r.status||'').toLowerCase() !== 'done');
+            const doneArr = reports.filter(r=> (r.status||'').toLowerCase() === 'done');
+            
+            if(document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
+            if(document.getElementById('stat-pend')) document.getElementById('stat-pend').innerText = pendArr.length;
+            if(document.getElementById('stat-done')) document.getElementById('stat-done').innerText = doneArr.length;
+            
+            // Visual active state
+            document.querySelectorAll('.stat-card-main, .stat-box').forEach(el => el.classList.remove('active'));
+            if(currentStatFilter === 'all' && document.getElementById('stat-card-all')) document.getElementById('stat-card-all').classList.add('active');
+            if(currentStatFilter === 'pending' && document.getElementById('stat-card-pend')) document.getElementById('stat-card-pend').classList.add('active');
+            if(currentStatFilter === 'done' && document.getElementById('stat-card-done')) document.getElementById('stat-card-done').classList.add('active');
+            
+            let filtered = [];
+            let lbl = 'ALL ACTIVITY LOG';
+            if(currentStatFilter === 'all') filtered = reports;
+            else if(currentStatFilter === 'pending') { filtered = pendArr; lbl = 'PENDING CASES'; }
+            else if(currentStatFilter === 'done') { filtered = doneArr; lbl = 'COMPLETED CASES'; }
+            
+            const lblEl = document.getElementById('activity-lbl');
+            if(lblEl) lblEl.innerText = lbl;
+
+            const actEl = document.getElementById('stat-activity');
+            if(actEl) {
+                actEl.innerHTML = filtered.map(r=>`
+                    <div class="ticket-item" onclick="openDetail('${r.id}')">
+                        <div style="font-weight:950; color:var(--primary)">#CASE ${r.case_num || '---'}</div>
+                        <div style="font-size:11px; color:var(--accent); font-weight:900; margin-top:2px">${r.type.toUpperCase()} • ${(r.status||'OPEN').toUpperCase()}</div>
+                    </div>
+                `).join('') || '<div style="text-align:center; padding:30px; opacity:0.5; font-weight:900">NO RECORDS FOUND</div>';
+            }
         }
 
         // CHAT HUB
