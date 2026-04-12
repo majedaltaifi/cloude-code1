@@ -28,6 +28,7 @@
 
         .header { background:var(--primary); padding:55px 25px 25px; display:flex; justify-content:space-between; align-items:center; color:white; margin:0 -20px 20px -20px; }
         .header h1 { font-size:18px; font-weight:900; letter-spacing:2px; }
+        .lbl-prime { font-size:10px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px; display:block; }
 
         .profile-card { background:white; padding:22px 25px; border-radius:35px; display:flex; align-items:center; box-shadow:0 8px 30px rgba(0,0,0,0.02); border-left:6px solid var(--accent); margin-bottom:25px; }
         .profile-card h2 { font-size:20px; font-weight:900; color:#1e293b; }
@@ -148,7 +149,7 @@
                 </div>
 
                 <div class="broadcast-card">
-                    <div style="font-size:10px; font-weight:900; color:white; opacity:0.5; margin-bottom:22px; text-transform:uppercase; letter-spacing:1px">HR & MANAGEMENT BROADCAST</div>
+                    <span class="lbl-prime" style="color:white; opacity:0.5; margin-bottom:20px">HR & MANAGEMENT BROADCAST</span>
                     <div class="broadcast-item">
                         <div class="broadcast-icon"><i class="fas fa-bullhorn"></i></div>
                         <div class="broadcast-txt"><span>HR REMINDER</span><p>Update your bank details</p></div>
@@ -388,28 +389,28 @@
             const cont = document.getElementById('det-cont');
             cont.innerHTML = `
                 <div class="case-main-card" style="margin-bottom:30px">
-                    <span class="lbl-upper">SUMMARY</span>
+                    <span class="lbl-prime">SUMMARY</span>
                     <h2 style="font-size:26px; font-weight:900; color:var(--accent); margin-bottom:20px">${r.type.toUpperCase()}</h2>
                     <hr style="border:none; border-top:1.5px solid #f8fafc; margin-bottom:20px">
                     <div style="display:grid; grid-template-columns:1fr 1fr; margin-bottom:25px">
                         <div>
-                            <span class="lbl-upper">SITE</span>
+                            <span class="lbl-prime">SITE</span>
                             <div style="font-weight:900; font-size:16px; color:var(--primary)">${r.site || 'Randa Tower'}</div>
                         </div>
                         <div>
-                            <span class="lbl-upper">STATUS</span>
+                            <span class="lbl-prime">STATUS</span>
                             <div style="font-weight:900; font-size:16px; color:${r.status==='done'?'#22c55e':'#38bdf8'}">${(r.status||'OPEN').toUpperCase()}</div>
                         </div>
                     </div>
                     <div>
-                        <span class="lbl-upper">CASE DETAILS</span>
+                        <span class="lbl-prime">CASE DETAILS</span>
                         <div style="font-weight:700; font-size:14px; color:#1e293b; opacity:0.8; line-height:1.6">${r.description}</div>
                     </div>
                 </div>
 
                 ${r.photo_b64 ? `
                 <div style="margin-bottom:35px">
-                    <span class="lbl-upper">ATTACHED IMAGE</span>
+                    <span class="lbl-prime">ATTACHED IMAGE</span>
                     <div style="width:100%; border-radius:35px; overflow:hidden; box-shadow:0 15px 40px rgba(0,0,0,0.08); margin-top:10px">
                         <img src="${r.photo_b64}" style="width:100%; display:block">
                     </div>
@@ -417,7 +418,7 @@
                 ` : ''}
 
                 <div>
-                    <span class="lbl-upper">FULL CASE JOURNEY</span>
+                    <span class="lbl-prime">FULL CASE JOURNEY</span>
                     <div class="case-log-list" style="margin-top:20px">
                         ${tl.map((t, idx) => `
                         <div class="log-item" style="${idx === tl.length-1 ? 'padding-bottom:0' : ''}">
