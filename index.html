@@ -495,7 +495,10 @@
 
                     <span class="lbl-prime" style="margin-top:25px">CONTACT INFO</span>
                     <div class="write-box" style="padding:15px">
-                        <input id="supp-mobile" type="tel" value="+966 " placeholder="+966 5X XXX XXXX" style="width:100%; border:none; outline:none; font-weight:900; font-size:16px; padding:10px 0; border-bottom:1px solid #f8fafc; color:var(--primary)">
+                        <div style="display:flex; align-items:center; border-bottom:1px solid #f8fafc; padding-bottom:10px">
+                            <span style="font-weight:900; font-size:16px; color:var(--primary); margin-right:8px">+966</span>
+                            <input id="supp-mobile" type="tel" placeholder="5X XXX XXXX" style="flex:1; border:none; outline:none; font-weight:900; font-size:16px; color:var(--primary); background:transparent">
+                        </div>
                         <input id="supp-email" type="email" placeholder="example@nit.com" style="width:100%; border:none; outline:none; font-weight:900; font-size:16px; padding:15px 0 10px 0; color:var(--primary)">
                     </div>
 
@@ -1274,16 +1277,19 @@
         async function submitHelp() {
             const s=document.getElementById('supp-subj').value.trim(), 
                   m=document.getElementById('supp-msg').value.trim(),
-                  mob=document.getElementById('supp-mobile').value.trim(),
+                  rawMob=document.getElementById('supp-mobile').value.trim(),
                   em=document.getElementById('supp-email').value.trim();
              
             if(!s||!m) return alert("Subject and Details are required.");
+            
+            // Prepend country code
+            const mob = "+966 " + rawMob;
             
             // Validation Logic
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if(!emailRegex.test(em)) return alert("Please enter a valid email address (e.g. name@domain.com)");
             
-            if(mob.length < 12) return alert("Please enter a complete mobile number including +966");
+            if(rawMob.length < 9) return alert("Please enter your complete 9-digit mobile number (e.g. 5XXXXXXXX)");
 
             const btn = document.querySelector('#s-support .btn-p');
             const oldHtml = btn.innerHTML;
