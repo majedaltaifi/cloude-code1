@@ -138,6 +138,10 @@
 
         .header i { cursor:pointer; transition:0.2s; }
         .header i:active { transform:scale(0.85); opacity:0.6; }
+        .bell-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+        .bell-badge { position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #f87171; border: 2px solid #0f172a; border-radius: 50%; display: none; }
+        .bell-badge.active { display: block; animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(248, 113, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); } }
 
 
         /* CHAT HUB */
@@ -340,7 +344,10 @@
                 <header class="header">
                     <i class="fas fa-bars" style="font-size:24px" onclick="openDrawer()"></i>
                     <h1>NIT FIELD</h1>
-                    <i class="fas fa-bell" style="font-size:24px" onclick="switchScreen('notifs')"></i>
+                    <div class="bell-wrap" onclick="switchScreen('notifs'); clearNotifBadge();">
+                        <i class="fas fa-bell" style="font-size:24px"></i>
+                        <div id="bell-badge" class="bell-badge"></div>
+                    </div>
                 </header>
 
                 <div class="profile-card">
@@ -612,6 +619,43 @@
             closeDrawer();
         }
 
+
+        let lastReadNotif = localStorage.getItem('last_notif_read') || new Date().toISOString();
+        function clearNotifBadge() {
+            document.getElementById('bell-badge').classList.remove('active');
+            lastReadNotif = new Date().toISOString();
+            localStorage.setItem('last_notif_read', lastReadNotif);
+        }
+
+        function startNotifListener() {
+            if(!currentUser) return;
+            // Listen to messages (any session where I am a participant)
+            db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).onSnapshot(snap => {
+                let hasNew = false;
+                snap.docs.forEach(d => {
+                    const data = d.data();
+                    if(data.updated_at > lastReadNotif) hasNew = true;
+                });
+                if(hasNew) {
+                    const b = document.getElementById('bell-badge');
+                    if(b) b.classList.add('active');
+                }
+            });
+
+            // Listen to report updates
+            db.collection('reports').where('user_id', '==', currentUser.id).onSnapshot(snap => {
+                let hasNew = false;
+                snap.docs.forEach(d => {
+                    const data = d.data();
+                    if((data.updated_at || data.created_at) > lastReadNotif) hasNew = true;
+                });
+                if(hasNew) {
+                    const b = document.getElementById('bell-badge');
+                    if(b) b.classList.add('active');
+                }
+            });
+        }
+
         async function renderNotifs() {
             const list = document.getElementById('notif-list');
             if(!list) return;
@@ -621,51 +665,51 @@
                 // Aggregating from:
                 // 1. Broadcasts
                 // 2. Personal Report Status Updates
-                const [bcSnap, repSnap] = await Promise.all([
-                    db.collection('broadcasts').orderBy('created_at', 'desc').limit(10).get(),
-                    db.collection('reports').where('user_id', '==', currentUser.id).orderBy('created_at', 'desc').limit(10).get()
+                // 3. New Messages in Sessions
+                const [bcSnap, repSnap, sessSnap] = await Promise.all([
+                    db.collection('broadcasts').orderBy('created_at', 'desc').limit(5).get(),
+                    db.collection('reports').where('user_id', '==', currentUser.id).orderBy('created_at', 'desc').limit(5).get(),
+                    db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).orderBy('updated_at', 'desc').limit(5).get()
                 ]);
                 
                 let combined = [];
                 bcSnap.docs.forEach(d => {
                     const data = d.data();
-                    combined.push({
-                        title: data.title || 'General Broadcast',
-                        desc: data.content || '',
-                        type: 'info',
-                        time: data.created_at
-                    });
+                    combined.push({ title: data.title || 'Broadcast', desc: data.content || '', type: 'info', time: data.created_at });
                 });
                 
                 repSnap.docs.forEach(d => {
                     const data = d.data();
                     if(data.status === 'done') {
-                        combined.push({
-                            title: 'Report Completed',
-                            desc: `Case #CASE ${data.case_num || '000'} has been resolved.`,
-                            type: 'success',
-                            time: data.updated_at || data.created_at
-                        });
+                        combined.push({ title: 'Case Completed', desc: `Case #CASE ${data.case_num || '000'} resolved.`, type: 'success', time: data.updated_at || data.created_at });
+                    }
+                });
+
+                sessSnap.docs.forEach(d => {
+                    const data = d.data();
+                    if(data.updated_at > lastReadNotif) {
+                        combined.push({ title: 'New Message', desc: `You have an unread message from your chats.`, type: 'alert', time: data.updated_at });
                     }
                 });
                 
                 combined.sort((a,b) => new Date(b.time) - new Date(a.time));
                 
                 list.innerHTML = combined.map(n => `
-                    <div class="notif-card">
-                        <div class="notif-icon ${n.type === 'success' ? 'ni-success' : 'ni-info'}">
-                            <i class="fas ${n.type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                    <div class="notif-card ${n.time > lastReadNotif ? 'unread' : ''}">
+                        <div class="notif-icon ${n.type === 'success' ? 'ni-success' : (n.type === 'alert' ? 'ni-alert' : 'ni-info')}">
+                            <i class="fas ${n.type === 'success' ? 'fa-check-circle' : (n.type === 'alert' ? 'fa-comment-alt' : 'fa-info-circle')}"></i>
                         </div>
                         <div class="notif-content">
                             <b>${n.title}</b>
                             <p>${n.desc}</p>
-                            <div class="notif-time">${n.time ? n.time.substring(0,16).replace('T',' ') : 'Recent'}</div>
+                            <div class="notif-time">${n.time ? n.time.substring(11,16) : 'Now'} • ${n.time ? n.time.substring(0,10) : ''}</div>
                         </div>
                     </div>
                 `).join('') || '<div style="text-align:center; padding:100px 50px; opacity:0.3; font-weight:900">ALL CAUGHT UP</div>';
                 
             } catch(e) {
                 console.error("Notif Error:", e);
+                list.innerHTML = '<p style="text-align:center; color:red; padding:50px">Error loading alerts.</p>';
             }
         }
 
@@ -1243,6 +1287,7 @@
                 // Instant load
                 switchScreen('home');
                 sync(); 
+                startNotifListener();
                 
                 // Background tasks (non-blocking)
                 fixLegacyNumbers().catch(e => console.log("Bg migration:", e));
