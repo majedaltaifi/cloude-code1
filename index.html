@@ -253,10 +253,20 @@
         }
         #s-login ~ #wa-float { display: none !important; }
 
-        .zoom-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:0.3s; }
-        .zoom-overlay.active { opacity:1; visibility:visible; }
-        .zoom-overlay img { max-width:100%; max-height:100%; transform:scale(0.8); transition:0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .zoom-overlay.active img { transform:scale(1); }
+
+        /* STATUS MODAL */
+        .status-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 30px; }
+        .status-modal.active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .status-card { background: white; width: 100%; max-width: 350px; border-radius: 40px; padding: 40px 30px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+        .status-icon { width: 90px; height: 90px; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 42px; margin: 0 auto 25px; }
+        .s-icon-success { background: #dcfce7; color: #22c55e; }
+        .s-icon-fail { background: #fee2e2; color: #f87171; }
+        .status-card h2 { font-size: 24px; font-weight: 950; color: var(--primary); margin-bottom: 10px; }
+        .status-card p { font-size: 15px; color: #64748b; font-weight: 700; line-height: 1.6; margin-bottom: 30px; }
+        .case-num-badge { background: #0f172a; color: var(--accent); padding: 12px 25px; border-radius: 20px; font-size: 18px; font-weight: 950; display: inline-block; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .btn-status-close { background: var(--primary); color: white; border: none; padding: 18px; width: 100%; border-radius: 25px; font-weight: 950; font-size: 15px; cursor: pointer; }
 
         @media (max-width: 500px) {
             .phone-frame { width: 100%; height: 100vh; border-radius: 0; border: none; padding: 0; }
@@ -532,9 +542,17 @@
             <div class="plus-btn" id="main-plus" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
             <div class="wa-btn" id="wa-float" onclick="window.open('https://wa.me/966500000000')"><i class="fab fa-whatsapp"></i></div>
             
-            <!-- Zoom Overlay -->
-            <div id="zoom-overlay" class="zoom-overlay" onclick="this.classList.remove('active')">
-                <img id="zoom-img">
+            <!-- Status Modal -->
+            <div id="status-modal" class="status-modal">
+                <div class="status-card">
+                    <div id="status-icon" class="status-icon"></div>
+                    <h2 id="status-title">Success</h2>
+                    <p id="status-msg">Your report has been received.</p>
+                    <div id="status-case-wrap" style="display:none">
+                        <div id="status-case-num" class="case-num-badge">#CASE 000</div>
+                    </div>
+                    <button class="btn-status-close" onclick="closeStatusModal()">CONTINUE</button>
+                </div>
             </div>
         </div>
     </div>
@@ -888,14 +906,45 @@
                     created_at: new Date().toISOString()
                 });
 
-                alert('Success! Your Case Number is #CASE ' + caseNum + '. It has been submitted, and will be reviewed shortly.');
-                switchScreen('home');
-                location.reload();
+                showStatus(true, caseNum);
             } catch(e) { 
                 console.error("Submit Error:", e);
-                alert('Submit Failed. Check connection and try again.'); 
+                showStatus(false);
                 btn.innerHTML = oldHtml;
                 btn.disabled = false;
+            }
+        }
+
+        function showStatus(isSuccess, caseNum) {
+            const m = document.getElementById('status-modal');
+            const ic = document.getElementById('status-icon');
+            const t = document.getElementById('status-title');
+            const msg = document.getElementById('status-msg');
+            const wrap = document.getElementById('status-case-wrap');
+            const num = document.getElementById('status-case-num');
+
+            if(isSuccess) {
+                ic.className = 'status-icon s-icon-success';
+                ic.innerHTML = '<i class="fas fa-check-circle"></i>';
+                t.innerText = 'CASE RECORDED';
+                msg.innerText = 'Your field report has been successfully transmitted and logged in the system.';
+                wrap.style.display = 'block';
+                num.innerText = '#CASE ' + caseNum;
+            } else {
+                ic.className = 'status-icon s-icon-fail';
+                ic.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                t.innerText = 'SUBMISSION FAILED';
+                msg.innerText = 'We encountered a connection error. Please verify your internet and try again.';
+                wrap.style.display = 'none';
+            }
+            m.classList.add('active');
+        }
+
+        function closeStatusModal() {
+            document.getElementById('status-modal').classList.remove('active');
+            if(document.getElementById('status-title').innerText === 'CASE RECORDED') {
+                switchScreen('home');
+                location.reload();
             }
         }
 
