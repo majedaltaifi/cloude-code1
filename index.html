@@ -757,7 +757,7 @@
                     const data = d.data();
                     combined.push({ 
                         title: 'New Message', 
-                        desc: `You have an unread message from your chats.`, 
+                        desc: data.last_message || 'You have a new unread message.', 
                         type: 'alert', 
                         time: data.updated_at,
                         link: { screen: 'chat', id: d.id }
