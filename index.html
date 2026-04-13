@@ -139,16 +139,17 @@
         .header i { cursor:pointer; transition:0.2s; }
         .header i:active { transform:scale(0.85); opacity:0.6; }
 
-        /* CHAT HUB */
-        .search-box { background:rgba(148,163,184,0.05); padding:18px 25px; border-radius:40px; display:flex; align-items:center; gap:12px; margin-bottom:30px; border:1px solid #f1f5f9; }
-        .search-box input { border:none; outline:none; background:transparent; font-weight:700; font-size:15px; width:100%; color:var(--primary); }
-        .search-box input::placeholder { color:#cbd5e1; }
-
-        .horizontal-picker { display:flex; gap:20px; overflow-x:auto; padding-bottom:30px; margin-bottom:10px; scrollbar-width:none; }
-        .horizontal-picker::-webkit-scrollbar { display:none; }
-        .picker-item { display:flex; flex-direction:column; align-items:center; gap:10px; min-width:80px; }
-        .picker-avatar { width:65px; height:65px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 15px rgba(0,0,0,0.03); border:2px solid #f1f5f9; color:var(--primary); font-size:24px; }
-        .picker-item span { font-size:11px; font-weight:900; color:#94a3b8; text-transform:uppercase; }
+        .chat-row { background:white; padding:18px 22px; border-radius:30px; display:flex; align-items:center; gap:15px; margin-bottom:12px; box-shadow:0 4px 15px rgba(0,0,0,0.02); cursor:pointer; transition: 0.3s; border: 1.5px solid transparent; }
+        .chat-row.active { background:#f0f9ff; border-color: #bae6fd; }
+        .chat-row.found-match { background: #f0fdf4; border-color: #bbf7d0; box-shadow: 0 0 20px rgba(34, 197, 94, 0.1); }
+        .chat-avatar { width:52px; height:52px; background:#f1f5f9; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:20px; flex-shrink: 0; }
+        .chat-avatar.admin { background: #0f172a; color: var(--accent); }
+        .chat-info { flex:1; min-width:0; }
+        .chat-name-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+        .chat-name-meta h4 { font-size:15px; font-weight:900; color:var(--primary); margin:0; }
+        .chat-name-meta span { font-size:10px; font-weight:700; color:#cbd5e1; }
+        .chat-msg-prev { font-size:12px; color:#64748b; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .badge-new { background: #22c55e; color: white; padding: 2px 8px; border-radius: 10px; font-size: 8px; font-weight: 950; text-transform: uppercase; margin-left: 8px; }
         /* LOGIN PREMIUM DESIGN */
         .login-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); position: relative; overflow: hidden; }
         .login-bg::after { content: ''; position: absolute; width: 350px; height: 350px; background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(56,189,248,0) 70%); top: -100px; right: -100px; border-radius: 50%; }
@@ -959,39 +960,49 @@
                     }
                 }
 
-                // Force strict filtering on existing sessions too
-                if(query) data = data.filter(s => {
-                    const low = s.id.toLowerCase();
-                    const msg = (s.last_message||'').toLowerCase();
-                    // If query is a number, prioritize exact ID match in the session string
-                    if(!isNaN(query)) return low.includes('_'+query) || low.includes(query+'_') || low === query;
-                    return low.includes(query) || msg.includes(query);
-                });
+                // Force strict filtering and Sort: exact ID match comes FIRST
+                if(query) {
+                    data = data.filter(s => {
+                        const low = s.id.toLowerCase();
+                        if(!isNaN(query)) return low.includes('_'+query) || low.includes(query+'_') || low === query;
+                        return low.includes(query) || (s.last_message||'').toLowerCase().includes(query);
+                    });
+                    
+                    // Prioritize exact match in the ID string
+                    data.sort((a,b) => {
+                        const aExact = a.id.includes('_'+query) || a.id.includes(query+'_');
+                        const bExact = b.id.includes('_'+query) || b.id.includes(query+'_');
+                        return bExact - aExact;
+                    });
+                }
 
                 const c = document.getElementById('chat-report-list');
                 if(c) {
-                    c.innerHTML = data.map((s, idx) => `
-                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''}" onclick="openChat('${s.id}')">
-                            <div class="chat-avatar ${s.id === 'Management' ? 'admin' : ''}">
-                                <i class="fas ${s.id === 'Management' ? 'fa-crown' : 'fa-user-shield'}"></i>
+                    c.innerHTML = data.map((s, idx) => {
+                        const isManagement = s.id === 'Management';
+                        const isFoundMatch = query && (s.id.includes('_'+query) || s.id.includes(query+'_'));
+                        
+                        let displayName = isManagement ? 'Management Support' : s.id;
+                        if(s.id.includes('_')) {
+                            const parts = s.id.split('_');
+                            const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
+                            if (other) displayName = 'Officer ' + other;
+                        }
+
+                        return `
+                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''}" onclick="openChat('${s.id}')">
+                            <div class="chat-avatar ${isManagement ? 'admin' : ''}">
+                                <i class="fas ${isManagement ? 'fa-crown' : 'fa-user-shield'}"></i>
                             </div>
                             <div class="chat-info">
                                 <div class="chat-name-meta">
-                                    <h4>${(() => {
-                                        if(s.id === 'Management') return 'Management Support';
-                                        if(s.id.includes('_')) {
-                                            const parts = s.id.split('_');
-                                            const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
-                                            return other ? 'Officer ' + other : s.id;
-                                        }
-                                        return s.id;
-                                    })()}</h4>
+                                    <h4>${displayName}${isFoundMatch ? '<span class="badge-new">FOUND</span>' : ''}</h4>
                                     <span>${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
                                 </div>
                                 <div class="chat-msg-prev">${s.last_message || 'Start a new conversation'}</div>
                             </div>
                         </div>
-                    `).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CHATS FOUND</div>';
+                    `}).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO RESULTS FOR "' + query + '"</div>';
                 }
             } catch(e) { console.error(e); }
             finally { isRenderingHub = false; }
