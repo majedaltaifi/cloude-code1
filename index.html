@@ -618,7 +618,7 @@
             try {
                 // IMPORTANT: Replace this with your actual Web Push Public Key from Firebase Console
                 // Settings -> Cloud Messaging -> Web Push certificates -> Key pair
-                const vapidKey = 'BFmI6vGZ_J4f... (REPLACE WITH YOUR ACTUAL KEY)';
+                const vapidKey = 'BGKnHACfCh_rN3J_ivDu9o5z1d7MK7K8ajdYy-h51aDfg2-EKeSpWOID6k1Rcy4wSzPflC1OtV27Zh6pVDGTWXY';
                 
                 const permission = await Notification.requestPermission();
                 if (permission !== 'granted') return console.log('Notification permission denied');
