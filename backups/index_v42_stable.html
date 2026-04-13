@@ -893,11 +893,12 @@
             isRenderingHub = true;
             try {
                 const myIdStr = String(currentUser.emp_no);
+                const myIdNum = Number(currentUser.emp_no);
                 
-                // 1. Get existing chat sessions
+                // Query both string and number to be safe
                 const [snap1, snap2] = await Promise.all([
                     db.collection('chat_sessions').where('participants','array-contains', myIdStr).get(),
-                    db.collection('chat_sessions').where('participants','array-contains', Number(currentUser.emp_no)).get()
+                    db.collection('chat_sessions').where('participants','array-contains', myIdNum).get()
                 ]);
                 
                 let sessionsMap = {};
@@ -906,34 +907,6 @@
                 
                 let data = Object.values(sessionsMap).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
                 
-                // 2. If searching, also search for matching employees
-                if(query && query.length >= 2) {
-                    const empSnap = await db.collection('employees')
-                        .where('emp_no', '>=', query)
-                        .where('emp_no', '<=', query + '\uf8ff')
-                        .limit(5)
-                        .get();
-                    
-                    empSnap.docs.forEach(doc => {
-                        const emp = doc.data();
-                        const otherId = String(emp.emp_no);
-                        if(otherId === myIdStr) return; // Skip self
-                        
-                        // Create a stable P2P ID (sorted to ensure uniqueness)
-                        const pair = [myIdStr, otherId].sort();
-                        const sessionId = `p2p_${pair[0]}_${pair[1]}`;
-                        
-                        if(!sessionsMap[sessionId]) {
-                            data.push({
-                                id: sessionId,
-                                isVirtual: true,
-                                last_message: 'Start conversation with ' + (emp.name_en || emp.name || otherId),
-                                updated_at: new Date().toISOString()
-                            });
-                        }
-                    });
-                }
-
                 if(query) data = data.filter(s => s.id.toLowerCase().includes(query) || (s.last_message||'').toLowerCase().includes(query));
 
                 const c = document.getElementById('chat-report-list');
