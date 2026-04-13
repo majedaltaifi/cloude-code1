@@ -248,6 +248,18 @@
             overflow: hidden;
         }
 
+        /* NOTIFICATIONS */
+        .notif-card { background: white; padding: 20px; border-radius: 25px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 15px; border: 1.5px solid #f1f5f9; transition: 0.3s; }
+        .notif-card.unread { border-left: 4px solid var(--primary); background: #f0f9ff; }
+        .notif-icon { width: 45px; height: 45px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .ni-success { background: #dcfce7; color: #16a34a; }
+        .ni-info { background: #e0f2fe; color: #0284c7; }
+        .ni-alert { background: #fee2e2; color: #dc2626; }
+        .notif-content { flex: 1; }
+        .notif-content b { font-size: 14px; color: var(--primary); display: block; margin-bottom: 4px; }
+        .notif-content p { font-size: 12px; color: #64748b; font-weight: 700; margin: 0; line-height: 1.4; }
+        .notif-time { font-size: 10px; color: #cbd5e1; font-weight: 900; margin-top: 8px; text-transform: uppercase; }
+
         .chat-row { background:white; padding:20px 25px; border-radius:35px; display:flex; align-items:center; gap:15px; margin-bottom:15px; box-shadow:0 5px 20px rgba(0,0,0,0.01); cursor:pointer; }
         .chat-row.active { background:#e0f2fe; }
         .chat-avatar { width:55px; height:55px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:22px; }
@@ -590,6 +602,7 @@
             if(id === 'reports') sync();
             if(id === 'stats') updateStats();
             if(id === 'chat-list') renderChatHub();
+            if(id === 'notifs') renderNotifs();
             if(id === 'support') {
                 document.getElementById('supp-name-val').innerText = currentUser.name_en || currentUser.name || "Officer";
                 document.getElementById('supp-id-val').innerText = "ID: " + (currentUser.emp_no || "0000");
@@ -597,7 +610,63 @@
             closeDrawer();
         }
 
-        function goBack() {
+        async function renderNotifs() {
+            const list = document.getElementById('notif-list');
+            if(!list) return;
+            list.innerHTML = '<p style="text-align:center; padding:50px; opacity:0.3; font-weight:900">SYNCING ALERTS...</p>';
+            
+            try {
+                // Aggregating from:
+                // 1. Broadcasts
+                // 2. Personal Report Status Updates
+                const [bcSnap, repSnap] = await Promise.all([
+                    db.collection('broadcasts').orderBy('created_at', 'desc').limit(10).get(),
+                    db.collection('reports').where('user_id', '==', currentUser.id).orderBy('created_at', 'desc').limit(10).get()
+                ]);
+                
+                let combined = [];
+                bcSnap.docs.forEach(d => {
+                    const data = d.data();
+                    combined.push({
+                        title: data.title || 'General Broadcast',
+                        desc: data.content || '',
+                        type: 'info',
+                        time: data.created_at
+                    });
+                });
+                
+                repSnap.docs.forEach(d => {
+                    const data = d.data();
+                    if(data.status === 'done') {
+                        combined.push({
+                            title: 'Report Completed',
+                            desc: `Case #CASE ${data.case_num || '000'} has been resolved.`,
+                            type: 'success',
+                            time: data.updated_at || data.created_at
+                        });
+                    }
+                });
+                
+                combined.sort((a,b) => new Date(b.time) - new Date(a.time));
+                
+                list.innerHTML = combined.map(n => `
+                    <div class="notif-card">
+                        <div class="notif-icon ${n.type === 'success' ? 'ni-success' : 'ni-info'}">
+                            <i class="fas ${n.type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                        </div>
+                        <div class="notif-content">
+                            <b>${n.title}</b>
+                            <p>${n.desc}</p>
+                            <div class="notif-time">${n.time ? n.time.substring(0,16).replace('T',' ') : 'Recent'}</div>
+                        </div>
+                    </div>
+                `).join('') || '<div style="text-align:center; padding:100px 50px; opacity:0.3; font-weight:900">ALL CAUGHT UP</div>';
+                
+            } catch(e) {
+                console.error("Notif Error:", e);
+                list.innerHTML = '<p style="text-align:center; color:red; padding:50px">Error loading alerts.</p>';
+            }
+        }
             const current = document.querySelector('.screen.active').id.replace('s-', '');
             const backMap = { 'detail': 'reports', 'chat': 'chat-list', 'create': 'home', 'stats': 'home', 'notifs': 'home', 'support': 'home' };
             switchScreen(backMap[current] || 'home');
