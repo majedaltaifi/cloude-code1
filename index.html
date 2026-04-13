@@ -625,13 +625,32 @@
             if(f) f.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">SYNCING DATA...</div>';
             if(m) m.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">LOADING...</div>';
 
-            unsubSync = db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).onSnapshot(snap => {
-                reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                renderReports();
-                if(typeof updateStats === 'function') updateStats(); 
-            }, err => {
-                console.error("Sync Error:", err);
-            });
+            // Triple query fallback: String ID, Number ID, or Document ID
+            unsubSync = db.collection('reports')
+                .where('user_id', '==', currentUser.id)
+                .onSnapshot(snap => {
+                    reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                    
+                    // Failover: if user_id query yields nothing, try emp_no fallback
+                    if(reports.length === 0) {
+                        db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).get().then(snap2 => {
+                            if(!snap2.empty) {
+                                reports = snap2.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                                renderReports();
+                                if(typeof updateStats === 'function') updateStats();
+                            } else {
+                                renderReports();
+                                if(typeof updateStats === 'function') updateStats();
+                            }
+                        });
+                    } else {
+                        renderReports();
+                        if(typeof updateStats === 'function') updateStats(); 
+                    }
+                }, err => {
+                    console.error("Sync Error:", err);
+                    if(f) f.innerHTML = '<div style="color:red; padding:20px">Sync Failed. Tap to retry.</div>';
+                });
         }
     
 
