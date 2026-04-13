@@ -435,11 +435,11 @@
                         <textarea id="case-desc" placeholder="Tell us what happened..."></textarea>
                     </div>
 
-                    <span class="lbl-prime">FIELD EVIDENCE (OPTIONAL)</span>
+                    <span class="lbl-prime">EVIDENCE ATTACHMENT</span>
                     <div class="image-upload-area" onclick="document.getElementById('case-img-input').click()">
                         <div id="image-preview-cont" class="image-preview-slot">
-                            <i class="fas fa-camera" style="font-size:24px; color:#cbd5e1"></i>
-                            <p style="margin:5px 0 0 0; font-size:12px; font-weight:700; color:#94a3b8">TAP TO UPLOAD</p>
+                            <i class="fas fa-camera-retro" style="font-size:30px; color:#cbd5e1"></i>
+                            <p style="margin:10px 0 0 0; font-size:13px; font-weight:950; color:#94a3b8">UPLOAD OR CAPTURE</p>
                         </div>
                         <input type="file" id="case-img-input" accept="image/*" style="display:none" onchange="handleFile(this)">
                     </div>
@@ -453,16 +453,6 @@
                         </select>
                         <i class="fas fa-chevron-down" style="color:#cbd5e1"></i>
                     </div>
-
-                    <span class="lbl-prime">ATTACHMENT (OPTIONAL)</span>
-                    <div class="write-box" onclick="document.getElementById('img-i').click()" style="display:flex; flex-direction:column; align-items:center; cursor:pointer; gap:10px">
-                        <img id="prevImg" style="display:none; width:100%; border-radius:15px">
-                        <div id="phold" style="text-align:center; color:#cbd5e1">
-                            <i class="fas fa-camera" style="font-size:30px"></i>
-                            <p style="font-size:12px; font-weight:900; margin-top:8px">TAP TO CAPTURE</p>
-                        </div>
-                    </div>
-                    <input type="file" id="img-i" accept="image/*" capture="environment" hidden onchange="handleImg(this)">
 
                     <button class="btn-p" onclick="submitReport()" style="margin-bottom:80px">SUBMIT REPORT</button>
                 </div>
