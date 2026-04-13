@@ -139,6 +139,22 @@
         .header i { cursor:pointer; transition:0.2s; }
         .header i:active { transform:scale(0.85); opacity:0.6; }
 
+
+        /* CHAT HUB */
+        .search-box { background:rgba(148,163,184,0.05); padding:16px 22px; border-radius:30px; display:flex; align-items:center; gap:12px; margin-bottom:25px; border:1px solid #f1f5f9; transition: 0.3s; }
+        .search-box:focus-within { border-color: var(--primary); background: white; box-shadow: 0 10px 25px rgba(15,23,42,0.05); }
+        .search-box i { color: #94a3b8; }
+        .search-box input { border:none; outline:none; background:transparent; font-weight:700; font-size:14px; width:100%; color:var(--primary); }
+        .search-box input::placeholder { color:#cbd5e1; }
+
+        .horizontal-picker { display:flex; gap:18px; overflow-x:auto; padding:10px 5px 25px; margin-bottom:10px; scrollbar-width:none; }
+        .horizontal-picker::-webkit-scrollbar { display:none; }
+        .picker-item { display:flex; flex-direction:column; align-items:center; gap:8px; min-width:75px; cursor: pointer; transition: 0.2s; }
+        .picker-item:active { transform: scale(0.9); }
+        .picker-avatar { width:60px; height:60px; background:white; border-radius:22px; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 15px rgba(0,0,0,0.03); border:1px solid #f1f5f9; color:var(--primary); font-size:22px; }
+        .picker-avatar.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .picker-item span { font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing: 0.5px; }
+
         .chat-row { background:white; padding:18px 22px; border-radius:30px; display:flex; align-items:center; gap:15px; margin-bottom:12px; box-shadow:0 4px 15px rgba(0,0,0,0.02); cursor:pointer; transition: 0.3s; border: 1.5px solid transparent; }
         .chat-row.active { background:#f0f9ff; border-color: #bae6fd; }
         .chat-row.found-match { background: #f0fdf4; border-color: #bbf7d0; box-shadow: 0 0 20px rgba(34, 197, 94, 0.1); }
