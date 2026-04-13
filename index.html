@@ -656,6 +656,7 @@
             });
         }
 
+
         async function renderNotifs() {
             const list = document.getElementById('notif-list');
             if(!list) return;
@@ -664,13 +665,18 @@
             try {
                 // Aggregating from:
                 // 1. Broadcasts
-                // 2. Personal Report Status Updates
+                // 2. Personal Report Status Updates (Triple Query Fallback)
                 // 3. New Messages in Sessions
-                const [bcSnap, repSnap, sessSnap] = await Promise.all([
+                const [bcSnap, sessSnap] = await Promise.all([
                     db.collection('broadcasts').orderBy('created_at', 'desc').limit(5).get(),
-                    db.collection('reports').where('user_id', '==', currentUser.id).orderBy('created_at', 'desc').limit(5).get(),
                     db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).orderBy('updated_at', 'desc').limit(5).get()
                 ]);
+
+                // Fallback for Reports: check user_id first
+                let repSnap = await db.collection('reports').where('user_id', '==', currentUser.id).orderBy('created_at', 'desc').limit(5).get();
+                if(repSnap.empty) {
+                    repSnap = await db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).orderBy('created_at', 'desc').limit(5).get();
+                }
                 
                 let combined = [];
                 bcSnap.docs.forEach(d => {
@@ -680,8 +686,14 @@
                 
                 repSnap.docs.forEach(d => {
                     const data = d.data();
-                    if(data.status === 'done') {
-                        combined.push({ title: 'Case Completed', desc: `Case #CASE ${data.case_num || '000'} resolved.`, type: 'success', time: data.updated_at || data.created_at });
+                    if(data.status === 'done' || data.updated_at) {
+                        const isResolved = data.status === 'done';
+                        combined.push({ 
+                            title: isResolved ? 'Case Completed' : 'Case Update', 
+                            desc: isResolved ? `Case #CASE ${data.case_num || '000'} resolved.` : `Activity on Case #CASE ${data.case_num || '000'}.`, 
+                            type: isResolved ? 'success' : 'info', 
+                            time: data.updated_at || data.created_at 
+                        });
                     }
                 });
 
