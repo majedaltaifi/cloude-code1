@@ -657,25 +657,23 @@
         }
 
 
+
         async function renderNotifs() {
             const list = document.getElementById('notif-list');
             if(!list) return;
             list.innerHTML = '<p style="text-align:center; padding:50px; opacity:0.3; font-weight:900">SYNCING ALERTS...</p>';
             
             try {
-                // Aggregating from:
-                // 1. Broadcasts
-                // 2. Personal Report Status Updates (Triple Query Fallback)
-                // 3. New Messages in Sessions
+                // Fetch flat without orderBy to avoid index requirements
                 const [bcSnap, sessSnap] = await Promise.all([
-                    db.collection('broadcasts').orderBy('created_at', 'desc').limit(5).get(),
-                    db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).orderBy('updated_at', 'desc').limit(5).get()
+                    db.collection('broadcasts').limit(10).get(),
+                    db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).limit(10).get()
                 ]);
 
                 // Fallback for Reports: check user_id first
-                let repSnap = await db.collection('reports').where('user_id', '==', currentUser.id).orderBy('created_at', 'desc').limit(5).get();
+                let repSnap = await db.collection('reports').where('user_id', '==', currentUser.id).limit(10).get();
                 if(repSnap.empty) {
-                    repSnap = await db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).orderBy('created_at', 'desc').limit(5).get();
+                    repSnap = await db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).limit(10).get();
                 }
                 
                 let combined = [];
