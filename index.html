@@ -754,7 +754,7 @@
                 <div class="case-main-card" style="margin-bottom:20px; cursor:pointer;" onclick="openDetail('${r.id}')">
                     <div class="type" style="color:${r.status==='done'?'#22c55e':'#38bdf8'}">${r.type}</div>
                     <div class="desc" style="margin-top:5px">${(r.description||'').substring(0,60)}...</div>
-                    <div class="status-tag" style="color:${r.status==='done'?'#22c55e':'#10b981'}; top:30px">
+                    <div class="status-tag" style="color:${r.status==='done'?'#22c55e':'#38bdf8'}; top:30px">
                         ${(r.status||'OPEN').toUpperCase()}
                     </div>
                     <div style="font-size:10px; font-weight:700; color:#cbd5e1; margin-top:12px">#CASE ${r.case_num || r.ticket_num || r.id.substring(0,5)} • ${r.site || 'Main Site'}</div>
@@ -772,7 +772,7 @@
                     <div class="case-main-card">
                         <div class="type">${r.type}</div>
                         <div class="desc">${(r.description||'').substring(0,30)}...</div>
-                        <div class="status-tag" style="background:${isDone ? '#DCFCE7' : (isWorking ? '#FEF3C7' : '#E0F2FE')}; color:${isDone ? '#22c55e' : (isWorking ? '#92400E' : '#38bdf8')}">
+                        <div class="status-tag" style="background:${isDone ? '#DCFCE7' : '#E0F2FE'}; color:${isDone ? '#22c55e' : '#38bdf8'}">
                             ${(r.status||'OPEN').toUpperCase()}
                         </div>
                         <div class="id">#CASE ${r.case_num || '000'} • ${r.site || 'Site HQ'}</div>
