@@ -685,11 +685,10 @@
                     }
                 });
 
+
                 sessSnap.docs.forEach(d => {
                     const data = d.data();
-                    if(data.updated_at > lastReadNotif) {
-                        combined.push({ title: 'New Message', desc: `You have an unread message from your chats.`, type: 'alert', time: data.updated_at });
-                    }
+                    combined.push({ title: 'New Message', desc: `You have an unread message from your chats.`, type: 'alert', time: data.updated_at });
                 });
                 
                 combined.sort((a,b) => new Date(b.time) - new Date(a.time));
