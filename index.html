@@ -733,7 +733,10 @@
 
                 bcSnap.docs.forEach(d => {
                     const data = d.data();
-                    combined.push({ title: data.title || 'Broadcast', desc: data.content || '', type: 'info', time: data.created_at, link: null });
+                    const demoTitles = ['Zero Absences', 'HR Reminder', 'Top Site (Safety)'];
+                    if (!demoTitles.includes(data.title)) {
+                        combined.push({ title: data.title || 'Broadcast', desc: data.content || '', type: 'info', time: data.created_at, link: null });
+                    }
                 });
                 
                 repSnap.docs.forEach(d => {
