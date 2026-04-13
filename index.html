@@ -934,34 +934,39 @@
                 let data = Object.values(sessionsMap).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
                 
                 // 2. If searching, also search for matching employees
-                if(query && query.length >= 2) {
+                if(query && query.length >= 3) {
                     const empSnap = await db.collection('employees')
-                        .where('emp_no', '>=', query)
-                        .where('emp_no', '<=', query + '\uf8ff')
-                        .limit(5)
+                        .where('emp_no', '==', String(query))
+                        .limit(1)
                         .get();
                     
-                    empSnap.docs.forEach(doc => {
-                        const emp = doc.data();
+                    if(!empSnap.empty) {
+                        const emp = empSnap.docs[0].data();
                         const otherId = String(emp.emp_no);
-                        if(otherId === myIdStr) return; // Skip self
-                        
-                        // Create a stable P2P ID (sorted to ensure uniqueness)
-                        const pair = [myIdStr, otherId].sort();
-                        const sessionId = `p2p_${pair[0]}_${pair[1]}`;
-                        
-                        if(!sessionsMap[sessionId]) {
-                            data.push({
-                                id: sessionId,
-                                isVirtual: true,
-                                last_message: 'Start conversation with ' + (emp.name_en || emp.name || otherId),
-                                updated_at: new Date().toISOString()
-                            });
+                        if(otherId !== myIdStr) {
+                            const pair = [myIdStr, otherId].sort();
+                            const sessionId = `p2p_${pair[0]}_${pair[1]}`;
+                            
+                            if(!sessionsMap[sessionId]) {
+                                data.push({
+                                    id: sessionId,
+                                    isVirtual: true,
+                                    last_message: 'Start conversation with ' + (emp.name_en || emp.name || otherId),
+                                    updated_at: new Date().toISOString()
+                                });
+                            }
                         }
-                    });
+                    }
                 }
 
-                if(query) data = data.filter(s => s.id.toLowerCase().includes(query) || (s.last_message||'').toLowerCase().includes(query));
+                // Force strict filtering on existing sessions too
+                if(query) data = data.filter(s => {
+                    const low = s.id.toLowerCase();
+                    const msg = (s.last_message||'').toLowerCase();
+                    // If query is a number, prioritize exact ID match in the session string
+                    if(!isNaN(query)) return low.includes('_'+query) || low.includes(query+'_') || low === query;
+                    return low.includes(query) || msg.includes(query);
+                });
 
                 const c = document.getElementById('chat-report-list');
                 if(c) {
