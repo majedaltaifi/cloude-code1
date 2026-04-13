@@ -329,8 +329,19 @@
                             <input id="login-id" type="tel" placeholder="Enter ID (e.g. 3734)" style="width:100%; border:none; outline:none; font-weight:900; background:transparent; font-size:18px; color:white">
                         </div>
                     </div>
+                    <div class="login-input-wrap">
+                        <i class="fas fa-lock" style="color:var(--accent); font-size:24px"></i>
+                        <div style="flex:1">
+                            <span style="display:block; font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; margin-bottom:4px; letter-spacing:1px">Access Password</span>
+                            <input id="login-pass" type="password" placeholder="••••" style="width:100%; border:none; outline:none; font-weight:900; background:transparent; font-size:18px; color:white">
+                        </div>
+                    </div>
 
-                    <p id="login-err" style="color:#f87171; font-size:11px; font-weight:900; margin-bottom:20px; margin-top:-10px; text-align:center; display:none">ID NOT RECOGNIZED IN SYSTEM</p>
+                    <div style="text-align:right; margin-top:-15px; margin-bottom:25px">
+                        <a href="#" style="color:#94a3b8; font-size:11px; font-weight:900; text-decoration:none; letter-spacing:0.5px">FORGOT PASSWORD?</a>
+                    </div>
+
+                    <p id="login-err" style="color:#f87171; font-size:11px; font-weight:900; margin-bottom:20px; margin-top:-10px; text-align:center; display:none">ID OR PASSWORD INCORRECT</p>
 
                     <button class="btn-login" onclick="doLogin()">SIGN IN</button>
                 </div>
@@ -828,10 +839,19 @@
 
         async function doLogin() {
             const id = document.getElementById('login-id').value.trim();
-            if (!id) return;
+            const pass = document.getElementById('login-pass').value.trim();
+            if (!id || !pass) return;
+            
             const btn = document.querySelector('#s-login .btn-login');
             if(btn) { btn.innerText = "VERIFYING..."; btn.disabled = true; }
             
+            // Hardcoded Logic for NIT Version
+            if(pass !== '12') {
+                document.getElementById('login-err').style.display = 'block';
+                if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
+                return;
+            }
+
             try {
                 // Dual-type check for better compatibility
                 let snap = await db.collection('employees').where('emp_no', '==', id).get();
@@ -847,6 +867,7 @@
                     initApp(); // Instant redirect
                 }
             } catch (e) { 
+                console.error("Login Error:", e);
                 alert("Connection error. Please try again."); 
                 if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
             }
