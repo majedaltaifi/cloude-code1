@@ -619,10 +619,18 @@
 
         function sync() {
             if (!currentUser || unsubSync) return;
-            unsubSync = db.collection('reports').where('emp_no', '==', String(currentUser.emp_no)).onSnapshot(snap => {
+            
+            // Initial UI feedback
+            const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
+            if(f) f.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">SYNCING DATA...</div>';
+            if(m) m.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">LOADING...</div>';
+
+            unsubSync = db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).onSnapshot(snap => {
                 reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
                 renderReports();
-                if(typeof updateStats === 'function') updateStats(); // Critical: Update dashboard numbers & list
+                if(typeof updateStats === 'function') updateStats(); 
+            }, err => {
+                console.error("Sync Error:", err);
             });
         }
     
@@ -638,10 +646,10 @@
                 <div class="case-main-card" style="margin-bottom:20px; cursor:pointer;" onclick="openDetail('${r.id}')">
                     <div class="type" style="color:${r.status==='done'?'#22c55e':'#38bdf8'}">${r.type}</div>
                     <div class="desc" style="margin-top:5px">${(r.description||'').substring(0,60)}...</div>
-                    <div class="status-tag" style="color:${r.status==='done'?'#22c55e':'#38bdf8'}; top:30px">
+                    <div class="status-tag" style="color:${r.status==='done'?'#22c55e':'#10b981'}; top:30px">
                         ${(r.status||'OPEN').toUpperCase()}
                     </div>
-                    <div style="font-size:10px; font-weight:700; color:#cbd5e1; margin-top:12px">#CASE ${r.case_num || '000'} • ${r.site || 'Site HQ'}</div>
+                    <div style="font-size:10px; font-weight:700; color:#cbd5e1; margin-top:12px">#CASE ${r.case_num || r.ticket_num || r.id.substring(0,5)} • ${r.site || 'Main Site'}</div>
                 </div>
             `).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO INCIDENTS FOUND</div>';
             
