@@ -600,6 +600,7 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck",
@@ -611,6 +612,28 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const messaging = firebase.messaging();
+
+        async function setupFCM() {
+            try {
+                // IMPORTANT: Replace this with your actual Web Push Public Key from Firebase Console
+                // Settings -> Cloud Messaging -> Web Push certificates -> Key pair
+                const vapidKey = 'BFmI6vGZ_J4f... (REPLACE WITH YOUR ACTUAL KEY)';
+                
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') return console.log('Notification permission denied');
+
+                const token = await messaging.getToken({ vapidKey: vapidKey });
+                if (token) {
+                    await db.collection('fcm_tokens').doc(String(currentUser.emp_no)).set({
+                        emp_no: currentUser.emp_no,
+                        token: token,
+                        updated_at: new Date().toISOString()
+                    });
+                    console.log('FCM Token registered successfully');
+                }
+            } catch(e) { console.error("FCM Setup Error:", e); }
+        }
 
         let currentUser = null, reports = [], lastScreen = 'home', imgB64 = null, activeRoom = null;
         let isHubStarted = false, isRenderingHub = false, unsubSync = null, unsubChat = null;
@@ -1401,6 +1424,7 @@
                 
                 // Background tasks (non-blocking)
                 fixLegacyNumbers().catch(e => console.log("Bg migration:", e));
+                setupFCM().catch(e => console.log("FCM Setup:", e));
                 
                 // Real-time news
                 db.collection('broadcasts').onSnapshot(snap => {
