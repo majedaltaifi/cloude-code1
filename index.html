@@ -159,9 +159,11 @@
         .picker-avatar.active { background: var(--primary); color: white; border-color: var(--primary); }
         .picker-item span { font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing: 0.5px; }
 
-        .chat-row { background:white; padding:18px 22px; border-radius:30px; display:flex; align-items:center; gap:15px; margin-bottom:12px; box-shadow:0 4px 15px rgba(0,0,0,0.02); cursor:pointer; transition: 0.3s; border: 1.5px solid transparent; }
-        .chat-row.active { background:#f0f9ff; border-color: #bae6fd; }
-        .chat-row.found-match { background: #f0fdf4; border-color: #bbf7d0; box-shadow: 0 0 20px rgba(34, 197, 94, 0.1); }
+        .chat-row { background:white; padding:18px 22px; border-radius:30px; display:flex; align-items:center; gap:15px; margin-bottom:12px; box-shadow:0 10px 30px rgba(0,0,0,0.03); cursor:pointer; transition: 0.3s; border: 1.5px solid #f1f5f9; }
+        .chat-row.active { border-color: var(--primary); }
+        .chat-row.admin-row { background: #2563eb !important; border-color: transparent !important; box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3); }
+        .chat-row.admin-row h4, .chat-row.admin-row .chat-msg-prev, .chat-row.admin-row span { color: white !important; }
+        .chat-row.found-match { border-color: #22c55e; }
         .chat-avatar { width:52px; height:52px; background:#f1f5f9; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:20px; flex-shrink: 0; }
         .chat-avatar.admin { background: #0f172a; color: var(--accent); }
         .chat-info { flex:1; min-width:0; }
@@ -1248,7 +1250,7 @@
                         }
 
                         return `
-                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''}" onclick="openChat('${s.id}')">
+                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''} ${isManagement ? 'admin-row' : ''}" onclick="openChat('${s.id}')">
                             <div class="chat-avatar ${isManagement ? 'admin' : ''}">
                                 <i class="fas ${isManagement ? 'fa-crown' : 'fa-user-shield'}"></i>
                             </div>
