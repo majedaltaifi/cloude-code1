@@ -338,7 +338,7 @@
                     </div>
 
                     <div style="text-align:right; margin-top:-15px; margin-bottom:25px">
-                        <a href="#" style="color:#94a3b8; font-size:11px; font-weight:900; text-decoration:none; letter-spacing:0.5px">FORGOT PASSWORD?</a>
+                        <a href="#" onclick="showForgotModal()" style="color:#94a3b8; font-size:11px; font-weight:900; text-decoration:none; letter-spacing:0.5px">FORGOT PASSWORD?</a>
                     </div>
 
                     <p id="login-err" style="color:#f87171; font-size:11px; font-weight:900; margin-bottom:20px; margin-top:-10px; text-align:center; display:none">ID OR PASSWORD INCORRECT</p>
@@ -355,7 +355,20 @@
         </div>
 
 
-        <div class="app-container">
+                <div id="forgot-modal" class="status-modal">
+            <div class="status-card">
+                <div class="status-icon s-icon-info" style="background:#f1f5f9; color:var(--primary)">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <h2>RESET ACCESS</h2>
+                <p>Enter your Identification ID to receive a secure password reset link to your registered email.</p>
+                <div class="login-input-wrap" style="background:#f8fafc; border-color:#e2e8f0; margin-bottom:20px">
+                    <input id="forgot-id" type="tel" maxlength="4" placeholder="Your ID (e.g. 3734)" style="width:100%; border:none; outline:none; font-weight:900; background:transparent; font-size:18px; color:var(--primary)">
+                </div>
+                <button id="forgot-btn" class="btn-login" style="margin-bottom:15px" onclick="doReset()">SEND LINK</button>
+                <button class="btn-status-close" style="background:transparent; color:#94a3b8" onclick="closeForgotModal()">CANCEL</button>
+            </div>
+        </div>
             <!-- Drawer -->
             <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
             <div id="drawer" class="drawer">
@@ -836,6 +849,41 @@
 
         function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
         function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
+
+        function showForgotModal() { document.getElementById('forgot-modal').classList.add('active'); }
+        function closeForgotModal() { document.getElementById('forgot-modal').classList.remove('active'); }
+
+        async function doReset() {
+            const id = document.getElementById('forgot-id').value.trim();
+            if(!id) return;
+            const btn = document.getElementById('forgot-btn');
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> FINDING...';
+            btn.disabled = true;
+
+            try {
+                let snap = await db.collection('employees').where('emp_no', 'in', [id, Number(id), String(id)]).get();
+                if(snap.empty) {
+                    alert("ID not found in system.");
+                } else {
+                    const data = snap.docs[0].data();
+                    if(!data.email) {
+                        alert("No email is linked to this ID. Please contact HR.");
+                    } else {
+                        // Using Firebase Auth built-in reset
+                        await firebase.auth().sendPasswordResetEmail(data.email);
+                        alert("Reset link sent to " + data.email);
+                        closeForgotModal();
+                    }
+                }
+            } catch(e) {
+                console.error("Reset Error:", e);
+                alert("Error: " + e.message);
+            } finally {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+            }
+        }
 
         async function doLogin() {
             const id = document.getElementById('login-id').value.trim();
