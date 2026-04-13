@@ -691,9 +691,10 @@
                 }
                 
                 let combined = [];
+
                 bcSnap.docs.forEach(d => {
                     const data = d.data();
-                    combined.push({ title: data.title || 'Broadcast', desc: data.content || '', type: 'info', time: data.created_at });
+                    combined.push({ title: data.title || 'Broadcast', desc: data.content || '', type: 'info', time: data.created_at, link: null });
                 });
                 
                 repSnap.docs.forEach(d => {
@@ -723,18 +724,21 @@
                 
                 combined.sort((a,b) => new Date(b.time) - new Date(a.time));
                 
-                list.innerHTML = combined.map(n => `
-                    <div class="notif-card ${n.time > lastReadNotif ? 'unread' : ''}" onclick="handleNotifClick(${JSON.stringify(n.link).replace(/"/g, '&quot;')})">
-                        <div class="notif-icon ${n.type === 'success' ? 'ni-success' : (n.type === 'alert' ? 'ni-alert' : 'ni-info')}">
-                            <i class="fas ${n.type === 'success' ? 'fa-check-circle' : (n.type === 'alert' ? 'fa-comment-alt' : 'fa-info-circle')}"></i>
+                list.innerHTML = combined.map(n => {
+                    const linkAttr = n.link ? JSON.stringify(n.link).replace(/"/g, '&quot;') : 'null';
+                    return `
+                        <div class="notif-card ${n.time > lastReadNotif ? 'unread' : ''}" onclick="handleNotifClick(${linkAttr})">
+                            <div class="notif-icon ${n.type === 'success' ? 'ni-success' : (n.type === 'alert' ? 'ni-alert' : 'ni-info')}">
+                                <i class="fas ${n.type === 'success' ? 'fa-check-circle' : (n.type === 'alert' ? 'fa-comment-alt' : 'fa-info-circle')}"></i>
+                            </div>
+                            <div class="notif-content">
+                                <b>${n.title}</b>
+                                <p>${n.desc}</p>
+                                <div class="notif-time">${n.time ? n.time.substring(11,16) : 'Now'} • ${n.time ? n.time.substring(0,10) : ''}</div>
+                            </div>
                         </div>
-                        <div class="notif-content">
-                            <b>${n.title}</b>
-                            <p>${n.desc}</p>
-                            <div class="notif-time">${n.time ? n.time.substring(11,16) : 'Now'} • ${n.time ? n.time.substring(0,10) : ''}</div>
-                        </div>
-                    </div>
-                `).join('') || '<div style="text-align:center; padding:100px 50px; opacity:0.3; font-weight:900">ALL CAUGHT UP</div>';
+                    `;
+                }).join('') || '<div style="text-align:center; padding:100px 50px; opacity:0.3; font-weight:900">ALL CAUGHT UP</div>';
                 
             } catch(e) {
                 console.error("Notif Error:", e);
