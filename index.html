@@ -648,8 +648,9 @@
                 
             } catch(e) {
                 console.error("Notif Error:", e);
-                list.innerHTML = '<p style="text-align:center; color:red; padding:50px">Error loading alerts.</p>';
             }
+        }
+
         function goBack() {
             const current = document.querySelector('.screen.active').id.replace('s-', '');
             const backMap = { 'detail': 'reports', 'chat': 'chat-list', 'create': 'home', 'stats': 'home', 'notifs': 'home', 'support': 'home' };
