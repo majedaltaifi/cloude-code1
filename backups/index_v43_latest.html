@@ -138,17 +138,38 @@
 
         .header i { cursor:pointer; transition:0.2s; }
         .header i:active { transform:scale(0.85); opacity:0.6; }
+        .bell-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+        .bell-badge { position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #f87171; border: 2px solid #0f172a; border-radius: 50%; display: none; }
+        .bell-badge.active { display: block; animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(248, 113, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); } }
+
 
         /* CHAT HUB */
-        .search-box { background:rgba(148,163,184,0.05); padding:18px 25px; border-radius:40px; display:flex; align-items:center; gap:12px; margin-bottom:30px; border:1px solid #f1f5f9; }
-        .search-box input { border:none; outline:none; background:transparent; font-weight:700; font-size:15px; width:100%; color:var(--primary); }
+        .search-box { background:rgba(148,163,184,0.05); padding:16px 22px; border-radius:30px; display:flex; align-items:center; gap:12px; margin-bottom:25px; border:1px solid #f1f5f9; transition: 0.3s; }
+        .search-box:focus-within { border-color: var(--primary); background: white; box-shadow: 0 10px 25px rgba(15,23,42,0.05); }
+        .search-box i { color: #94a3b8; }
+        .search-box input { border:none; outline:none; background:transparent; font-weight:700; font-size:14px; width:100%; color:var(--primary); }
         .search-box input::placeholder { color:#cbd5e1; }
 
-        .horizontal-picker { display:flex; gap:20px; overflow-x:auto; padding-bottom:30px; margin-bottom:10px; scrollbar-width:none; }
+        .horizontal-picker { display:flex; gap:18px; overflow-x:auto; padding:10px 5px 25px; margin-bottom:10px; scrollbar-width:none; }
         .horizontal-picker::-webkit-scrollbar { display:none; }
-        .picker-item { display:flex; flex-direction:column; align-items:center; gap:10px; min-width:80px; }
-        .picker-avatar { width:65px; height:65px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 15px rgba(0,0,0,0.03); border:2px solid #f1f5f9; color:var(--primary); font-size:24px; }
-        .picker-item span { font-size:11px; font-weight:900; color:#94a3b8; text-transform:uppercase; }
+        .picker-item { display:flex; flex-direction:column; align-items:center; gap:8px; min-width:75px; cursor: pointer; transition: 0.2s; }
+        .picker-item:active { transform: scale(0.9); }
+        .picker-avatar { width:60px; height:60px; background:white; border-radius:22px; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 15px rgba(0,0,0,0.03); border:1px solid #f1f5f9; color:var(--primary); font-size:22px; }
+        .picker-avatar.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .picker-item span { font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing: 0.5px; }
+
+        .chat-row { background:white; padding:18px 22px; border-radius:30px; display:flex; align-items:center; gap:15px; margin-bottom:12px; box-shadow:0 4px 15px rgba(0,0,0,0.02); cursor:pointer; transition: 0.3s; border: 1.5px solid transparent; }
+        .chat-row.active { background:#f0f9ff; border-color: #bae6fd; }
+        .chat-row.found-match { background: #f0fdf4; border-color: #bbf7d0; box-shadow: 0 0 20px rgba(34, 197, 94, 0.1); }
+        .chat-avatar { width:52px; height:52px; background:#f1f5f9; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:20px; flex-shrink: 0; }
+        .chat-avatar.admin { background: #0f172a; color: var(--accent); }
+        .chat-info { flex:1; min-width:0; }
+        .chat-name-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+        .chat-name-meta h4 { font-size:15px; font-weight:900; color:var(--primary); margin:0; }
+        .chat-name-meta span { font-size:10px; font-weight:700; color:#cbd5e1; }
+        .chat-msg-prev { font-size:12px; color:#64748b; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .badge-new { background: #22c55e; color: white; padding: 2px 8px; border-radius: 10px; font-size: 8px; font-weight: 950; text-transform: uppercase; margin-left: 8px; }
         /* LOGIN PREMIUM DESIGN */
         .login-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); position: relative; overflow: hidden; }
         .login-bg::after { content: ''; position: absolute; width: 350px; height: 350px; background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(56,189,248,0) 70%); top: -100px; right: -100px; border-radius: 50%; }
@@ -212,10 +233,11 @@
             letter-spacing: 2px;
             cursor: pointer;
             transition: 0.3s;
-            box-shadow: 0 15px 35px rgba(56, 189, 248, 0.4);
+            box-shadow: 0 12px 30px rgba(56, 189, 248, 0.3);
             width: 100%;
+            display: block;
         }
-        .btn-login:active { transform: scale(0.95); filter: brightness(0.9); }
+        .btn-login:active { transform: scale(0.96); opacity: 0.9; }
 
         /* Full Screen Login Override */
         #s-login.login-bg { 
@@ -229,21 +251,40 @@
             z-index: 1000;
             border-radius: 45px; /* Matches app-container */
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        #s-login ~ #wa-float { display: none !important; }
 
-        .chat-row { background:white; padding:20px 25px; border-radius:35px; display:flex; align-items:center; gap:15px; margin-bottom:15px; box-shadow:0 5px 20px rgba(0,0,0,0.01); cursor:pointer; }
-        .chat-row.active { background:#e0f2fe; }
-        .chat-avatar { width:55px; height:55px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:22px; }
-        .chat-info { flex:1; }
-        .chat-name-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
-        .chat-name-meta h4 { font-size:16px; font-weight:900; color:#1e293b; }
-        .chat-name-meta span { font-size:10px; font-weight:900; color:var(--accent); }
-        .chat-msg-prev { font-size:13px; font-weight:700; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+        /* NOTIFICATIONS */
+        #notif-list { padding: 10px 5px; }
+        .notif-card { background: white; padding: 22px; border-radius: 30px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 18px; border: 1.5px solid #f8fafc; transition: 0.3s; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .notif-card:active { transform: scale(0.96); background: #f8fafc; }
+        .notif-card.unread { border-left: 5px solid var(--primary); background: #f0f9ff; }
+        .notif-icon { width: 50px; height: 50px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: 0 8px 15px rgba(0,0,0,0.03); }
+        .ni-success { background: #dcfce7; color: #16a34a; }
+        .ni-info { background: #f1f5f9; color: #64748b; }
+        .ni-alert { background: #fee2e2; color: #dc2626; }
+        .notif-content { flex: 1; min-width: 0; }
+        .notif-content b { font-size: 15px; color: var(--primary); display: block; margin-bottom: 5px; font-weight: 900; }
+        .notif-content p { font-size: 12px; color: #64748b; font-weight: 700; margin: 0; line-height: 1.5; }
+        .notif-time { font-size: 10px; color: #cbd5e1; font-weight: 900; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .zoom-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:0.3s; }
-        .zoom-overlay.active { opacity:1; visibility:visible; }
-        .zoom-overlay img { max-width:100%; max-height:100%; transform:scale(0.8); transition:0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .zoom-overlay.active img { transform:scale(1); }
+
+        /* STATUS MODAL */
+        .status-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 30px; }
+        .status-modal.active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .status-card { background: white; width: 100%; max-width: 350px; border-radius: 40px; padding: 40px 30px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+        .status-icon { width: 90px; height: 90px; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 42px; margin: 0 auto 25px; }
+        .s-icon-success { background: #dcfce7; color: #22c55e; }
+        .s-icon-fail { background: #fee2e2; color: #f87171; }
+        .status-card h2 { font-size: 24px; font-weight: 950; color: var(--primary); margin-bottom: 10px; }
+        .status-card p { font-size: 15px; color: #64748b; font-weight: 700; line-height: 1.6; margin-bottom: 30px; }
+        .case-num-badge { background: #0f172a; color: var(--accent); padding: 12px 25px; border-radius: 20px; font-size: 18px; font-weight: 950; display: inline-block; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .btn-status-close { background: var(--primary); color: white; border: none; padding: 18px; width: 100%; border-radius: 25px; font-weight: 950; font-size: 15px; cursor: pointer; }
 
         @media (max-width: 500px) {
             .phone-frame { width: 100%; height: 100vh; border-radius: 0; border: none; padding: 0; }
@@ -317,7 +358,10 @@
                 <header class="header">
                     <i class="fas fa-bars" style="font-size:24px" onclick="openDrawer()"></i>
                     <h1>NIT FIELD</h1>
-                    <i class="fas fa-bell" style="font-size:24px" onclick="switchScreen('notifs')"></i>
+                    <div class="bell-wrap" onclick="switchScreen('notifs'); clearNotifBadge();">
+                        <i class="fas fa-bell" style="font-size:24px"></i>
+                        <div id="bell-badge" class="bell-badge"></div>
+                    </div>
                 </header>
 
                 <div class="profile-card">
@@ -451,8 +495,11 @@
 
                     <span class="lbl-prime" style="margin-top:25px">CONTACT INFO</span>
                     <div class="write-box" style="padding:15px">
-                        <input id="supp-mobile" type="tel" placeholder="Mobile Number" style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; padding:10px 0; border-bottom:1px solid #f8fafc">
-                        <input id="supp-email" type="email" placeholder="Email Address" style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; padding:15px 0 10px 0">
+                        <div style="display:flex; align-items:center; border-bottom:1px solid #f8fafc; padding-bottom:10px">
+                            <span style="font-weight:900; font-size:16px; color:var(--primary); margin-right:8px">+966</span>
+                            <input id="supp-mobile" type="tel" placeholder="5X XXX XXXX" style="flex:1; border:none; outline:none; font-weight:900; font-size:16px; color:var(--primary); background:transparent">
+                        </div>
+                        <input id="supp-email" type="email" placeholder="example@nit.com" style="width:100%; border:none; outline:none; font-weight:900; font-size:16px; padding:15px 0 10px 0; color:var(--primary)">
                     </div>
 
                     <span class="lbl-prime" style="margin-top:25px">REPORT DETAILS</span>
@@ -519,9 +566,17 @@
             <div class="plus-btn" id="main-plus" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
             <div class="wa-btn" id="wa-float" onclick="window.open('https://wa.me/966500000000')"><i class="fab fa-whatsapp"></i></div>
             
-            <!-- Zoom Overlay -->
-            <div id="zoom-overlay" class="zoom-overlay" onclick="this.classList.remove('active')">
-                <img id="zoom-img">
+            <!-- Status Modal -->
+            <div id="status-modal" class="status-modal">
+                <div class="status-card">
+                    <div id="status-icon" class="status-icon"></div>
+                    <h2 id="status-title">Success</h2>
+                    <p id="status-msg">Your report has been received.</p>
+                    <div id="status-case-wrap" style="display:none">
+                        <div id="status-case-num" class="case-num-badge">#CASE 000</div>
+                    </div>
+                    <button class="btn-status-close" onclick="closeStatusModal()">CONTINUE</button>
+                </div>
             </div>
         </div>
     </div>
@@ -573,11 +628,131 @@
             if(id === 'reports') sync();
             if(id === 'stats') updateStats();
             if(id === 'chat-list') renderChatHub();
+            if(id === 'notifs') renderNotifs();
             if(id === 'support') {
                 document.getElementById('supp-name-val').innerText = currentUser.name_en || currentUser.name || "Officer";
                 document.getElementById('supp-id-val').innerText = "ID: " + (currentUser.emp_no || "0000");
             }
             closeDrawer();
+        }
+
+
+        let lastReadNotif = localStorage.getItem('last_notif_read') || new Date().toISOString();
+        function clearNotifBadge() {
+            document.getElementById('bell-badge').classList.remove('active');
+            lastReadNotif = new Date().toISOString();
+            localStorage.setItem('last_notif_read', lastReadNotif);
+        }
+
+        function startNotifListener() {
+            if(!currentUser) return;
+            // Listen to messages (any session where I am a participant)
+            db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).onSnapshot(snap => {
+                let hasNew = false;
+                snap.docs.forEach(d => {
+                    const data = d.data();
+                    if(data.updated_at > lastReadNotif) hasNew = true;
+                });
+                if(hasNew) {
+                    const b = document.getElementById('bell-badge');
+                    if(b) b.classList.add('active');
+                }
+            });
+
+            // Listen to report updates
+            db.collection('reports').where('user_id', '==', currentUser.id).onSnapshot(snap => {
+                let hasNew = false;
+                snap.docs.forEach(d => {
+                    const data = d.data();
+                    if((data.updated_at || data.created_at) > lastReadNotif) hasNew = true;
+                });
+                if(hasNew) {
+                    const b = document.getElementById('bell-badge');
+                    if(b) b.classList.add('active');
+                }
+            });
+        }
+
+
+
+        async function renderNotifs() {
+            const list = document.getElementById('notif-list');
+            if(!list) return;
+            list.innerHTML = '<p style="text-align:center; padding:50px; opacity:0.3; font-weight:900">SYNCING ALERTS...</p>';
+            
+            try {
+                // Fetch flat without orderBy to avoid index requirements
+                const [bcSnap, sessSnap] = await Promise.all([
+                    db.collection('broadcasts').limit(10).get(),
+                    db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).limit(10).get()
+                ]);
+
+                // Fallback for Reports: check user_id first
+                let repSnap = await db.collection('reports').where('user_id', '==', currentUser.id).limit(10).get();
+                if(repSnap.empty) {
+                    repSnap = await db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).limit(10).get();
+                }
+                
+                let combined = [];
+
+                bcSnap.docs.forEach(d => {
+                    const data = d.data();
+                    combined.push({ title: data.title || 'Broadcast', desc: data.content || '', type: 'info', time: data.created_at, link: null });
+                });
+                
+                repSnap.docs.forEach(d => {
+                    const data = d.data();
+                    if(data.status === 'done' || data.updated_at) {
+                        const isResolved = data.status === 'done';
+                        combined.push({ 
+                            title: isResolved ? 'Case Completed' : 'Case Update', 
+                            desc: isResolved ? `Case #CASE ${data.case_num || '000'} resolved.` : `Activity on Case #CASE ${data.case_num || '000'}.`, 
+                            type: isResolved ? 'success' : 'info', 
+                            time: data.updated_at || data.created_at,
+                            link: { screen: 'detail', id: d.id }
+                        });
+                    }
+                });
+
+                sessSnap.docs.forEach(d => {
+                    const data = d.data();
+                    combined.push({ 
+                        title: 'New Message', 
+                        desc: `You have an unread message from your chats.`, 
+                        type: 'alert', 
+                        time: data.updated_at,
+                        link: { screen: 'chat', id: d.id }
+                    });
+                });
+                
+                combined.sort((a,b) => new Date(b.time) - new Date(a.time));
+                
+                list.innerHTML = combined.map(n => {
+                    const linkAttr = n.link ? JSON.stringify(n.link).replace(/"/g, '&quot;') : 'null';
+                    return `
+                        <div class="notif-card ${n.time > lastReadNotif ? 'unread' : ''}" onclick="handleNotifClick(${linkAttr})">
+                            <div class="notif-icon ${n.type === 'success' ? 'ni-success' : (n.type === 'alert' ? 'ni-alert' : 'ni-info')}">
+                                <i class="fas ${n.type === 'success' ? 'fa-check-circle' : (n.type === 'alert' ? 'fa-comment-alt' : 'fa-info-circle')}"></i>
+                            </div>
+                            <div class="notif-content">
+                                <b>${n.title}</b>
+                                <p>${n.desc}</p>
+                                <div class="notif-time">${n.time ? n.time.substring(11,16) : 'Now'} • ${n.time ? n.time.substring(0,10) : ''}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('') || '<div style="text-align:center; padding:100px 50px; opacity:0.3; font-weight:900">ALL CAUGHT UP</div>';
+                
+            } catch(e) {
+                console.error("Notif Error:", e);
+                list.innerHTML = '<p style="text-align:center; color:red; padding:50px">Error loading alerts.</p>';
+            }
+        }
+
+        function handleNotifClick(link) {
+            if(!link) return;
+            if(link.screen === 'detail') openDetail(link.id);
+            if(link.screen === 'chat') openChat(link.id);
         }
 
         function goBack() {
@@ -619,11 +794,38 @@
 
         function sync() {
             if (!currentUser || unsubSync) return;
-            unsubSync = db.collection('reports').where('emp_no', '==', String(currentUser.emp_no)).onSnapshot(snap => {
-                reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                renderReports();
-                if(typeof updateStats === 'function') updateStats(); // Critical: Update dashboard numbers & list
-            });
+            
+            // Initial UI feedback
+            const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
+            if(f) f.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">SYNCING DATA...</div>';
+            if(m) m.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">LOADING...</div>';
+
+            // Triple query fallback: String ID, Number ID, or Document ID
+            unsubSync = db.collection('reports')
+                .where('user_id', '==', currentUser.id)
+                .onSnapshot(snap => {
+                    reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                    
+                    // Failover: if user_id query yields nothing, try emp_no fallback
+                    if(reports.length === 0) {
+                        db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).get().then(snap2 => {
+                            if(!snap2.empty) {
+                                reports = snap2.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                                renderReports();
+                                if(typeof updateStats === 'function') updateStats();
+                            } else {
+                                renderReports();
+                                if(typeof updateStats === 'function') updateStats();
+                            }
+                        });
+                    } else {
+                        renderReports();
+                        if(typeof updateStats === 'function') updateStats(); 
+                    }
+                }, err => {
+                    console.error("Sync Error:", err);
+                    if(f) f.innerHTML = '<div style="color:red; padding:20px">Sync Failed. Tap to retry.</div>';
+                });
         }
     
 
@@ -641,7 +843,7 @@
                     <div class="status-tag" style="color:${r.status==='done'?'#22c55e':'#38bdf8'}; top:30px">
                         ${(r.status||'OPEN').toUpperCase()}
                     </div>
-                    <div style="font-size:10px; font-weight:700; color:#cbd5e1; margin-top:12px">#CASE ${r.case_num || '000'} • ${r.site || 'Site HQ'}</div>
+                    <div style="font-size:10px; font-weight:700; color:#cbd5e1; margin-top:12px">#CASE ${r.case_num || r.ticket_num || r.id.substring(0,5)} • ${r.site || 'Main Site'}</div>
                 </div>
             `).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO INCIDENTS FOUND</div>';
             
@@ -656,7 +858,7 @@
                     <div class="case-main-card">
                         <div class="type">${r.type}</div>
                         <div class="desc">${(r.description||'').substring(0,30)}...</div>
-                        <div class="status-tag" style="background:${isDone ? '#DCFCE7' : (isWorking ? '#FEF3C7' : '#E0F2FE')}; color:${isDone ? '#22c55e' : (isWorking ? '#92400E' : '#38bdf8')}">
+                        <div class="status-tag" style="background:${isDone ? '#DCFCE7' : '#E0F2FE'}; color:${isDone ? '#22c55e' : '#38bdf8'}">
                             ${(r.status||'OPEN').toUpperCase()}
                         </div>
                         <div class="id">#CASE ${r.case_num || '000'} • ${r.site || 'Site HQ'}</div>
@@ -790,14 +992,45 @@
                     created_at: new Date().toISOString()
                 });
 
-                alert('Success! Your Case Number is #CASE ' + caseNum + '. It has been submitted, and will be reviewed shortly.');
-                switchScreen('home');
-                location.reload();
+                showStatus(true, caseNum);
             } catch(e) { 
                 console.error("Submit Error:", e);
-                alert('Submit Failed. Check connection and try again.'); 
+                showStatus(false);
                 btn.innerHTML = oldHtml;
                 btn.disabled = false;
+            }
+        }
+
+        function showStatus(isSuccess, caseNum) {
+            const m = document.getElementById('status-modal');
+            const ic = document.getElementById('status-icon');
+            const t = document.getElementById('status-title');
+            const msg = document.getElementById('status-msg');
+            const wrap = document.getElementById('status-case-wrap');
+            const num = document.getElementById('status-case-num');
+
+            if(isSuccess) {
+                ic.className = 'status-icon s-icon-success';
+                ic.innerHTML = '<i class="fas fa-check-circle"></i>';
+                t.innerText = 'CASE RECORDED';
+                msg.innerText = 'Your field report has been successfully transmitted and logged in the system.';
+                wrap.style.display = 'block';
+                num.innerText = '#CASE ' + caseNum;
+            } else {
+                ic.className = 'status-icon s-icon-fail';
+                ic.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                t.innerText = 'SUBMISSION FAILED';
+                msg.innerText = 'We encountered a connection error. Please verify your internet and try again.';
+                wrap.style.display = 'none';
+            }
+            m.classList.add('active');
+        }
+
+        function closeStatusModal() {
+            document.getElementById('status-modal').classList.remove('active');
+            if(document.getElementById('status-title').innerText === 'CASE RECORDED') {
+                switchScreen('home');
+                location.reload();
             }
         }
 
@@ -893,12 +1126,11 @@
             isRenderingHub = true;
             try {
                 const myIdStr = String(currentUser.emp_no);
-                const myIdNum = Number(currentUser.emp_no);
                 
-                // Query both string and number to be safe
+                // 1. Get existing chat sessions
                 const [snap1, snap2] = await Promise.all([
                     db.collection('chat_sessions').where('participants','array-contains', myIdStr).get(),
-                    db.collection('chat_sessions').where('participants','array-contains', myIdNum).get()
+                    db.collection('chat_sessions').where('participants','array-contains', Number(currentUser.emp_no)).get()
                 ]);
                 
                 let sessionsMap = {};
@@ -907,32 +1139,75 @@
                 
                 let data = Object.values(sessionsMap).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
                 
-                if(query) data = data.filter(s => s.id.toLowerCase().includes(query) || (s.last_message||'').toLowerCase().includes(query));
+                // 2. If searching, also search for matching employees
+                if(query && query.length >= 3) {
+                    const empSnap = await db.collection('employees')
+                        .where('emp_no', '==', String(query))
+                        .limit(1)
+                        .get();
+                    
+                    if(!empSnap.empty) {
+                        const emp = empSnap.docs[0].data();
+                        const otherId = String(emp.emp_no);
+                        if(otherId !== myIdStr) {
+                            const pair = [myIdStr, otherId].sort();
+                            const sessionId = `p2p_${pair[0]}_${pair[1]}`;
+                            
+                            if(!sessionsMap[sessionId]) {
+                                data.push({
+                                    id: sessionId,
+                                    isVirtual: true,
+                                    last_message: 'Start conversation with ' + (emp.name_en || emp.name || otherId),
+                                    updated_at: new Date().toISOString()
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Force strict filtering and Sort: exact ID match comes FIRST
+                if(query) {
+                    data = data.filter(s => {
+                        const low = s.id.toLowerCase();
+                        if(!isNaN(query)) return low.includes('_'+query) || low.includes(query+'_') || low === query;
+                        return low.includes(query) || (s.last_message||'').toLowerCase().includes(query);
+                    });
+                    
+                    // Prioritize exact match in the ID string
+                    data.sort((a,b) => {
+                        const aExact = a.id.includes('_'+query) || a.id.includes(query+'_');
+                        const bExact = b.id.includes('_'+query) || b.id.includes(query+'_');
+                        return bExact - aExact;
+                    });
+                }
 
                 const c = document.getElementById('chat-report-list');
                 if(c) {
-                    c.innerHTML = data.map((s, idx) => `
-                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''}" onclick="openChat('${s.id}')">
-                            <div class="chat-avatar ${s.id === 'Management' ? 'admin' : ''}">
-                                <i class="fas ${s.id === 'Management' ? 'fa-crown' : 'fa-user-shield'}"></i>
+                    c.innerHTML = data.map((s, idx) => {
+                        const isManagement = s.id === 'Management';
+                        const isFoundMatch = query && (s.id.includes('_'+query) || s.id.includes(query+'_'));
+                        
+                        let displayName = isManagement ? 'Management Support' : s.id;
+                        if(s.id.includes('_')) {
+                            const parts = s.id.split('_');
+                            const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
+                            if (other) displayName = 'Officer ' + other;
+                        }
+
+                        return `
+                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''}" onclick="openChat('${s.id}')">
+                            <div class="chat-avatar ${isManagement ? 'admin' : ''}">
+                                <i class="fas ${isManagement ? 'fa-crown' : 'fa-user-shield'}"></i>
                             </div>
                             <div class="chat-info">
                                 <div class="chat-name-meta">
-                                    <h4>${(() => {
-                                        if(s.id === 'Management') return 'Management Support';
-                                        if(s.id.includes('_')) {
-                                            const parts = s.id.split('_');
-                                            const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
-                                            return other ? 'Officer ' + other : s.id;
-                                        }
-                                        return s.id;
-                                    })()}</h4>
+                                    <h4>${displayName}${isFoundMatch ? '<span class="badge-new">FOUND</span>' : ''}</h4>
                                     <span>${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
                                 </div>
                                 <div class="chat-msg-prev">${s.last_message || 'Start a new conversation'}</div>
                             </div>
                         </div>
-                    `).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CHATS FOUND</div>';
+                    `}).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO RESULTS FOR "' + query + '"</div>';
                 }
             } catch(e) { console.error(e); }
             finally { isRenderingHub = false; }
@@ -1000,15 +1275,25 @@
 
 
         async function submitHelp() {
-            const s=document.getElementById('supp-subj').value, 
-                  m=document.getElementById('supp-msg').value,
-                  mob=document.getElementById('supp-mobile').value,
-                  em=document.getElementById('supp-email').value;
+            const s=document.getElementById('supp-subj').value.trim(), 
+                  m=document.getElementById('supp-msg').value.trim(),
+                  rawMob=document.getElementById('supp-mobile').value.trim(),
+                  em=document.getElementById('supp-email').value.trim();
              
-            if(!s||!m) return alert("Subject and Details required");
+            if(!s||!m) return alert("Subject and Details are required.");
             
+            // Prepend country code
+            const mob = "+966 " + rawMob;
+            
+            // Validation Logic
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(!emailRegex.test(em)) return alert("Please enter a valid email address (e.g. name@domain.com)");
+            
+            if(rawMob.length < 9) return alert("Please enter your complete 9-digit mobile number (e.g. 5XXXXXXXX)");
+
             const btn = document.querySelector('#s-support .btn-p');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> VERIFYING...';
             btn.disabled = true;
 
             try {
@@ -1054,6 +1339,7 @@
                 // Instant load
                 switchScreen('home');
                 sync(); 
+                startNotifListener();
                 
                 // Background tasks (non-blocking)
                 fixLegacyNumbers().catch(e => console.log("Bg migration:", e));
