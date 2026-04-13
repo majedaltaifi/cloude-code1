@@ -495,8 +495,8 @@
 
                     <span class="lbl-prime" style="margin-top:25px">CONTACT INFO</span>
                     <div class="write-box" style="padding:15px">
-                        <input id="supp-mobile" type="tel" placeholder="Mobile Number" style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; padding:10px 0; border-bottom:1px solid #f8fafc">
-                        <input id="supp-email" type="email" placeholder="Email Address" style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; padding:15px 0 10px 0">
+                        <input id="supp-mobile" type="tel" value="+966 " placeholder="+966 5X XXX XXXX" style="width:100%; border:none; outline:none; font-weight:900; font-size:16px; padding:10px 0; border-bottom:1px solid #f8fafc; color:var(--primary)">
+                        <input id="supp-email" type="email" placeholder="example@nit.com" style="width:100%; border:none; outline:none; font-weight:900; font-size:16px; padding:15px 0 10px 0; color:var(--primary)">
                     </div>
 
                     <span class="lbl-prime" style="margin-top:25px">REPORT DETAILS</span>
@@ -1272,15 +1272,22 @@
 
 
         async function submitHelp() {
-            const s=document.getElementById('supp-subj').value, 
-                  m=document.getElementById('supp-msg').value,
-                  mob=document.getElementById('supp-mobile').value,
-                  em=document.getElementById('supp-email').value;
+            const s=document.getElementById('supp-subj').value.trim(), 
+                  m=document.getElementById('supp-msg').value.trim(),
+                  mob=document.getElementById('supp-mobile').value.trim(),
+                  em=document.getElementById('supp-email').value.trim();
              
-            if(!s||!m) return alert("Subject and Details required");
+            if(!s||!m) return alert("Subject and Details are required.");
             
+            // Validation Logic
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(!emailRegex.test(em)) return alert("Please enter a valid email address (e.g. name@domain.com)");
+            
+            if(mob.length < 12) return alert("Please enter a complete mobile number including +966");
+
             const btn = document.querySelector('#s-support .btn-p');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> VERIFYING...';
             btn.disabled = true;
 
             try {
