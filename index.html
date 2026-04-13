@@ -271,6 +271,12 @@
             transform: scale(0.92) !important;
             opacity: 0.8;
         }
+
+        /* IMAGE UPLOAD UI */
+        .image-upload-area { margin-top:15px; background:white; border-radius:30px; border:2px dashed #e2e8f0; padding:25px; text-align:center; cursor:pointer; transition:0.3s; }
+        .image-upload-area:active { transform:scale(0.98); background:#f8fafc; }
+        .image-preview-slot { width:100%; height:180px; border-radius:20px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(241,245,249,0.5); }
+        .image-preview-slot img { width:100%; height:100%; object-fit:cover; }
         .notif-icon { width: 50px; height: 50px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: 0 8px 15px rgba(0,0,0,0.03); }
         .ni-success { background: #dcfce7; color: #16a34a; }
         .ni-info { background: #f1f5f9; color: #64748b; }
@@ -427,6 +433,15 @@
                     <span class="lbl-prime">WRITE PROBLEM</span>
                     <div class="write-box">
                         <textarea id="case-desc" placeholder="Tell us what happened..."></textarea>
+                    </div>
+
+                    <span class="lbl-prime">FIELD EVIDENCE (OPTIONAL)</span>
+                    <div class="image-upload-area" onclick="document.getElementById('case-img-input').click()">
+                        <div id="image-preview-cont" class="image-preview-slot">
+                            <i class="fas fa-camera" style="font-size:24px; color:#cbd5e1"></i>
+                            <p style="margin:5px 0 0 0; font-size:12px; font-weight:700; color:#94a3b8">TAP TO UPLOAD</p>
+                        </div>
+                        <input type="file" id="case-img-input" accept="image/*" style="display:none" onchange="handleFile(this)">
                     </div>
 
                     <span class="lbl-prime">SELECT SITE</span>
@@ -981,7 +996,26 @@
 
         function setType(t, el) { currentType = t; document.querySelectorAll('.type-box').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderSubTypes(); }
         function renderSubTypes() { document.getElementById('sub-types').innerHTML = (subCats[currentType]||[]).map(s=>`<div class="sub-type-item" onclick="currentSubType='${s}'; this.parentElement.querySelectorAll('.sub-type-item').forEach(x=>x.classList.remove('active')); this.classList.add('active');">${s}</div>`).join(''); }
-        function handleImg(input) { const f = input.files[0]; const r = new FileReader(); r.onload = (e) => { imgB64 = e.target.result; document.getElementById('prevImg').src = imgB64; document.getElementById('prevImg').style.display='block'; document.getElementById('phold').style.display='none'; }; r.readAsDataURL(f); }
+
+        let activeImgB64 = null;
+        function handleFile(input) {
+            const f = input.files[0]; if(!f) return;
+            const r = new FileReader(); r.onload = (e) => {
+                activeImgB64 = e.target.result;
+                const c = document.getElementById('image-preview-cont');
+                if(c) c.innerHTML = `<img src="${activeImgB64}" alt="Preview" style="width:100%; height:100%; object-fit:cover">`;
+            }; r.readAsDataURL(f);
+        }
+        function handleImg(input) {
+            const f = input.files[0]; if(!f) return;
+            const r = new FileReader(); r.onload = (e) => {
+                activeImgB64 = e.target.result;
+                const p = document.getElementById('prevImg');
+                const ph = document.getElementById('phold');
+                if(p) { p.src = activeImgB64; p.style.display = 'block'; }
+                if(ph) ph.style.display = 'none';
+            }; r.readAsDataURL(f);
+        }
 
         async function submitReport() {
             const desc = document.getElementById('case-desc').value;
@@ -1011,7 +1045,7 @@
                     description: desc,
                     site: site,
                     status: 'open',
-                    photo_b64: imgB64 || null,
+                    photo_b64: activeImgB64 || null,
                     created_at: new Date().toISOString()
                 });
 
