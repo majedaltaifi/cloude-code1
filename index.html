@@ -435,13 +435,13 @@
                         <textarea id="case-desc" placeholder="Tell us what happened..."></textarea>
                     </div>
 
-                    <span class="lbl-prime">EVIDENCE ATTACHMENT</span>
-                    <div class="image-upload-area" onclick="document.getElementById('case-img-input').click()">
-                        <div id="image-preview-cont" class="image-preview-slot">
-                            <i class="fas fa-camera-retro" style="font-size:30px; color:#cbd5e1"></i>
-                            <p style="margin:10px 0 0 0; font-size:13px; font-weight:950; color:#94a3b8">UPLOAD OR CAPTURE</p>
-                        </div>
+                    <span class="lbl-prime">ADD PHOTO</span>
+                    <div class="image-upload-area" onclick="document.getElementById('case-img-input').click()" style="border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 20px;">
                         <input type="file" id="case-img-input" accept="image/*" style="display:none" onchange="handleFile(this)">
+                        <div id="image-preview-cont" class="image-preview-slot" style="background:transparent; height:140px">
+                            <i class="fas fa-camera" style="font-size:32px; color:#94a3b8"></i>
+                            <p style="margin:12px 0 0 0; font-size:16px; font-weight:950; color:#94a3b8; letter-spacing:1px">PHOTOGRAPH</p>
+                        </div>
                     </div>
 
                     <span class="lbl-prime">SELECT SITE</span>
@@ -454,7 +454,7 @@
                         <i class="fas fa-chevron-down" style="color:#cbd5e1"></i>
                     </div>
 
-                    <button class="btn-p" onclick="submitReport()" style="margin-bottom:80px">SUBMIT REPORT</button>
+                    <button class="btn-p" onclick="submitReport()" style="margin:30px 0 80px 0">SUBMIT CASE</button>
                 </div>
             </div>
 
