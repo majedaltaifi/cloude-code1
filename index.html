@@ -1406,23 +1406,20 @@
                     c.innerHTML = data.filter(s => s.id !== 'Management').map((s, idx) => {
                         const isFoundMatch = query && (s.id.includes('_'+query) || s.id.includes(query+'_'));
                         
-                        // Refined: Only the official ADMIN channel gets the dark blue theme
-                        const isAdmin = s.id === 'Admin' || s.id === 'Management' || (s.id.includes('_admin') && !s.id.includes('p2p'));
-                        
                         let displayName = s.id;
                         if(s.id.includes('_')) {
                             const parts = s.id.split('_');
-                            const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
+                            const other = parts.find(p => !['p2p', 'b2p', 'chat', 'direct'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
                             if (other) displayName = (other.toLowerCase() === 'admin') ? 'ADMIN' : 'Officer ' + other;
                         } else if(displayName === 'Management' || displayName === 'Admin') {
                              displayName = 'ADMIN';
                         }
-
-                        // Specific override: If it's a p2p chat with another officer, it's NOT admin row
-                        const isP2P = s.id.includes('p2p_');
-                        const rowClass = (isAdmin && !isP2P) ? 'admin-row' : '';
-                        const avatarClass = (isAdmin && !isP2P) ? 'admin' : '';
-                        const iconClass = (isAdmin && !isP2P) ? 'fa-shield-halved' : 'fa-user-shield';
+                        
+                        // Refined: If the resolved display name is ADMIN, we force the blue row
+                        const isPrimaryAdmin = displayName === 'ADMIN';
+                        const rowClass = isPrimaryAdmin ? 'admin-row' : '';
+                        const avatarClass = isPrimaryAdmin ? 'admin' : '';
+                        const iconClass = isPrimaryAdmin ? 'fa-shield-halved' : 'fa-user-shield';
                         
                         return `
                         <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''} ${rowClass}" onclick="openChat('${s.id}')">
