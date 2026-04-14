@@ -663,23 +663,31 @@
 
         async function setupFCM() {
             try {
-                // IMPORTANT: Replace this with your actual Web Push Public Key from Firebase Console
-                // Settings -> Cloud Messaging -> Web Push certificates -> Key pair
                 const vapidKey = 'BGKnHACfCh_rN3J_ivDu9o5z1d7MK7K8ajdYy-h51aDfg2-EKeSpWOID6k1Rcy4wSzPflC1OtV27Zh6pVDGTWXY';
                 
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') return console.log('Notification permission denied');
+                // Manual SW registration for iOS/PWA reliability
+                if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+                    console.log('SW Registered for Background Alerts');
+                    
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') return console.log('Notification permission denied');
 
-                const token = await messaging.getToken({ vapidKey: vapidKey });
-                if (token) {
-                    await db.collection('fcm_tokens').doc(String(currentUser.emp_no)).set({
-                        emp_no: currentUser.emp_no,
-                        token: token,
-                        updated_at: new Date().toISOString()
+                    const token = await messaging.getToken({ 
+                        vapidKey: vapidKey,
+                        serviceWorkerRegistration: registration
                     });
-                    console.log('FCM Token registered successfully');
+                    
+                    if (token) {
+                        await db.collection('fcm_tokens').doc(String(currentUser.emp_no)).set({
+                            emp_no: currentUser.emp_no,
+                            token: token,
+                            updated_at: new Date().toISOString()
+                        });
+                        console.log('FCM Device Identity Secured');
+                    }
                 }
-            } catch(e) { console.error("FCM Setup Error:", e); }
+            } catch(e) { console.error("FCM Background Sync Fail:", e); }
         }
 
         let currentUser = null, reports = [], lastScreen = 'home', imgB64 = null, activeRoom = null;
