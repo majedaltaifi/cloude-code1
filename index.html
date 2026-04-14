@@ -18,15 +18,19 @@
             --bg: #f8fafc;
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
-        body { background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); height:100vh; overflow:hidden; display:flex; justify-content:center; align-items:center; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); height:100vh; overflow:hidden; display:flex; justify-content:center; align-items:center; touch-action: manipulation; }
         .phone-frame { width:390px; height:830px; background:#000; border-radius:65px; position:relative; padding:15px; border:15px solid #000; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.4), 0 30px 60px -30px rgba(0,0,0,0.5), inset 0 0 2px rgba(255,255,255,0.2); }
         .phone-frame::before { content:''; position:absolute; top:35px; left:50%; transform:translateX(-50%); width:110px; height:32px; background:#000; border-radius:20px; z-index:10000; border: 1px solid rgba(255,255,255,0.05); }
         .app-container { width:100%; height:100%; background:#f8fafc; border-radius:50px; overflow:hidden; display:flex; flex-direction:column; position:relative; }
-        .screen { display:none; flex:1; flex-direction:column; padding:0 20px; overflow-y:auto; padding-bottom:140px; }
-        .screen.active { display:flex; }
+        .screen { display:none; flex:1; flex-direction:column; padding:0 20px; overflow-y:auto; padding-bottom:140px; opacity:0; transform: translateY(10px); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        .screen.active { display:flex; opacity:1; transform: translateY(0); }
 
-        .header { background:var(--primary); padding:55px 25px 25px; display:flex; justify-content:space-between; align-items:center; color:white; margin:0 -20px 20px -20px; }
+        /* Tactile Feedback */
+        .nav-item, .btn-p, .stat-box, .type-box, .stat-card-main, .broadcast-item, .chat-row, .profile-card, .btn-login { cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .nav-item:active, .btn-p:active, .stat-box:active, .type-box:active, .stat-card-main:active, .broadcast-item:active, .chat-row:active, .profile-card:active, .btn-login:active { transform: scale(0.94); }
+
+        .header { background:var(--primary); padding:55px 25px 25px; display:flex; justify-content:space-between; align-items:center; color:white; margin:0 -20px 20px -20px; transition: 0.3s; }
         .header h1 { font-size:18px; font-weight:900; letter-spacing:2px; }
         .lbl-prime { font-size:10px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px; display:block; }
 
@@ -695,25 +699,14 @@
             const target = document.getElementById('s-' + id);
             
             // Phase 1: Fade out others
-            screens.forEach(s => {
-                if(s.classList.contains('active')) {
-                    s.style.opacity = '0';
-                    s.style.transform = 'translateY(10px)';
-                }
-            });
-
-            // Phase 2: Switch actively
-            setTimeout(() => {
-                screens.forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
-                if (target) {
-                    target.style.display = 'flex';
-                    // Trigger reflow to ensure animation runs
-                    void target.offsetWidth; 
+            screens.forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+            if (target) {
+                target.style.display = 'flex';
+                // Fast reflow + trigger animation
+                requestAnimationFrame(() => {
                     target.classList.add('active');
-                    target.style.opacity = '1';
-                    target.style.transform = 'translateY(0)';
-                }
-            }, 50);
+                });
+            }
             
             // Intelligence for Back Button
             const navMap = {'home': 'home', 'reports': 'home', 'chat-list': 'home', 'support': 'home', 'stats': 'home', 'create': 'home', 'notifs': 'home', 'detail': 'reports', 'chat': 'chat-list'};
