@@ -259,6 +259,14 @@
         }
         #s-login ~ #wa-float { display: none !important; }
 
+        .notif-hud { position: fixed; top: -100px; left: 20px; right: 20px; height: 75px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 20px; z-index: 10001; display: flex; align-items: center; padding: 0 20px; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .notif-hud.active { top: 25px; }
+        .hud-icon { width: 45px; height: 45px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px; margin-right: 15px; flex-shrink: 0; box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3); }
+        .hud-content { flex: 1; overflow: hidden; }
+        .hud-content h4 { font-size: 14px; font-weight: 900; color: white; margin: 0; }
+        .hud-content p { font-size: 11px; color: rgba(255,255,255,0.7); margin: 2px 0 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .hud-close { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); font-size: 14px; cursor: pointer; }
+
         /* NOTIFICATIONS */
         #notif-list { padding: 10px 5px; }
         .notif-card { background: white; padding: 22px; border-radius: 30px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 18px; border: 1.5px solid #f8fafc; transition: 0.3s; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
@@ -352,8 +360,16 @@
                     <div style="width:30px; height:3px; background:var(--accent); margin:15px auto; border-radius:10px; opacity:0.3"></div>
                 </div>
 
+            <div id="notif-hud" class="notif-hud">
+                <div class="hud-icon"><i class="fas fa-bell"></i></div>
+                <div class="hud-content">
+                    <h4 id="hud-title">Notification</h4>
+                    <p id="hud-msg">New update received.</p>
+                </div>
+                <div class="hud-close" onclick="closeHUD()"><i class="fas fa-times"></i></div>
             </div>
-        </div>
+
+            </div>
 
 
                 <div id="forgot-modal" class="status-modal">
@@ -728,32 +744,57 @@
             localStorage.setItem('last_notif_read', lastReadNotif);
         }
 
+        function closeHUD() { document.getElementById('notif-hud').classList.remove('active'); }
+        function triggerNotif(title, msg) {
+            document.getElementById('hud-title').innerText = title;
+            document.getElementById('hud-msg').innerText = msg;
+            document.getElementById('notif-hud').classList.add('active');
+            try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play(); } catch(e){}
+            setTimeout(closeHUD, 5000);
+        }
+
         function startNotifListener() {
             if(!currentUser) return;
+            
+            // Listen to General Notifications (Admin alerts, Case closings)
+            db.collection('notifications').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)])
+                .onSnapshot(snap => {
+                    snap.docChanges().forEach(change => {
+                        if (change.type === "added") {
+                            const d = change.doc.data();
+                            if(d.created_at > lastReadNotif) {
+                                triggerNotif(d.title_ar || d.title || "Admin Message", d.body_ar || d.message || "New update received.");
+                                document.getElementById('bell-badge').classList.add('active');
+                            }
+                        }
+                    });
+                });
+
             // Listen to messages (any session where I am a participant)
             db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).onSnapshot(snap => {
-                let hasNew = false;
-                snap.docs.forEach(d => {
-                    const data = d.data();
-                    if(data.updated_at > lastReadNotif) hasNew = true;
+                snap.docChanges().forEach(change => {
+                    if (change.type === "modified") {
+                        const data = change.doc.data();
+                        if(data.updated_at > lastReadNotif) {
+                            triggerNotif("New Message", data.last_message || "You have a new unread message.");
+                            document.getElementById('bell-badge').classList.add('active');
+                        }
+                    }
                 });
-                if(hasNew) {
-                    const b = document.getElementById('bell-badge');
-                    if(b) b.classList.add('active');
-                }
             });
 
-            // Listen to report updates
-            db.collection('reports').where('user_id', '==', currentUser.id).onSnapshot(snap => {
-                let hasNew = false;
-                snap.docs.forEach(d => {
-                    const data = d.data();
-                    if((data.updated_at || data.created_at) > lastReadNotif) hasNew = true;
+            // Listen to report status updates
+            db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).onSnapshot(snap => {
+                snap.docChanges().forEach(change => {
+                    if (change.type === "modified") {
+                        const data = change.doc.data();
+                        if(data.updated_at > lastReadNotif) {
+                            const isDone = data.status === 'done';
+                            triggerNotif(isDone ? "Case Resolved" : "Case Updated", `Case #CASE ${data.case_num} is now ${data.status.toUpperCase()}.`);
+                            document.getElementById('bell-badge').classList.add('active');
+                        }
+                    }
                 });
-                if(hasNew) {
-                    const b = document.getElementById('bell-badge');
-                    if(b) b.classList.add('active');
-                }
             });
         }
 
