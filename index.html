@@ -169,10 +169,10 @@
         .picker-avatar.active { background: var(--primary); color: white; border-color: var(--primary); }
         .picker-item span { font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing: 0.5px; }
 
-        .chat-row { background: white; padding:18px 22px; border-radius:30px; display:flex; align-items:center; gap:15px; margin-bottom:12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); cursor:pointer; transition: 0.3s; border: 1.5px solid #f1f5f9; }
-        .chat-row.admin-row { background: #0f172a !important; border-color: transparent !important; box-shadow: 0 15px 45px rgba(15, 23, 42, 0.4); }
-        .chat-row.admin-row h4, .chat-row.admin-row .chat-msg-prev, .chat-row.admin-row span, .chat-row.admin-row i { color: white !important; }
-        .chat-row.active { border-color: var(--accent); }
+        .chat-row { background:white; padding:18px 22px; border-radius:30px; display:flex; align-items:center; gap:15px; margin-bottom:12px; box-shadow:0 10px 30px rgba(0,0,0,0.03); cursor:pointer; transition: 0.3s; border: 1.5px solid #f1f5f9; }
+        .chat-row.active { border-color: var(--primary); }
+        .chat-row.admin-row { background: #2563eb !important; border-color: transparent !important; box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3); }
+        .chat-row.admin-row h4, .chat-row.admin-row .chat-msg-prev, .chat-row.admin-row span { color: white !important; }
         .chat-row.found-match { border-color: #22c55e; }
         .chat-avatar { width:52px; height:52px; background:#f1f5f9; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:20px; flex-shrink: 0; }
         .chat-avatar.admin { background: #0f172a; color: var(--accent); }
@@ -413,7 +413,7 @@
                     <span>My Incidents</span>
                     <div class="drawer-icon"><i class="fas fa-file-alt"></i></div>
                 </div>
-                <div class="drawer-item" onclick="openAdminChat(); closeDrawer();">
+                <div class="drawer-item" onclick="switchScreen('support'); closeDrawer();">
                     <span>Help Center</span>
                     <div class="drawer-icon"><i class="fas fa-headset"></i></div>
                 </div>
@@ -595,25 +595,9 @@
                     </div>
 
                     <div class="horizontal-picker">
-                        <div class="picker-item" onclick="openAdminChat()">
+                        <div class="picker-item" onclick="openChat('Management')">
                             <div class="picker-avatar"><i class="fas fa-headset"></i></div>
-                            <span>الدعم الفني</span>
-                        </div>
-                        <div class="picker-item" onclick="window.open('https://wa.me/966500000000')">
-                            <div class="picker-avatar"><i class="fab fa-whatsapp"></i></div>
-                            <span>واتساب</span>
-                        </div>
-                        <div class="picker-item" onclick="switchScreen('notifs')">
-                            <div class="picker-avatar"><i class="fas fa-bullhorn"></i></div>
-                            <span>التعميمات</span>
-                        </div>
-                        <div class="picker-item" onclick="switchScreen('stats')">
-                            <div class="picker-avatar"><i class="fas fa-chart-line"></i></div>
-                            <span>الاحصائيات</span>
-                        </div>
-                        <div class="picker-item" onclick="switchScreen('reports')">
-                            <div class="picker-avatar"><i class="fas fa-map-marker-alt"></i></div>
-                            <span>الموقع</span>
+                            <span>Support</span>
                         </div>
                     </div>
 
@@ -649,7 +633,7 @@
                     <span>Inbox</span>
                     <div id="chat-count-badge" class="nav-badge">0</div>
                 </div>
-                <div class="nav-item" id="bn-support" onclick="openAdminChat()"><i class="fas fa-headset"></i><span>Help</span></div>
+                <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>Help</span></div>
             </nav>
 
             <div class="plus-btn" id="main-plus" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
@@ -1419,81 +1403,46 @@
 
                 const c = document.getElementById('chat-report-list');
                 if(c) {
-                    let items = data.filter(s => s.id !== 'Management');
-                    const adminSid = `direct_${currentUser.emp_no}`;
-                    const hasAdmin = items.some(s => s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin'));
-                    
-                    if(!hasAdmin && !query) {
-                        items.unshift({
-                            id: adminSid,
-                            last_message: 'قناة التواصل الرسمية مع الادمن والدعم الفني',
-                            updated_at: new Date().toISOString(),
-                            isAuto: true
-                        });
-                    } else if(!query) {
-                        // Move admin to top if exists
-                        const aIdx = items.findIndex(s => s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin'));
-                        if(aIdx > 0) {
-                            const adminItem = items.splice(aIdx, 1)[0];
-                            items.unshift(adminItem);
-                        }
-                    }
-
-                    c.innerHTML = items.map((s, idx) => {
+                    c.innerHTML = data.filter(s => s.id !== 'Management').map((s, idx) => {
                         const isFoundMatch = query && (s.id.includes('_'+query) || s.id.includes(query+'_'));
+                        const isAdmin = s.id.toLowerCase().includes('admin') || s.id.toLowerCase().includes('direct');
                         
-                        let displayName = s.id;
-                        if(s.id.includes('_')) {
-                            const parts = s.id.split('_');
-                            const other = parts.find(p => !['p2p', 'b2p', 'chat', 'direct'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
-                            if (other) displayName = (other.toLowerCase() === 'admin') ? 'الادمن' : 'Officer ' + other;
-                        } else if(displayName === 'Management' || displayName === 'Admin') {
-                             displayName = 'الادمن';
+                        let displayName = String(s.id);
+                        if(displayName.includes('_')) {
+                            const parts = displayName.split('_');
+                            const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
+                            if (other) displayName = 'Officer ' + other;
                         }
-                        
-                        // Force check again based on logic
-                        const isPrimaryAdmin = s.id === adminSid || s.id === 'Admin' || displayName === 'الادمن';
-                        if (isPrimaryAdmin) displayName = 'الادمن';
 
-                        const rowClass = isPrimaryAdmin ? 'admin-row' : '';
-                        const avatarClass = isPrimaryAdmin ? 'admin' : '';
-                        const iconClass = isPrimaryAdmin ? 'fa-shield-halved' : 'fa-user-shield';
-                        
                         return `
-                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''} ${rowClass}" onclick="openChat('${s.id}')">
-                            <div class="chat-avatar ${avatarClass}">
-                                <i class="fas ${iconClass}"></i>
+                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''} ${isAdmin ? 'admin-row' : ''}" onclick="openChat('${s.id}')">
+                            <div class="chat-avatar ${isAdmin ? 'admin' : ''}">
+                                <i class="fas ${isAdmin ? 'fa-crown' : 'fa-user-shield'}"></i>
                             </div>
                             <div class="chat-info">
                                 <div class="chat-name-meta">
-                                    <h4 style="font-weight:950">${displayName}${isFoundMatch ? '<span class="badge-new">FOUND</span>' : ''}</h4>
-                                    <span>${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
+                                    <h4 style="color:white !important">${displayName}${isFoundMatch ? '<span class="badge-new">FOUND</span>' : ''}</h4>
+                                    <span style="color:white !important; opacity:0.6">${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
                                 </div>
-                                <div class="chat-msg-prev">${s.last_message || '...'}</div>
+                                <div class="chat-msg-prev" style="color:white !important; opacity:0.8">${s.last_message || '...'}</div>
                             </div>
                         </div>
-                        `;
-                    }).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CONVERSATIONS</div>';
+                    `}).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CONVERSATIONS</div>';
                 }
             } catch(e) { console.error(e); }
             finally { isRenderingHub = false; }
         }
 
-        function openAdminChat() {
-            if(!currentUser) return;
-            openChat(`direct_${currentUser.emp_no}`);
-        }
-
         async function openChat(sid) {
             activeRoom = String(sid);
-            let title = activeRoom === 'Admin' || activeRoom === 'Management' || activeRoom.startsWith('direct_') ? 'الادمن' : activeRoom;
+            let title = activeRoom === 'Admin' || activeRoom === 'Management' ? 'Management Support' : activeRoom;
             
             // Smarter extraction for p2p/b2p formats
-            if(activeRoom.includes('_') && !activeRoom.startsWith('direct_')) {
+            if(activeRoom.includes('_')) {
                 const parts = activeRoom.split('_');
                 // Exclude common prefixes and current user ID to find the partner
                 const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
-                if (other) title = (other.toLowerCase() === 'admin') ? 'الادمن' : 'Officer ' + other;
+                if (other) title = 'Officer ' + other;
             }
             
             document.getElementById('chat-title').innerText = title;
