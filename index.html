@@ -633,7 +633,7 @@
                     <span>Inbox</span>
                     <div id="chat-count-badge" class="nav-badge">0</div>
                 </div>
-                <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>Help</span></div>
+                <div class="nav-item" id="bn-support" onclick="openAdminChat()"><i class="fas fa-headset"></i><span>Support</span></div>
             </nav>
 
             <div class="plus-btn" id="main-plus" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
@@ -1424,7 +1424,7 @@
 
                     c.innerHTML = items.map((s, idx) => {
                         const isFoundMatch = query && (s.id.includes('_'+query) || s.id.includes(query+'_'));
-                        const isSupport = s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin');
+                        const isSupport = s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin') || s.id.toLowerCase().includes('direct');
                         
                         let displayName = String(s.id);
                         if(displayName.includes('_')) {
@@ -1455,15 +1455,14 @@
 
         async function openChat(sid) {
             activeRoom = String(sid);
-            const isAdmin = activeRoom === 'Admin' || activeRoom.toLowerCase().includes('admin') || activeRoom.toLowerCase().includes('direct');
-            let title = isAdmin ? 'Support' : activeRoom;
+            const isSupportRoom = activeRoom.toLowerCase().includes('direct') || activeRoom.toLowerCase().includes('admin');
+            let title = isSupportRoom ? 'Support' : activeRoom;
             
             // Smarter extraction for p2p/b2p formats
-            if(activeRoom.includes('_')) {
+            if(!isSupportRoom && activeRoom.includes('_')) {
                 const parts = activeRoom.split('_');
-                // Exclude common prefixes and current user ID to find the partner
-                const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
-                if (other) title = 'Officer ' + other;
+                const other = parts.find(p => !['p2p', 'b2p', 'chat', 'direct'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
+                if (other) title = 'Employee ' + other;
             }
             
             document.getElementById('chat-title').innerText = title;
@@ -1480,12 +1479,6 @@
                         document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO MESSAGES YET</p>';
                         return;
                     }
-
-        function openAdminChat() {
-            if(!currentUser) return;
-            const sid = `direct_${currentUser.emp_no}`;
-            openChat(sid);
-        }
                     // Sort manually in JS
                     const msgs = snap.docs.map(d => d.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
                     
@@ -1597,6 +1590,12 @@
             });
         }
 
+        function openAdminChat() {
+            if(!currentUser) return;
+            const sid = `direct_${currentUser.emp_no}`;
+            openChat(sid);
+        }
+
         async function initApp() {
             const saved = localStorage.getItem('nit_user');
             if (saved) {
@@ -1633,6 +1632,11 @@
                 document.getElementById('drawer').classList.remove('active');
                 document.getElementById('drawer-overlay').classList.remove('active');
             }
+        }
+        function openAdminChat() {
+            if(!currentUser) return;
+            const sid = `direct_${currentUser.emp_no}`;
+            openChat(sid);
         }
         window.onload = initApp;
     </script>
