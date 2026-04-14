@@ -413,7 +413,7 @@
                     <span>My Incidents</span>
                     <div class="drawer-icon"><i class="fas fa-file-alt"></i></div>
                 </div>
-                <div class="drawer-item" onclick="switchScreen('support'); closeDrawer();">
+                <div class="drawer-item" onclick="openAdminChat(); closeDrawer();">
                     <span>Help Center</span>
                     <div class="drawer-icon"><i class="fas fa-headset"></i></div>
                 </div>
@@ -595,7 +595,7 @@
                     </div>
 
                     <div class="horizontal-picker">
-                        <div class="picker-item" onclick="openChat('Management')">
+                        <div class="picker-item" onclick="openAdminChat()">
                             <div class="picker-avatar"><i class="fas fa-headset"></i></div>
                             <span>Support</span>
                         </div>
@@ -633,7 +633,7 @@
                     <span>Inbox</span>
                     <div id="chat-count-badge" class="nav-badge">0</div>
                 </div>
-                <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>Help</span></div>
+                <div class="nav-item" id="bn-support" onclick="openAdminChat()"><i class="fas fa-headset"></i><span>Help</span></div>
             </nav>
 
             <div class="plus-btn" id="main-plus" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
@@ -1439,6 +1439,11 @@
                 }
             } catch(e) { console.error(e); }
             finally { isRenderingHub = false; }
+        }
+
+        function openAdminChat() {
+            if(!currentUser) return;
+            openChat(`direct_${currentUser.emp_no}`);
         }
 
         async function openChat(sid) {
