@@ -1403,7 +1403,27 @@
 
                 const c = document.getElementById('chat-report-list');
                 if(c) {
-                    c.innerHTML = data.filter(s => s.id !== 'Management').map((s, idx) => {
+                    let items = data.filter(s => s.id !== 'Management');
+                    const adminSid = `direct_${currentUser.emp_no}`;
+                    const hasAdmin = items.some(s => s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin'));
+                    
+                    if(!hasAdmin && !query) {
+                        items.unshift({
+                            id: adminSid,
+                            last_message: 'قناة التواصل الرسمية مع الادمن والدعم الفني',
+                            updated_at: new Date().toISOString(),
+                            isAuto: true
+                        });
+                    } else if(!query) {
+                        // Move admin to top if exists
+                        const aIdx = items.findIndex(s => s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin'));
+                        if(aIdx > 0) {
+                            const adminItem = items.splice(aIdx, 1)[0];
+                            items.unshift(adminItem);
+                        }
+                    }
+
+                    c.innerHTML = items.map((s, idx) => {
                         const isFoundMatch = query && (s.id.includes('_'+query) || s.id.includes(query+'_'));
                         
                         let displayName = s.id;
@@ -1415,11 +1435,10 @@
                              displayName = 'الادمن';
                         }
                         
-                        // Refined: If the session ID starts with direct_, it's the personal Direct Admin line
-                        const isDirectAdmin = s.id.startsWith('direct_');
-                        if (isDirectAdmin) displayName = 'الادمن';
+                        // Force check again based on logic
+                        const isPrimaryAdmin = s.id === adminSid || s.id === 'Admin' || displayName === 'الادمن';
+                        if (isPrimaryAdmin) displayName = 'الادمن';
 
-                        const isPrimaryAdmin = displayName === 'الادمن';
                         const rowClass = isPrimaryAdmin ? 'admin-row' : '';
                         const avatarClass = isPrimaryAdmin ? 'admin' : '';
                         const iconClass = isPrimaryAdmin ? 'fa-shield-halved' : 'fa-user-shield';
