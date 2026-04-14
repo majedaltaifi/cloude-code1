@@ -171,7 +171,7 @@
 
         .chat-row { background: white; padding:18px 22px; border-radius:30px; display:flex; align-items:center; gap:15px; margin-bottom:12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); cursor:pointer; transition: 0.3s; border: 1.5px solid #f1f5f9; }
         .chat-row.admin-row { background: #0f172a !important; border-color: transparent !important; box-shadow: 0 15px 45px rgba(15, 23, 42, 0.4); }
-        .chat-row.admin-row h4, .chat-row.admin-row .chat-msg-prev, .chat-row.admin-row span { color: white !important; }
+        .chat-row.admin-row h4, .chat-row.admin-row .chat-msg-prev, .chat-row.admin-row span, .chat-row.admin-row i { color: white !important; }
         .chat-row.active { border-color: var(--accent); }
         .chat-row.found-match { border-color: #22c55e; }
         .chat-avatar { width:52px; height:52px; background:#f1f5f9; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:20px; flex-shrink: 0; }
@@ -1405,19 +1405,29 @@
                 if(c) {
                     c.innerHTML = data.filter(s => s.id !== 'Management').map((s, idx) => {
                         const isFoundMatch = query && (s.id.includes('_'+query) || s.id.includes(query+'_'));
-                        const isAdmin = s.id.toLowerCase().includes('admin') || (s.participants && s.participants.includes('admin'));
+                        
+                        // Refined: Only the official ADMIN channel gets the dark blue theme
+                        const isAdmin = s.id === 'Admin' || s.id === 'Management' || (s.id.includes('_admin') && !s.id.includes('p2p'));
                         
                         let displayName = s.id;
                         if(s.id.includes('_')) {
                             const parts = s.id.split('_');
                             const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
                             if (other) displayName = (other.toLowerCase() === 'admin') ? 'ADMIN' : 'Officer ' + other;
+                        } else if(displayName === 'Management' || displayName === 'Admin') {
+                             displayName = 'ADMIN';
                         }
 
+                        // Specific override: If it's a p2p chat with another officer, it's NOT admin row
+                        const isP2P = s.id.includes('p2p_');
+                        const rowClass = (isAdmin && !isP2P) ? 'admin-row' : '';
+                        const avatarClass = (isAdmin && !isP2P) ? 'admin' : '';
+                        const iconClass = (isAdmin && !isP2P) ? 'fa-shield-halved' : 'fa-user-shield';
+                        
                         return `
-                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''} ${isAdmin ? 'admin-row' : ''}" onclick="openChat('${s.id}')">
-                            <div class="chat-avatar ${isAdmin ? 'admin' : ''}">
-                                <i class="fas ${isAdmin ? 'fa-shield-halved' : 'fa-user-shield'}"></i>
+                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''} ${rowClass}" onclick="openChat('${s.id}')">
+                            <div class="chat-avatar ${avatarClass}">
+                                <i class="fas ${iconClass}"></i>
                             </div>
                             <div class="chat-info">
                                 <div class="chat-name-meta">
@@ -1427,7 +1437,8 @@
                                 <div class="chat-msg-prev">${s.last_message || '...'}</div>
                             </div>
                         </div>
-                    `}).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CONVERSATIONS</div>';
+                        `;
+                    }).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CONVERSATIONS</div>';
                 }
             } catch(e) { console.error(e); }
             finally { isRenderingHub = false; }
