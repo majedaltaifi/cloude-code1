@@ -1480,6 +1480,12 @@
                         document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO MESSAGES YET</p>';
                         return;
                     }
+
+        function openAdminChat() {
+            if(!currentUser) return;
+            const sid = `direct_${currentUser.emp_no}`;
+            openChat(sid);
+        }
                     // Sort manually in JS
                     const msgs = snap.docs.map(d => d.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
                     
