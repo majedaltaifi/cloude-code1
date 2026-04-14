@@ -402,7 +402,7 @@
             <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
             <div id="drawer" class="drawer">
                 <div style="margin-bottom:50px">
-                    <h2 id="dr-name" style="font-size:24px; font-weight:900">Officer</h2>
+                    <h2 id="dr-name" style="font-size:24px; font-weight:900">Employee</h2>
                     <p id="dr-id" style="color:var(--accent); font-weight:900; font-size:14px">ID: 0000</p>
                 </div>
                 <div class="drawer-item" onclick="switchScreen('stats'); closeDrawer();">
@@ -413,8 +413,8 @@
                     <span>My Incidents</span>
                     <div class="drawer-icon"><i class="fas fa-file-alt"></i></div>
                 </div>
-                <div class="drawer-item" onclick="switchScreen('support'); closeDrawer();">
-                    <span>Help Center</span>
+                <div class="drawer-item" onclick="openAdminChat(); closeDrawer();">
+                    <span>Support</span>
                     <div class="drawer-icon"><i class="fas fa-headset"></i></div>
                 </div>
                 <div class="drawer-item" onclick="doLogout()" style="margin-top:40px; border:none">
@@ -436,7 +436,7 @@
 
                 <div class="profile-card">
                     <div class="user-info">
-                        <h2 id="hm-name">Officer</h2>
+                        <h2 id="hm-name">Employee</h2>
                         <p id="hm-full-id">EMP ID: 3734 • Riyadh HQ</p>
                     </div>
                 </div>
@@ -595,9 +595,25 @@
                     </div>
 
                     <div class="horizontal-picker">
-                        <div class="picker-item" onclick="openChat('Management')">
+                        <div class="picker-item" onclick="openAdminChat()">
                             <div class="picker-avatar"><i class="fas fa-headset"></i></div>
                             <span>Support</span>
+                        </div>
+                        <div class="picker-item" onclick="window.open('https://wa.me/966500000000')">
+                            <div class="picker-avatar"><i class="fab fa-whatsapp"></i></div>
+                            <span>WhatsApp</span>
+                        </div>
+                        <div class="picker-item" onclick="switchScreen('notifs')">
+                            <div class="picker-avatar"><i class="fas fa-bullhorn"></i></div>
+                            <span>Broadcasts</span>
+                        </div>
+                        <div class="picker-item" onclick="switchScreen('stats')">
+                            <div class="picker-avatar"><i class="fas fa-chart-line"></i></div>
+                            <span>Statistics</span>
+                        </div>
+                        <div class="picker-item" onclick="switchScreen('reports')">
+                            <div class="picker-avatar"><i class="fas fa-map-marker-alt"></i></div>
+                            <span>Site Map</span>
                         </div>
                     </div>
 
@@ -1403,28 +1419,48 @@
 
                 const c = document.getElementById('chat-report-list');
                 if(c) {
-                    c.innerHTML = data.filter(s => s.id !== 'Management').map((s, idx) => {
+                    let items = data.filter(s => s.id !== 'Management');
+                    const adminSid = `direct_${currentUser.emp_no}`;
+                    const hasAdmin = items.some(s => s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin'));
+                    
+                    if(!hasAdmin && !query) {
+                        items.unshift({
+                            id: adminSid,
+                            last_message: 'Official Support Channel',
+                            updated_at: new Date().toISOString(),
+                            isAuto: true
+                        });
+                    } else if(!query) {
+                        const aIdx = items.findIndex(s => s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin'));
+                        if(aIdx > 0) {
+                            const adminItem = items.splice(aIdx, 1)[0];
+                            items.unshift(adminItem);
+                        }
+                    }
+
+                    c.innerHTML = items.map((s, idx) => {
                         const isFoundMatch = query && (s.id.includes('_'+query) || s.id.includes(query+'_'));
-                        const isAdmin = s.id.toLowerCase().includes('admin') || s.id.toLowerCase().includes('direct');
+                        const isSupport = s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin');
                         
                         let displayName = String(s.id);
                         if(displayName.includes('_')) {
                             const parts = displayName.split('_');
                             const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
-                            if (other) displayName = 'Officer ' + other;
+                            if (other) displayName = 'Employee ' + other;
                         }
+                        if(isSupport) displayName = 'Support';
 
                         return `
-                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''} ${isAdmin ? 'admin-row' : ''}" onclick="openChat('${s.id}')">
-                            <div class="chat-avatar ${isAdmin ? 'admin' : ''}">
-                                <i class="fas ${isAdmin ? 'fa-crown' : 'fa-user-shield'}"></i>
+                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''} ${isSupport ? 'admin-row' : ''}" onclick="openChat('${s.id}')">
+                            <div class="chat-avatar ${isSupport ? 'admin' : ''}">
+                                <i class="fas ${isSupport ? 'fa-headset' : 'fa-user-shield'}"></i>
                             </div>
                             <div class="chat-info">
                                 <div class="chat-name-meta">
-                                    <h4 style="color:white !important">${displayName}${isFoundMatch ? '<span class="badge-new">FOUND</span>' : ''}</h4>
-                                    <span style="color:white !important; opacity:0.6">${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
+                                    <h4>${displayName}${isFoundMatch ? '<span class="badge-new">FOUND</span>' : ''}</h4>
+                                    <span>${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
                                 </div>
-                                <div class="chat-msg-prev" style="color:white !important; opacity:0.8">${s.last_message || '...'}</div>
+                                <div class="chat-msg-prev">${s.last_message || '...'}</div>
                             </div>
                         </div>
                     `}).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CONVERSATIONS</div>';
@@ -1435,7 +1471,8 @@
 
         async function openChat(sid) {
             activeRoom = String(sid);
-            let title = activeRoom === 'Admin' || activeRoom === 'Management' ? 'Management Support' : activeRoom;
+            const isAdmin = activeRoom === 'Admin' || activeRoom.toLowerCase().includes('admin') || activeRoom.toLowerCase().includes('direct');
+            let title = isAdmin ? 'Support' : activeRoom;
             
             // Smarter extraction for p2p/b2p formats
             if(activeRoom.includes('_')) {
