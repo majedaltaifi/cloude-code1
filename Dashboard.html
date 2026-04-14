@@ -484,6 +484,16 @@
             
             try {
                 await db.collection('chat_messages').add(data);
+                
+                // Update Session to trigger Mobile Badges
+                const sid = data.session_id;
+                await db.collection('chat_sessions').doc(sid).set({
+                    updated_at: data.created_at,
+                    last_message: msg,
+                    last_sender: 'admin',
+                    participants: data.participants
+                }, { merge: true });
+
                 if(activeEmpId) {
                     await db.collection('notifications').add({ 
                         emp_no: activeEmpId, 

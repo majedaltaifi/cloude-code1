@@ -78,6 +78,12 @@
         .nav-item.active { color:var(--primary); }
         .nav-item i { font-size:22px; }
         .nav-item span { font-size:9px; font-weight:900; text-transform:uppercase; }
+        
+        /* New Nav Badge */
+        .nav-item { position: relative; }
+        .nav-badge { position: absolute; top: -5px; right: 10px; background: #f87171; color: white; font-size: 8px; font-weight: 950; min-width: 16px; height: 16px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .nav-badge.active { display: flex; animation: popBadge 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        @keyframes popBadge { from { transform: scale(0); } to { transform: scale(1); } }
 
         .plus-btn { position:absolute; bottom:55px; left:50%; transform:translateX(-50%); width:74px; height:74px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:32px; border:6px solid white; box-shadow:0 15px 35px rgba(56,189,248,0.4); cursor:pointer; z-index:400; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .plus-btn:active { transform: translateX(-50%) scale(0.9); }
@@ -622,7 +628,11 @@
                 <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-home"></i><span>Home</span></div>
                 <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-file-invoice"></i><span>Reports</span></div>
                 <div style="width:70px"></div>
-                <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')"><i class="fas fa-comment-dots"></i><span>Inbox</span></div>
+                <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Inbox</span>
+                    <div id="chat-count-badge" class="nav-badge">0</div>
+                </div>
                 <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>Help</span></div>
             </nav>
 
@@ -745,6 +755,22 @@
             document.getElementById('bell-badge').classList.remove('active');
             lastReadNotif = new Date().toISOString();
             localStorage.setItem('last_notif_read', lastReadNotif);
+        }
+
+        async function openChat(sid) {
+            activeRoom = sid;
+            switchScreen('chat');
+            
+            // Clear badge for this room on open
+            if(unreadChats[sid]) {
+                unreadChats[sid] = 0;
+                updateChatBadges();
+                // Optionally mark as read in Firestore
+            }
+            
+            lastReadNotif = new Date().toISOString();
+            localStorage.setItem('last_notif_read', lastReadNotif);
+            updateChatBadges();
         }
 
         function closeHUD() { document.getElementById('notif-hud').classList.remove('active'); }
@@ -1299,16 +1325,15 @@
             }
         }
 
-        // CHAT HUB
         async function fetchUnreadChats() {
             if(!currentUser) return;
-            const snap = await db.collection('chat_messages').where('is_read','==',false).where('participants','array-contains',currentUser.emp_no).get();
-            unreadChats = {}; snap.docs.forEach(d => { const m = d.data(); if(m.sender_no !== currentUser.emp_no) unreadChats[m.session_id] = (unreadChats[m.session_id]||0)+1; });
+            const snap = await db.collection('chat_messages').where('is_read','==',false).where('participants','array-contains',String(currentUser.emp_no)).get();
+            unreadChats = {}; snap.docs.forEach(d => { const m = d.data(); if(m.sender_no !== String(currentUser.emp_no)) unreadChats[m.session_id] = (unreadChats[m.session_id]||0)+1; });
             updateChatBadges();
         }
         function updateChatBadges() {
             let t = 0; Object.values(unreadChats).forEach(v=>t+=v);
-            const dot = document.getElementById('chat-global-badge'); if(dot) { dot.innerText = t>9?'9+':t; dot.style.display = t>0?'flex':'none'; }
+            const dot = document.getElementById('chat-count-badge'); if(dot) { dot.innerText = t; if(t>0) dot.classList.add('active'); else dot.classList.remove('active'); }
         }
 
         function filterChats() {
@@ -1520,6 +1545,31 @@
             }
         }
 
+        function startChatBadgeListener() {
+            if(!currentUser) return;
+            // Listen to sessions where user is a participant
+            db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).onSnapshot(snap => {
+                let unreadCount = 0;
+                snap.docs.forEach(doc => {
+                    const data = doc.data();
+                    // If last message exists and it's NOT from the user, and updated_at > lastReadNotif
+                    if (data.updated_at > lastReadNotif && data.last_sender !== String(currentUser.emp_no)) {
+                        unreadCount++;
+                    }
+                });
+                
+                const b = document.getElementById('chat-count-badge');
+                if (b) {
+                    if (unreadCount > 0) {
+                        b.innerText = unreadCount;
+                        b.classList.add('active');
+                    } else {
+                        b.classList.remove('active');
+                    }
+                }
+            });
+        }
+
         async function initApp() {
             const saved = localStorage.getItem('nit_user');
             if (saved) {
@@ -1535,6 +1585,7 @@
                 switchScreen('home');
                 sync(); 
                 startNotifListener();
+                startChatBadgeListener();
                 
                 // Background tasks (non-blocking)
                 fixLegacyNumbers().catch(e => console.log("Bg migration:", e));
