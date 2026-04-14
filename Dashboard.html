@@ -492,9 +492,27 @@
                         type: 'info',
                         created_at: new Date().toISOString()
                     });
+                    // Trigger Background Push
+                    sendBackgroundPush(activeEmpId, "رسالة جديدة", msg);
                 }
                 input.value = '';
             } catch(e) { alert("Fail to send: " + e.message); }
+        }
+
+        async function sendBackgroundPush(empNo, title, body) {
+            try {
+                const tokenDoc = await db.collection('fcm_tokens').doc(String(empNo)).get();
+                if (!tokenDoc.exists) return console.log("No FCM token found for user", empNo);
+                const fcmToken = tokenDoc.data().token;
+
+                // For a truly static site, we'd normally use a Cloud Function.
+                // As a fallback for demonstration/development, we simulate the trigger.
+                // In production, this would call your FCM relay endpoint.
+                console.log(`[PUSH TRIGGERED] To: ${empNo}, Title: ${title}, Body: ${body}`);
+                
+                // Advanced: Try direct legacy send if key exists (Note: Legacy API is discouraged but used in some setups)
+                // fetch('https://fcm.googleapis.com/fcm/send', { ... });
+            } catch(e) { console.error("Push Error:", e); }
         }
 
         function renderChatList() {
@@ -734,6 +752,8 @@
             const val = select.value;
             select.classList.add('saving');
             try {
+                const r = allRep.find(x => x.id == rid);
+                
                 // Update Firestore directly
                 await db.collection('reports').doc(String(rid)).update({
                     status: val,
@@ -748,6 +768,11 @@
                     created_at: new Date().toISOString()
                 });
 
+                // Trigger Background Push if case is closed/done
+                if (r && (val === 'done' || val === 'closed')) {
+                    sendBackgroundPush(r.emp_no, "تم إغلاق البلاغ", `البلاغ رقم #CASE ${r.case_num} أصبح مكتمل الآن.`);
+                }
+                
                 await reloadAll(); // Refresh data
             } catch(e) {
                 console.error(`[StatusUpdate] Failed:`, e);
