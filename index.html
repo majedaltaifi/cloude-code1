@@ -1410,13 +1410,16 @@
                         if(s.id.includes('_')) {
                             const parts = s.id.split('_');
                             const other = parts.find(p => !['p2p', 'b2p', 'chat', 'direct'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
-                            if (other) displayName = (other.toLowerCase() === 'admin') ? 'ADMIN' : 'Officer ' + other;
+                            if (other) displayName = (other.toLowerCase() === 'admin') ? 'الادمن' : 'Officer ' + other;
                         } else if(displayName === 'Management' || displayName === 'Admin') {
-                             displayName = 'ADMIN';
+                             displayName = 'الادمن';
                         }
                         
-                        // Refined: If the resolved display name is ADMIN, we force the blue row
-                        const isPrimaryAdmin = displayName === 'ADMIN';
+                        // Refined: If the session ID starts with direct_, it's the personal Direct Admin line
+                        const isDirectAdmin = s.id.startsWith('direct_');
+                        if (isDirectAdmin) displayName = 'الادمن';
+
+                        const isPrimaryAdmin = displayName === 'الادمن';
                         const rowClass = isPrimaryAdmin ? 'admin-row' : '';
                         const avatarClass = isPrimaryAdmin ? 'admin' : '';
                         const iconClass = isPrimaryAdmin ? 'fa-shield-halved' : 'fa-user-shield';
@@ -1448,14 +1451,14 @@
 
         async function openChat(sid) {
             activeRoom = String(sid);
-            let title = activeRoom === 'Admin' || activeRoom === 'Management' ? 'Management Support' : activeRoom;
+            let title = activeRoom === 'Admin' || activeRoom === 'Management' || activeRoom.startsWith('direct_') ? 'الادمن' : activeRoom;
             
             // Smarter extraction for p2p/b2p formats
-            if(activeRoom.includes('_')) {
+            if(activeRoom.includes('_') && !activeRoom.startsWith('direct_')) {
                 const parts = activeRoom.split('_');
                 // Exclude common prefixes and current user ID to find the partner
                 const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
-                if (other) title = 'Officer ' + other;
+                if (other) title = (other.toLowerCase() === 'admin') ? 'الادمن' : 'Officer ' + other;
             }
             
             document.getElementById('chat-title').innerText = title;
