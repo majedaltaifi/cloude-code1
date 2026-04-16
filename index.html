@@ -297,7 +297,7 @@
 
             <div class="screen" id="s-create">
                 <div style="padding: 25px 0; display: flex; align-items: center; justify-content: space-between;">
-                   <i class="fas fa-arrow-left" style="color:var(--p); font-size:20px" onclick="switchScreen('home')"></i>
+                   <i class="fas fa-arrow-left" style="color:var(--p); font-size:20px; cursor:pointer" onclick="goBackWizard()"></i>
                    <h2 id="wizard-title" style="font-size:18px; font-weight:950; color:var(--p)">SUBMIT</h2>
                    <div id="step-counter" class="step-badge">1/4</div>
                 </div>
@@ -306,11 +306,19 @@
                     <div class="smart-tile" onclick="setEnv('site', this)"><i class="fas fa-hard-hat"></i><div class="info"><b id="t-site">Site</b><span id="t-site-desc">Field</span></div></div>
                     <div class="smart-tile" onclick="setEnv('housing', this)"><i class="fas fa-home"></i><div class="info"><b id="t-housing">Housing</b><span id="t-housing-desc">Living</span></div></div>
                 </div></div>
-                <div id="pane-2" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-2">CATEGORY</span><div id="type-list" style="margin-top:15px">
-                    <div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div>
-                    <div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div>
-                </div></div>
-                <div id="pane-3" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-3">AREA</span><div id="branch-list"></div></div>
+                <div id="pane-2" class="creation-pane" style="display:none">
+                    <span class="lbl-prime" id="t-step-2">CATEGORY</span>
+                    <div id="type-list" style="margin-top:15px">
+                        <div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div>
+                        <div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div>
+                    </div>
+                    <button class="btn-secondary" onclick="goToPane(1)">BACK / رجوع</button>
+                </div>
+                <div id="pane-3" class="creation-pane" style="display:none">
+                    <span class="lbl-prime" id="t-step-3">AREA</span>
+                    <div id="branch-list" style="margin-bottom:20px"></div>
+                    <button class="btn-secondary" onclick="goToPane(2)">BACK / رجوع</button>
+                </div>
                 <div id="pane-4" class="creation-pane" style="display:none">
                     <span class="lbl-prime" id="t-step-4">DETAILS</span>
                     <textarea id="case-desc" placeholder="..." style="width: 100%; border-radius:20px; border:1px solid #ddd; padding:15px; min-height:100px; margin-bottom:20px; font-weight:700"></textarea>
@@ -521,8 +529,24 @@
         }
 
         function setEnv(e, el) { currentEnv = e; goToPane(2); }
-        function setType(t, el) { currentType = t; currentEnv === 'site' ? renderBranches() : goToPane(3); renderBranches(); goToPane(3); }
-        function goToPane(n) { document.querySelectorAll('.creation-pane').forEach(p=>p.style.display='none'); document.getElementById('pane-'+n).style.display='block'; document.getElementById('step-counter').innerText = n+'/4'; }
+        function setType(t, el) { currentType = t; renderBranches(); goToPane(3); }
+        
+        let currentWizardStep = 1;
+        function goToPane(n) { 
+            currentWizardStep = n;
+            document.querySelectorAll('.creation-pane').forEach(p=>p.style.display='none'); 
+            const target = document.getElementById('pane-'+n);
+            if(target) target.style.display='block'; 
+            document.getElementById('step-counter').innerText = n+'/4'; 
+        }
+        
+        function goBackWizard() {
+            if(currentWizardStep > 1) {
+                goToPane(currentWizardStep - 1);
+            } else {
+                switchScreen('home');
+            }
+        }
         function renderBranches() { 
             const cont = document.getElementById('branch-list');
             const data = (treeLocalized[appLang] || treeLocalized['en'])[currentEnv][currentType];
