@@ -189,14 +189,14 @@
         </div>
 
         <div style="flex: 1;">
-            <div class="drawer-menu-item" onclick="switchScreen('home')"><i class="fas fa-home"></i> HOME</div>
-            <div class="drawer-menu-item" onclick="switchScreen('reports')"><i class="fas fa-file-alt"></i> MY REPORTS</div>
-            <div class="drawer-menu-item" onclick="switchScreen('chat-list')"><i class="fas fa-comments"></i> MESSAGES</div>
-            <div class="drawer-menu-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i> SUPPORT</div>
+            <div class="drawer-menu-item" onclick="switchScreen('home')"><i class="fas fa-home"></i> <span id="dr-home">HOME</span></div>
+            <div class="drawer-menu-item" onclick="switchScreen('reports')"><i class="fas fa-file-alt"></i> <span id="dr-reports">MY REPORTS</span></div>
+            <div class="drawer-menu-item" onclick="switchScreen('chat-list')"><i class="fas fa-comments"></i> <span id="dr-messages">MESSAGES</span></div>
+            <div class="drawer-menu-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i> <span id="dr-support">SUPPORT</span></div>
         </div>
 
         <div class="drawer-menu-item" onclick="doLogout()" style="color: #ef4444; background: #fee2e2; border-radius: 20px;">
-            <i class="fas fa-power-off"></i> SIGN OUT
+            <i class="fas fa-power-off"></i> <span id="dr-logout">SIGN OUT</span>
         </div>
     </div>
 
@@ -539,10 +539,7 @@
                             token: token,
                             updated_at: new Date().toISOString()
                         });
-                        console.log('FCM Device Identity Secured');
-                    }
-                }
-            } catch(e) { console.error("FCM Background Sync Fail:", e); }
+                        console.log('FCM Device Identity Se            } catch(e) { console.error("FCM Background Sync Fail:", e); }
         }
 
         let currentUser = null, reports = [], lastScreen = 'home', activeImgB64 = null, activeRoom = null;
@@ -560,29 +557,32 @@
                 back: "BACK", submit: "SUBMIT REPORT", details: "DETAILS", photo: "PHOTOGRAPH", tap: "TAP TO ATTACH",
                 loginTitle: "NIT INTEL HUB", loginSub: "SECURE ACCESS", loginID: "Employee ID", loginPass: "Password", signIn: "SIGN IN", accessDenied: "ACCESS DENIED",
                 nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP",
-                office: "Office", officeD: "Headquarters", news: "ACTIVE BROADCASTS", recent: "RECENT INCIDENTS"
+                office: "Office", officeD: "Headquarters", news: "ACTIVE BROADCASTS", recent: "RECENT INCIDENTS",
+                drHome: "HOME", drReports: "MY REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "SIGN OUT"
             },
             ar: {
                 wizard: "إرسال بلاغ", step1: "أين تقع المشكلة؟", step2: "تصنيف المشكلة", step3: "اختر القسم", step4: "تحديد المشكلة",
                 site: "موقع المشروع", siteD: "المواقع الإنشائية والسلامة",
-                housing: "سكن الموظفين", housingD: "المرافق والمعيشة",
+                housing: "سكن الموظفين", housingD: "المرافق ومعيشة",
                 safety: "بلاغ سلامة / خطر", safetyD: "المخاطر والحوادث",
                 service: "طلب خدمة", serviceD: "النقل والإصلاحات",
                 back: "رجوع", submit: "إرسال البلاغ", details: "التفاصيل", photo: "الصورة", tap: "اضغط للإرفاق",
                 loginTitle: "منصة NIT الميدانية", loginSub: "دخول آمن", loginID: "الرقم الوظيفي", loginPass: "كلمة المرور", signIn: "تسجيل الدخول", accessDenied: "فشل الدخول",
                 nbHome: "الرئيسية", nbReports: "بلاغاتي", nbInbox: "البريد", nbHelp: "الدعم",
-                office: "المكتب", officeD: "المكتب الرئيسي", news: "التعميمات النشطة", recent: "آخر البلاغات"
+                office: "المكتب", officeD: "المكتب الرئيسي", news: "التعميمات النشطة", recent: "آخر البلاغات",
+                drHome: "الرئيسية", drReports: "بلاغاتي", drMessages: "المراسلات", drSupport: "الدعم الفني", drLogout: "تسجيل الخروج"
             },
             ur: {
                 wizard: "رپورٹ جمع کروائیں", step1: "مسئلہ کہاں ہے؟", step2: "مسئلے کی قسم", step3: "علاقہ منتخب کریں", step4: "مخصوص مسئلہ",
-                site: "تعمیراتی سائٹ", siteD: "فیلڈ پراجیکٹس اور حفاظت",
+                site: "تعمیراتی سائٹ", siteD: "فیلڈ پراجيكٹس اور حفاظت",
                 housing: "ملازمین کی رہائش", housingD: "رہائش اور سہولیات",
                 safety: "حفاظت / خطرہ", safetyD: "خطرات اور واقعات",
                 service: "سروس کی درخواست", serviceD: "نقل و حمل اور مرمت",
                 back: "پیمانہ", submit: "رپورٹ بھیجیں", details: "تفصلات", photo: "تصویر", tap: "منسلک کرنے کے لیے تھپتھپائیں",
                 loginTitle: "NIT انٹیل ہب", loginSub: "محفوظ رسائی", loginID: "ملازم شناختی کارڈ", loginPass: "پاس ورڈ", signIn: "سائن ان کریں", accessDenied: "رسائی مسترد کر دی گئی",
                 nbHome: "ہوم پیج", nbReports: "میری رپورٹیں", nbInbox: "ان باکس", nbHelp: "مدد",
-                office: "دفتر", officeD: "ہیڈ کوارٹر", news: "اہم اعلانات", recent: "حالیہ واقعات"
+                office: "دفتر", officeD: "ہیڈ کوارٹر", news: "اہم اعلانات", recent: "حالیہ واقعات",
+                drHome: "ہوم پیج", drReports: "میری رپورٹیں", drMessages: "پیغامات", drSupport: "مدد", drLogout: "لاگ آؤٹ"
             }
         };
 
@@ -659,6 +659,13 @@
             document.getElementById('nb-reports').innerText = t.nbReports;
             document.getElementById('nb-inbox').innerText = t.nbInbox;
             document.getElementById('nb-help').innerText = t.nbHelp;
+            
+            // Drawer Localization
+            if(document.getElementById('dr-home')) document.getElementById('dr-home').innerText = t.drHome;
+            if(document.getElementById('dr-reports')) document.getElementById('dr-reports').innerText = t.drReports;
+            if(document.getElementById('dr-messages')) document.getElementById('dr-messages').innerText = t.drMessages;
+            if(document.getElementById('dr-support')) document.getElementById('dr-support').innerText = t.drSupport;
+            if(document.getElementById('dr-logout')) document.getElementById('dr-logout').innerText = t.drLogout;
 
             // Home UI
             document.getElementById('t-news').innerText = t.news;
