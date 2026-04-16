@@ -193,8 +193,17 @@
             </div>
 
             <div class="screen" id="s-reports"><div style="padding-top:20px"><span class="lbl-prime" id="t-all-reports">ALL REPORTS</span><div id="full-l"></div></div></div>
+            
+            <div class="screen" id="s-detail">
+                <div id="det-cont" style="padding-top:20px; padding-bottom:30px;"></div>
+            </div>
+
             <div class="screen" id="s-create">
-                <div style="padding: 25px 0; display: flex; align-items: center; justify-content: space-between;"><i class="fas fa-arrow-left" onclick="goBackWizard()"></i><h2 id="wizard-title" style="font-size:18px; font-weight:950; color:var(--p)">SUBMIT</h2><div id="step-counter">1/4</div></div>
+                <div style="padding: 25px 0; display: flex; align-items: center; justify-content: space-between;">
+                    <i class="fas fa-arrow-left" onclick="goBackWizard()" style="font-size:22px; color:var(--p); cursor:pointer; padding:10px 10px 10px 0;"></i>
+                    <h2 id="wizard-title" style="font-size:18px; font-weight:950; color:var(--p)">SUBMIT</h2>
+                    <div id="step-counter">1/4</div>
+                </div>
                 <div id="pane-1" class="creation-pane"><span class="lbl-prime" id="t-step-1">WHERE?</span><div class="smart-tile" onclick="setEnv('site')"><i class="fas fa-hard-hat"></i><div class="info"><b id="t-site">Site</b><span id="t-site-desc">Field</span></div></div><div class="smart-tile" onclick="setEnv('housing')"><i class="fas fa-home"></i><div class="info"><b id="t-housing">Housing</b><span id="t-housing-desc">Living</span></div></div></div>
                 <div id="pane-2" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-2">CATEGORY</span><div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div><div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div><button class="btn-secondary" onclick="goToPane(1)"><span class="btn-back-text">BACK</span></button></div>
                 <div id="pane-3" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-3">AREA</span><div id="branch-list"></div><button class="btn-secondary" onclick="goToPane(2)"><span class="btn-back-text">BACK</span></button></div>
@@ -229,7 +238,7 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let currentUser = null, reports = [], appLang = 'en', unsubSync = null, currentEnv = null, currentType = null;
+        let currentUser = null, reports = [], appLang = 'en', unsubSync = null, currentEnv = null, currentType = null, currentWizardStep = 1;
 
         const i18n = {
             en: { 
@@ -298,7 +307,7 @@
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const target = document.getElementById('s-' + id); if(target) target.classList.add('active');
-            const isPop = ['create', 'login', 'lang-screen'].includes(id);
+            const isPop = ['create', 'login', 'lang-screen', 'detail'].includes(id);
             document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
             document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
             closeDrawer();
