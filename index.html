@@ -225,6 +225,21 @@
                 </div>
             </div>
 
+            <div class="screen" id="s-success" style="background:linear-gradient(135deg, var(--p), #1b1d5a);">
+                <div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px">
+                    <div style="width:100px; height:100px; border-radius:50%; background:rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:20px; box-shadow:0 0 0 20px rgba(16,185,129,0.1)">
+                        <i class="fas fa-check" style="font-size:50px; color:#10b981"></i>
+                    </div>
+                    <h2 style="color:white; font-size:28px; font-weight:950; margin-bottom:10px">REPORT LOGGED</h2>
+                    <p style="color:rgba(255,255,255,0.7); font-size:14px; margin-bottom:30px; font-weight:700">Your request has been securely transmitted.</p>
+                    <div style="background:rgba(255,255,255,0.1); padding:20px 40px; border-radius:20px; margin-bottom:40px; border:1px solid rgba(255,255,255,0.2)">
+                        <span style="color:rgba(255,255,255,0.6); font-size:11px; font-weight:900; display:block; margin-bottom:5px">REFERENCE NUMBER</span>
+                        <span id="succ-case-no" style="color:white; font-size:32px; font-weight:950">CASE #---</span>
+                    </div>
+                    <button class="btn-smart" onclick="switchScreen('reports')" style="width:100%; max-width:300px; background:white; color:var(--p)">VIEW IN REPORTS</button>
+                </div>
+            </div>
+
             <div class="screen" id="s-chat-list"><div style="padding-top:20px"><span class="lbl-prime" id="t-inbox">INBOX</span><div id="inbox-l"></div></div></div>
             
             <div class="screen" id="s-support">
@@ -336,9 +351,16 @@
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const target = document.getElementById('s-' + id); if(target) target.classList.add('active');
-            const isPop = ['create', 'login', 'lang-screen', 'detail'].includes(id);
+            const isPop = ['create', 'login', 'lang-screen', 'detail', 'success'].includes(id);
             document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
             document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
+            
+            document.querySelectorAll('.nav-item').forEach(n => {
+                n.classList.remove('active');
+                if(n.getAttribute('onclick').includes("('" + id + "')")) n.classList.add('active');
+            });
+            if(id === 'detail') document.querySelectorAll('.nav-item')[1].classList.add('active');
+            
             closeDrawer();
         }
 
@@ -380,7 +402,7 @@
                 document.getElementById('s-open').innerText = open;
                 document.getElementById('s-done').innerText = reports.length - open;
 
-                const makeHtml = (list) => {
+                const makeHtml = (list, isHome = false) => {
                     let htmlList = [];
                     for(let i=0; i<list.length; i++) {
                         try {
@@ -392,7 +414,7 @@
                             const safeType = typeStr.toLowerCase();
                             
                             htmlList.push(`
-                            <div class="case-main-card" onclick="openDetail('${r.id}')">
+                            <div class="case-main-card" onclick="openDetail('${r.id}')" style="margin-bottom:15px">
                                 <div style="display:flex; justify-content:space-between; align-items:center">
                                     <div style="display:flex; align-items:center; gap:12px">
                                         <div style="width:35px; height:35px; border-radius:10px; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; color:var(--p)">
@@ -407,27 +429,35 @@
                                          ${isDone ? (i18n[appLang]?.resolved || 'DONE') : (i18n[appLang]?.pending || 'PENDING')}
                                     </span>
                                 </div>
+                                ${isHome ? `
+                                <div style="margin-top:15px; padding-top:15px; border-top:1px dashed #e2e8f0; display:flex; justify-content:space-between; align-items:center">
+                                    <div style="height:4px; flex:1; background:#10b981; border-radius:2px; margin-right:5px"></div>
+                                    <div style="height:4px; flex:1; background:${isDone?'#10b981':'#10b981'}; border-radius:2px; margin-right:5px; opacity:${isDone?1:0.3}"></div>
+                                    <div style="height:4px; flex:1; background:${isDone?'#10b981':'#e2e8f0'}; border-radius:2px"></div>
+                                </div>` : ''}
                             </div>`);
                         } catch(err) { console.error("Card skip:", err); }
                     }
                     return htmlList.join('');
                 };
 
-                const fullHtml = makeHtml(sorted);
+                const fullHtml = makeHtml(sorted, false);
                 f.innerHTML = fullHtml || '<p style="text-align:center; opacity:0.3; padding:40px">No reports found.</p>';
-                m.innerHTML = makeHtml(sorted.slice(0, 5));
+                m.innerHTML = makeHtml(sorted.slice(0, 3), true);
 
                 const inboxL = document.getElementById('inbox-l');
                 if(inboxL) {
-                    const activeChats = sorted.filter(r => String(r.status||'open').toLowerCase() !== 'done' && String(r.status||'open').toLowerCase() !== 'resolved' && String(r.status||'open').toLowerCase() !== 'تم الإنجاز');
+                    const activeChats = sorted.filter(r => window.String(r.status||'open').toLowerCase() !== 'done' && window.String(r.status||'open').toLowerCase() !== 'resolved' && window.String(r.status||'open').toLowerCase() !== 'تم الإنجاز');
                     inboxL.innerHTML = activeChats.length ? activeChats.map(r => `
-                        <div class="smart-tile" onclick="openDetail('${r.id}')" style="margin-bottom:10px">
-                            <i class="fas fa-comments" style="color:#3b82f6; font-size:22px"></i>
-                            <div class="info" style="flex:1">
-                                <b style="font-size:14px; color:var(--p)">CASE # ${r.case_num || String(r.id).substring(0,5).toUpperCase()}</b>
-                                <span style="font-size:10px; color:#64748b; display:block; margin-top:3px">${String(r.type||'Report')} - Support Active</span>
+                        <div style="display:flex; align-items:center; padding:15px; background:white; border-radius:20px; margin-bottom:12px; border:1px solid #f1f5f9; box-shadow:0 2px 10px rgba(0,0,0,0.01)" onclick="openDetail('${r.id}')">
+                            <div style="width:45px; height:45px; border-radius:50%; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; margin-right:15px">
+                                <i class="fas fa-headset" style="font-size:18px; color:var(--p)"></i>
                             </div>
-                            <div style="width:10px; height:10px; border-radius:50%; background:#10b981;"></div>
+                            <div style="flex:1">
+                                <b style="font-size:14px; font-weight:900; color:var(--p); display:block; margin-bottom:3px">IT Support - Case #${r.case_num || window.String(r.id).substring(0,5).toUpperCase()}</b>
+                                <span style="font-size:11px; font-weight:700; color:#64748b;">${window.String(r.type||'Report')} Active Request</span>
+                            </div>
+                            <div style="width:10px; height:10px; border-radius:50%; background:#10b981; border:2px solid white"></div>
                         </div>
                     `).join('') : '<div style="text-align:center; padding:50px; color:#94a3b8"><i class="fas fa-inbox" style="font-size:45px; margin-bottom:15px; opacity:0.5"></i><p style="font-weight:800; font-size:14px">NO ACTIVE MESSAGES</p></div>';
                 }
@@ -480,16 +510,8 @@
                 if(fileInput) fileInput.value = '';
                 document.getElementById('photo-status').innerText = '';
 
-                const modal = document.getElementById('status-modal');
-                modal.innerHTML = `
-                    <div class="status-card" style="padding:40px 20px; text-align:center">
-                        <i class="fas fa-check-circle" style="font-size:65px; color:#10b981; margin-bottom:20px; display:block"></i>
-                        <h2 style="font-size:24px; font-weight:950; color:var(--p); margin:0">SUBMITTED</h2>
-                        <p style="font-size:14px; font-weight:800; color:#64748b; margin:15px 0 25px 0">CASE #${num}</p>
-                        <button class="btn-smart" onclick="closeStatusModal(); switchScreen('home')" style="width:100%">DONE</button>
-                    </div>
-                `;
-                modal.classList.add('active');
+                document.getElementById('succ-case-no').innerText = 'CASE #' + num;
+                switchScreen('success');
             } catch(error) {
                 alert("Submission failed: " + error.message);
                 document.getElementById('submit-btn').innerText = "SUBMIT";
