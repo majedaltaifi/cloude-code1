@@ -27,21 +27,12 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0f172a; height:100vh; overflow:hidden; display:flex; justify-content:center; align-items:center; touch-action: manipulation; }
         
-        /* Momentum Background Effect */
         .momentum-bg {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
             overflow: hidden;
             z-index: 0;
-        }
-        .momentum-bg::before {
-            content: ''; position: absolute; top: -100px; right: -50px; width: 300px; height: 600px;
-            background: var(--accent); opacity: 0.1; transform: skewX(-20deg);
-        }
-        .momentum-bg::after {
-            content: ''; position: absolute; bottom: -50px; left: -20px; width: 200px; height: 400px;
-            background: white; opacity: 0.05; transform: skewX(-20deg);
         }
 
         .phone-frame { width:360px; height:760px; background:#000; border-radius:55px; position:relative; padding:12px; border:10px solid #1e293b; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.6); z-index: 10; transform: scale(0.9); transform-origin: top; }
@@ -53,11 +44,9 @@
         .screen.active { display:flex; animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* NIT BRANDED HEADER */
         .header { background:white; padding:55px 25px 30px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--accent); position: relative; }
         .header h1 { font-size:16px; font-weight:900; color: var(--primary); letter-spacing:1px; text-transform: uppercase; }
 
-        /* LANGUAGE SPLASH */
         #lang-screen { 
             position: absolute; inset: 0; z-index: 99999; 
             background: linear-gradient(135deg, #2e3192, #1b1d5a); 
@@ -70,138 +59,59 @@
             padding: 40px 30px; border-radius: 40px; width: 90%; text-align: center; color: white;
             box-shadow: 0 40px 100px rgba(0,0,0,0.4);
         }
-        .lang-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
-        .lang-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 12px; 
-            width: 100%; 
-            margin-top: 35px;
-        }
+        .lang-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin-top: 35px; }
         .lang-square {
-            aspect-ratio: 1 / 1;
-            background: white;
-            border-radius: 22px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            border: none;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+            aspect-ratio: 1 / 1; background: white; border-radius: 22px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 8px; cursor: pointer; transition: 0.3s; border: none; outline: none; box-shadow: 0 12px 30px rgba(0,0,0,0.12);
         }
+        .lang-square:focus { outline: none; border: none; }
         .lang-square:active { transform: scale(0.95); }
         .lang-square i { font-size: 35px; color: var(--p); }
         .lang-square span { font-size: 14px; font-weight: 700; color: #1e293b; }
 
-        /* SMART TILES */
         .smart-tile { 
             background: var(--glass); backdrop-filter: blur(10px); border: 1.5px solid white; 
             padding: 22px; border-radius: 28px; display: flex; align-items: center; gap: 18px; 
-            margin-bottom: 12px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
+            margin-bottom: 12px; transition: 0.4s; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
-        .smart-tile.selected { border-color: var(--p); background: white; box-shadow: 0 10px 25px rgba(46,49,146,0.1); }
         .smart-tile i { font-size: 28px; color: var(--p); width: 45px; text-align: center; }
         .smart-tile .info b { font-size: 16px; color: var(--p); font-weight: 850; }
         .smart-tile .info span { font-size: 11px; color: #64748b; font-weight: 600; }
 
-        .btn-smart { background: var(--p); color: white; border: none; padding: 20px; border-radius: 25px; font-weight: 900; width: 100%; font-size: 16px; cursor: pointer; box-shadow: 0 10px 25px rgba(46,49,146,0.2); }
+        .btn-smart { background: var(--p); color: white; border: none; padding: 20px; border-radius: 25px; font-weight: 900; width: 100%; font-size: 16px; cursor: pointer; box-shadow: 0 10px 25px rgba(46,49,146,0.2); transition: 0.3s; }
+        .btn-smart:active { transform: scale(0.95); }
         .btn-secondary { background: white; color: var(--p); border: 1.5px solid #e2e8f0; padding: 15px; border-radius: 20px; width: 100%; font-weight: 850; margin-top: 10px; font-size: 14px; cursor:pointer; }
 
-        /* NAV BAR */
         .navbar { position:absolute; bottom:0; left:0; width:100%; height:95px; background:white; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-around; padding-bottom:15px; z-index:200; border-radius: 40px 40px 0 0; }
         .nav-item { display:flex; flex-direction:column; align-items:center; color: #94a3b8; flex:1; gap:4px; font-size: 8px; font-weight: 950; letter-spacing: 0.5px; position:relative; }
         .nav-item.active { color:var(--primary); }
         .nav-item i { font-size:20px; }
-        .nav-badge { position:absolute; top: -5px; right: 20%; background: #ef4444; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 9px; display: none; align-items: center; justify-content: center; border: 2px solid white; }
 
         .plus-btn { position:absolute; bottom:45px; left:50%; transform:translateX(-50%); width:68px; height:68px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:28px; border:5px solid white; box-shadow:0 10px 25px rgba(46,49,146,0.3); z-index:400; }
 
-        /* LOGIN */
-        .glass-login { 
-            background: rgba(255,255,255,0.1); 
-            backdrop-filter: blur(20px); 
-            border: 1.5px solid rgba(255,255,255,0.2); 
-            border-radius: 40px; 
-            padding: 40px 30px; 
-            width: 100%; 
-            box-shadow: 0 40px 100px rgba(0,0,0,0.3);
-        }
-        .login-input { 
-            background: rgba(255,255,255,0.15); 
-            border: 1.5px solid rgba(255,255,255,0.1); 
-            border-radius: 22px; 
-            padding: 20px; 
-            width: 100%; 
-            color: white; 
-            font-weight: 700; 
-            margin-bottom: 20px; 
-            outline: none; 
-            transition: 0.3s; 
-        }
+        .glass-login { background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 40px; padding: 40px 30px; width: 100%; box-shadow: 0 40px 100px rgba(0,0,0,0.3); }
+        .login-input { background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 22px; padding: 20px; width: 100%; color: white; font-weight: 700; margin-bottom: 20px; outline: none; transition: 0.3s; }
         .login-input::placeholder { color: rgba(255,255,255,0.6); }
-        .login-input:focus { border-color: white; background: rgba(255,255,255,0.2); }
-        .btn-signin { 
-            background: white; 
-            color: var(--p); 
-            font-weight: 950; 
-            padding: 22px; 
-            border-radius: 22px; 
-            border: none; 
-            width: 100%; 
-            cursor: pointer; 
-            font-size: 16px; 
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            transition: 0.3s;
-        }
-        .btn-signin:active { transform: scale(0.95); }
 
-        /* Forced Hide on Auth Screens */
-        #s-login.active ~ #main-nav, #s-login.active ~ #main-plus,
-        #lang-screen[style*="display: flex"] ~ #main-nav, #lang-screen[style*="display: flex"] ~ #main-plus { 
-            display: none !important; 
-        }
-
-        /* DRAWER */
-        .drawer-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 1000; display: none; opacity: 0; transition: 0.3s; }
+        .drawer-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 1000; display: none; opacity: 0; }
         .drawer-overlay.active { display: block; opacity: 1; }
-        .drawer { position: absolute; top: 0; left: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); padding: 50px 25px; display: flex; flex-direction: column; border-radius: 0 45px 45px 0; }
+        .drawer { position: absolute; top: 0; left: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.4s; padding: 50px 25px; border-radius: 0 45px 45px 0; }
         .drawer.active { left: 0; }
         .drawer-menu-item { padding: 18px; border-radius: 18px; display: flex; align-items: center; gap: 15px; font-weight: 850; color: var(--p); cursor: pointer; transition: 0.3s; font-size: 13px; }
-        .drawer-menu-item:hover { background: #f1f5f9; }
-
-        /* HUD & MODALS */
-        .notif-hud { position: absolute; top: 120px; left: 50%; transform: translateX(-50%) translateY(-100px); width: 90%; background: white; padding: 15px; border-radius: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); z-index: 5000; opacity: 0; transition: 0.5s; pointer-events: none; border-left: 5px solid var(--p); }
-        .notif-hud.active { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
-        .hud-icon { width: 40px; height: 40px; background: rgba(46,49,146,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--p); font-size: 18px; }
-        .hud-content h4 { font-size: 12px; font-weight: 900; color: var(--p); }
-        .hud-content p { font-size: 10px; font-weight: 700; color: #64748b; }
 
         .status-modal { position: absolute; inset: 0; background: rgba(15,23,42,0.8); backdrop-filter: blur(8px); z-index: 6000; display: none; align-items: center; justify-content: center; padding: 30px; }
         .status-modal.active { display: flex; }
         .status-card { background: white; width: 100%; border-radius: 40px; padding: 40px 30px; text-align: center; }
 
-        /* CASE CARDS */
         .case-main-card { background: white; padding: 22px; border-radius: 32px; margin-bottom: 15px; border: 1px solid #f1f5f9; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .case-main-card:active { transform: scale(0.98); }
         .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 950; text-transform: uppercase; }
         
-        /* Stats Dashboard */
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 25px 0; }
         .stat-card { background: white; padding: 18px 12px; border-radius: 28px; text-align: center; border: 1.5px solid #f8fafc; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .stat-card i { font-size: 18px; margin-bottom: 8px; display: block; }
         .stat-num { font-size: 18px; font-weight: 950; color: var(--p); display: block; }
         .stat-lbl { font-size: 8px; font-weight: 850; color: #94a3b8; text-transform: uppercase; margin-top: 4px; display: block; }
-        
-        .case-log-list { margin-top: 15px; border-left: 2px dashed #e2e8f0; margin-left: 10px; padding-left: 20px; }
-        .log-item { position: relative; padding-bottom: 20px; }
-        .log-dot { position: absolute; left: -27px; top: 0; width: 12px; height: 12px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 2px #e2e8f0; }
-        .log-txt { font-size: 12px; font-weight: 800; color: var(--p); }
-        .log-meta { font-size: 9px; font-weight: 600; color: #94a3b8; margin-top: 2px; }
         .lbl-prime { font-size: 10px; font-weight: 950; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; display: block; }
     </style>
 </head>
@@ -211,9 +121,7 @@
     <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
     <div id="drawer" class="drawer">
         <div style="text-align: center; margin-bottom: 40px;">
-            <div style="margin-bottom: 20px;">
-                <img src="https://iconape.com/wp-content/files/hq/389851/svg/389851.svg" style="width: 180px;" alt="NIT Logo">
-            </div>
+            <div style="margin-bottom: 20px;"><img src="https://iconape.com/wp-content/files/hq/389851/svg/389851.svg" style="width: 180px;"></div>
             <h2 id="dr-name" style="font-size: 18px; font-weight: 950; color: var(--p);">Officer</h2>
             <p id="dr-id" style="font-size: 11px; font-weight: 800; color: #94a3b8;">EMP ID: ----</p>
         </div>
@@ -224,207 +132,80 @@
             <div class="drawer-menu-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i> <span id="dr-support">SUPPORT</span></div>
             <div class="drawer-menu-item" onclick="showLanguageScreen()"><i class="fas fa-globe"></i> <span id="dr-lang">LANGUAGE</span></div>
         </div>
-        <div class="drawer-menu-item" onclick="doLogout()" style="color: #ef4444; background: #fee2e2; border-radius: 20px;">
-            <i class="fas fa-power-off"></i> <span id="dr-logout">SIGN OUT</span>
-        </div>
+        <div class="drawer-menu-item" onclick="doLogout()" style="color: #ef4444; background: #fee2e2; border-radius: 20px;"><i class="fas fa-power-off"></i> <span id="dr-logout">SIGN OUT</span></div>
     </div>
 
     <div class="phone-frame">
         <div class="app-container">
             <div id="lang-screen">
                 <div class="lang-card">
-                    <div style="margin-bottom: 30px;">
-                        <img src="https://iconape.com/wp-content/files/hq/389851/svg/389851.svg" style="width: 220px; filter: brightness(0) invert(1);" alt="NIT Logo">
-                    </div>
+                    <div style="margin-bottom: 30px;"><img src="https://iconape.com/wp-content/files/hq/389851/svg/389851.svg" style="width: 220px; filter: brightness(0) invert(1);"></div>
                     <h2 style="font-weight:950; margin-bottom:10px; font-size:20px">SELECT LANGUAGE</h2>
                     <p style="opacity:0.6; font-size:10px; margin-bottom:25px; font-weight:700">PREFERRED SYSTEM TONGUE</p>
                     <div class="lang-grid">
-                        <button class="lang-square" onclick="selectLanguage('en')">
-                            <i class="fas fa-globe"></i>
-                            <span>English</span>
-                        </button>
-                        <button class="lang-square" onclick="selectLanguage('ar')" style="font-family:'IBM Plex Sans Arabic'">
-                            <i class="fas fa-mosque"></i>
-                            <span>العربية</span>
-                        </button>
-                        <button class="lang-square" onclick="selectLanguage('ur')" style="font-family:'Noto Sans Arabic'">
-                            <i class="fas fa-language"></i>
-                            <span>Urdu</span>
-                        </button>
+                        <button class="lang-square" onclick="selectLanguage('en')"><i class="fas fa-globe"></i><span>English</span></button>
+                        <button class="lang-square" onclick="selectLanguage('ar')"><i class="fas fa-mosque"></i><span>العربية</span></button>
+                        <button class="lang-square" onclick="selectLanguage('ur')"><i class="fas fa-language"></i><span>Urdu</span></button>
                     </div>
-                    <a href="javascript:location.reload(true)" style="color:white; font-size:9px; opacity:0.3; margin-top:20px; display:block">RELOAD SYSTEM</a>
                 </div>
             </div>
 
             <div class="screen active" id="s-login" style="padding:0; background: linear-gradient(135deg, #2e3192, #1b1d5a);">
                 <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px;">
-                    <div style="margin-bottom: 40px;">
-                        <img src="https://iconape.com/wp-content/files/hq/389851/svg/389851.svg" style="width: 240px; filter: brightness(0) invert(1);" alt="NIT Logo">
-                    </div>
+                    <div style="margin-bottom: 40px;"><img src="https://iconape.com/wp-content/files/hq/389851/svg/389851.svg" style="width: 240px; filter: brightness(0) invert(1);"></div>
                     <div class="glass-login">
-                        <div style="text-align: center; margin-bottom: 30px;">
-                            <h2 style="color:white; font-size:22px; font-weight:950; letter-spacing:1px;" id="t-login-title">NIT INTEL HUB</h2>
-                            <p style="color:rgba(255,255,255,0.6); font-weight:900; font-size:10px; text-transform:uppercase;" id="t-login-sub">SECURE ACCESS AREA</p>
-                        </div>
+                        <div style="text-align: center; margin-bottom: 30px;"><h2 style="color:white; font-size:22px; font-weight:950;" id="t-login-title">NIT INTEL HUB</h2><p style="color:rgba(255,255,255,0.6); font-weight:900; font-size:10px;" id="t-login-sub">SECURE ACCESS AREA</p></div>
                         <input id="login-id" class="login-input" type="tel" placeholder="Employee ID">
                         <input id="login-pass" class="login-input" type="password" placeholder="Password">
-                        <p id="login-err" style="color:#fca5a5; font-size:11px; font-weight:900; margin-bottom:15px; text-align:center; display:none"><i class="fas fa-exclamation-triangle"></i> ACCESS DENIED</p>
+                        <p id="login-err" style="color:#fca5a5; font-size:11px; font-weight:900; margin-bottom:15px; text-align:center; display:none">ACCESS DENIED</p>
                         <button class="btn-signin" onclick="doLogin()" id="t-signin-btn">SIGN IN</button>
                     </div>
                 </div>
             </div>
 
             <header class="header" id="main-header" style="display:none">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-bars" style="color:var(--primary); font-size:20px;" onclick="openDrawer()"></i>
-                    <h1>FIELD OPERATIONS</h1>
-                </div>
-                <div class="bell-wrap" onclick="switchScreen('notifs'); clearNotifBadge();">
-                    <i class="fas fa-bell"></i>
-                    <div id="bell-badge" class="bell-badge"></div>
-                </div>
+                <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-bars" onclick="openDrawer()"></i><h1>FIELD OPERATIONS</h1></div>
+                <i class="fas fa-bell" onclick="switchScreen('notifs')"></i>
             </header>
 
             <div class="screen" id="s-home">
-                <div style="padding-top: 25px;">
-                    <span class="lbl-prime" id="t-welcome">WELCOME BACK,</span>
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px;">
-                        <div>
-                            <h2 id="hm-name" style="font-size: 24px; font-weight: 950; color: var(--p);">Officer</h2>
-                            <p id="hm-role" style="font-size: 12px; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px;">NIT OPERATIONS COMMAND</p>
-                        </div>
-                        <div style="width: 55px; height: 55px; border-radius: 20px; background: linear-gradient(135deg, var(--p), #4f46e5); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
-                    </div>
-                </div>
-
+                <div style="padding-top: 25px;"><span class="lbl-prime" id="t-welcome">WELCOME BACK,</span><h2 id="hm-name" style="font-size: 24px; font-weight: 950; color: var(--p);">Officer</h2></div>
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <i class="fas fa-folder-open" style="color: #3b82f6;"></i>
-                        <span class="stat-num" id="s-total">0</span>
-                        <span class="stat-lbl">TOTAL</span>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-clock" style="color: #f59e0b;"></i>
-                        <span class="stat-num" id="s-open">0</span>
-                        <span class="stat-lbl">PENDING</span>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-check-double" style="color: #10b981;"></i>
-                        <span class="stat-num" id="s-done">0</span>
-                        <span class="stat-lbl">RESOLVED</span>
-                    </div>
+                    <div class="stat-card"><i class="fas fa-folder-open" style="color: #3b82f6;"></i><span class="stat-num" id="s-total">0</span><span class="stat-lbl">TOTAL</span></div>
+                    <div class="stat-card"><i class="fas fa-clock" style="color: #f59e0b;"></i><span class="stat-num" id="s-open">0</span><span class="stat-lbl">PENDING</span></div>
+                    <div class="stat-card"><i class="fas fa-check-double" style="color: #10b981;"></i><span class="stat-num" id="s-done">0</span><span class="stat-lbl">RESOLVED</span></div>
                 </div>
-
-                <div style="margin: 10px 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span class="lbl-prime" id="t-news">SYSTEM BROADCASTS</span>
-                        <i class="fas fa-satellite-dish" style="color: #ef4444; font-size: 10px; animation: blink 1.5s infinite;"></i>
-                    </div>
-                    <div id="news-list-home" style="min-height: 80px;"></div>
-                </div>
-
-                <div class="recent-section" style="margin-top: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <span class="lbl-prime" id="t-recent">RECENT INCIDENTS</span>
-                        <span style="font-size: 10px; font-weight: 900; color: var(--p); cursor: pointer;" onclick="switchScreen('reports')">VIEW ALL</span>
-                    </div>
-                    <div id="mini-l"></div>
-                </div>
+                <span class="lbl-prime" id="t-recent">RECENT INCIDENTS</span>
+                <div id="mini-l"></div>
             </div>
 
-            <div class="screen" id="s-reports">
-                <div style="padding-top:20px"><span class="lbl-prime" id="t-all-reports">ALL REPORTS</span><div id="full-l"></div></div>
-            </div>
-
+            <div class="screen" id="s-reports"><div style="padding-top:20px"><span class="lbl-prime" id="t-all-reports">ALL REPORTS</span><div id="full-l"></div></div></div>
             <div class="screen" id="s-create">
-                <div style="padding: 25px 0; display: flex; align-items: center; justify-content: space-between;">
-                   <i class="fas fa-arrow-left" style="color:var(--p); font-size:20px; cursor:pointer" onclick="goBackWizard()"></i>
-                   <h2 id="wizard-title" style="font-size:18px; font-weight:950; color:var(--p)">SUBMIT</h2>
-                   <div id="step-counter" class="step-badge">1/4</div>
-                </div>
-                <!-- Panes based on trilingual tree -->
-                <div id="pane-1" class="creation-pane"><span class="lbl-prime" id="t-step-1">WHERE?</span><div id="env-list" style="margin-top:15px">
-                    <div class="smart-tile" onclick="setEnv('site', this)"><i class="fas fa-hard-hat"></i><div class="info"><b id="t-site">Site</b><span id="t-site-desc">Field</span></div></div>
-                    <div class="smart-tile" onclick="setEnv('housing', this)"><i class="fas fa-home"></i><div class="info"><b id="t-housing">Housing</b><span id="t-housing-desc">Living</span></div></div>
-                </div></div>
-                <div id="pane-2" class="creation-pane" style="display:none">
-                    <span class="lbl-prime" id="t-step-2">CATEGORY</span>
-                    <div id="type-list" style="margin-top:15px">
-                        <div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div>
-                        <div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div>
-                    </div>
-                    <button class="btn-secondary" onclick="goToPane(1)"><span class="btn-back-text">BACK</span></button>
-                </div>
-                <div id="pane-3" class="creation-pane" style="display:none">
-                    <span class="lbl-prime" id="t-step-3">AREA</span>
-                    <div id="branch-list" style="margin-bottom:20px"></div>
-                    <button class="btn-secondary" onclick="goToPane(2)"><span class="btn-back-text">BACK</span></button>
-                </div>
-                <div id="pane-4" class="creation-pane" style="display:none">
-                    <span class="lbl-prime" id="t-step-4">DETAILS</span>
-                    <textarea id="case-desc" placeholder="..." style="width: 100%; border-radius:20px; border:1px solid #ddd; padding:15px; min-height:100px; margin-bottom:20px; font-weight:700"></textarea>
-                    <button class="btn-smart" id="submit-btn" onclick="submitReport()">SUBMIT</button>
-                    <button class="btn-secondary" onclick="goToPane(3)"><span class="btn-back-text">BACK</span></button>
-                </div>
+                <div style="padding: 25px 0; display: flex; align-items: center; justify-content: space-between;"><i class="fas fa-arrow-left" onclick="goBackWizard()"></i><h2 id="wizard-title" style="font-size:18px; font-weight:950; color:var(--p)">SUBMIT</h2><div id="step-counter">1/4</div></div>
+                <div id="pane-1" class="creation-pane"><span class="lbl-prime" id="t-step-1">WHERE?</span><div class="smart-tile" onclick="setEnv('site')"><i class="fas fa-hard-hat"></i><div class="info"><b id="t-site">Site</b><span id="t-site-desc">Field</span></div></div><div class="smart-tile" onclick="setEnv('housing')"><i class="fas fa-home"></i><div class="info"><b id="t-housing">Housing</b><span id="t-housing-desc">Living</span></div></div></div>
+                <div id="pane-2" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-2">CATEGORY</span><div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div><div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div><button class="btn-secondary" onclick="goToPane(1)"><span class="btn-back-text">BACK</span></button></div>
+                <div id="pane-3" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-3">AREA</span><div id="branch-list"></div><button class="btn-secondary" onclick="goToPane(2)"><span class="btn-back-text">BACK</span></button></div>
+                <div id="pane-4" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-4">DETAILS</span><textarea id="case-desc" style="width:100%; border-radius:20px; border:1px solid #ddd; padding:15px; min-height:100px; margin-bottom:20px;"></textarea><button class="btn-smart" id="submit-btn" onclick="submitReport()">SUBMIT</button><button class="btn-secondary" onclick="goToPane(3)"><span class="btn-back-text">BACK</span></button></div>
             </div>
 
-            <div class="screen" id="s-chat-list">
-                <div style="padding-top:20px"><span class="lbl-prime" id="t-inbox">INBOX</span><div id="chat-report-list"></div></div>
-            </div>
-
+            <div class="screen" id="s-chat-list"><div style="padding-top:20px"><span class="lbl-prime" id="t-inbox">INBOX</span><div id="chat-report-list"></div></div></div>
             <div class="screen" id="s-support">
                 <div style="padding-top:20px">
-                    <div class="case-main-card" style="background:var(--p); color:white; text-align:center">
-                        <i class="fas fa-headset" style="font-size:30px; margin-bottom:10px; color:var(--s)"></i>
-                        <h2 id="t-help-title">TECH SUPPORT</h2>
-                        <p style="font-size:10px; opacity:0.7">Submit your inquiry</p>
-                    </div>
-                    <input id="supp-mobile" class="login-input" style="color:#000; background:#fff; border:1px solid #ddd" placeholder="Mobile">
-                    <input id="supp-email" class="login-input" style="color:#000; background:#fff; border:1px solid #ddd" placeholder="Email">
-                    <input id="supp-subject" class="login-input" style="color:#000; background:#fff; border:1px solid #ddd" placeholder="Subject">
-                    <textarea id="supp-details" class="login-input" style="color:#000; background:#fff; border:1px solid #ddd; min-height:100px" placeholder="Details"></textarea>
-                    <button class="btn-smart" onclick="submitSupportTicket()" id="t-send-ticket">SEND REQUEST</button>
+                    <div class="case-main-card" style="background:var(--p); color:white; text-align:center"><i class="fas fa-headset" style="font-size:30px; margin-bottom:10px;"></i><h2 id="t-help-title">TECH SUPPORT</h2></div>
+                    <button class="btn-smart" onclick="switchScreen('chat-list')" id="t-send-ticket">SEND REQUEST</button>
                 </div>
-            </div>
-
-            <div class="screen" id="s-chat">
-                <div style="height:100%; display:flex; flex-direction:column; padding-bottom:80px">
-                    <div style="padding:20px; border-bottom:1px solid #ddd; display:flex; align-items:center; gap:20px; background:white; position:sticky; top:0">
-                        <i class="fas fa-arrow-left" onclick="switchScreen('chat-list')"></i>
-                        <div><h2 id="chat-title" style="font-size:14px; font-weight:900">Chat</h2><p id="chat-target" style="font-size:9px; opacity:0.6">Officer Channel</p></div>
-                    </div>
-                    <div id="chat-cont" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:10px"></div>
-                    <div style="padding:15px; display:flex; gap:10px; background:white; position:sticky; bottom:0">
-                        <input id="msg-input" placeholder="Type..." style="flex:1; padding:12px; border-radius:15px; border:1px solid #eee; font-weight:700">
-                        <button onclick="sendMessage()" style="width:45px; height:45px; background:var(--p); color:white; border-radius:12px; border:none"><i class="fas fa-paper-plane"></i></button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="screen" id="s-notifs">
-                <div style="padding-top:20px"><span class="lbl-prime" id="t-notifs">NOTIFICATIONS</span><div id="notif-list"></div></div>
-            </div>
-
-            <div class="screen" id="s-detail">
-                <div id="det-cont" style="padding-top:20px"></div>
             </div>
 
             <nav class="navbar" id="main-nav" style="display: none;">
-                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-home"></i><span id="nb-home">HOME</span></div>
-                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-list-ul"></i><span id="nb-reports">REPORTS</span></div>
+                <div class="nav-item active" onclick="switchScreen('home')"><i class="fas fa-home"></i><span id="nb-home">HOME</span></div>
+                <div class="nav-item" onclick="switchScreen('reports')"><i class="fas fa-list-ul"></i><span id="nb-reports">REPORTS</span></div>
                 <div style="width: 70px;"></div>
-                <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')"><i class="fas fa-comment"></i><span id="nb-inbox">INBOX</span><div id="chat-count-badge" class="nav-badge">0</div></div>
-                <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span id="nb-help">HELP</span></div>
+                <div class="nav-item" onclick="switchScreen('chat-list')"><i class="fas fa-comment"></i><span id="nb-inbox">INBOX</span></div>
+                <div class="nav-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span id="nb-help">HELP</span></div>
             </nav>
             <div class="plus-btn" id="main-plus" style="display: none;" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
-
-            <div id="notif-hud" class="notif-hud"><div class="hud-icon"><i class="fas fa-bell"></i></div><div class="hud-content"><h4 id="hud-title">NIT</h4><p id="hud-msg">...</p></div></div>
-            <div id="status-modal" class="status-modal"><div class="status-card" style="border-radius:30px">
-                <i class="fas fa-check-circle" style="font-size:50px; color:#22c55e; margin-bottom:15px"></i>
-                <h2>REACHED</h2><p id="status-msg">Transmitted</p><button class="btn-smart" onclick="closeStatusModal()">DONE / تم</button>
-            </div></div>
+            
+            <div id="status-modal" class="status-modal"><div class="status-card"><i class="fas fa-check-circle" style="font-size:50px; color:#22c55e;"></i><h2>DONE</h2><button class="btn-smart" onclick="closeStatusModal()">OK</button></div></div>
         </div>
     </div>
 
@@ -435,8 +216,9 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let currentUser = null, reports = [], lastScreen = 'home', activeRoom = null, appLang = 'en', unsubSync = null, unsubChat = null;
-        let currentEnv = null, currentType = null, currentBranch = null, currentSubTyp        const i18n = {
+        let currentUser = null, reports = [], appLang = 'en', unsubSync = null, currentEnv = null, currentType = null;
+
+        const i18n = {
             en: { 
                 wizard: "SUBMIT REPORT", step1: "WHERE?", step2: "CATEGORY", step3: "AREA", step4: "DETAILS", 
                 site: "Site", siteD: "Field Operations", housing: "Housing", housingD: "Living Area", 
@@ -444,37 +226,34 @@
                 loginTitle: "NIT INTEL HUB", loginSub: "SECURE ACCESS AREA", loginErr: "ACCESS DENIED",
                 nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP", 
                 drHome: "HOME", drReports: "MY REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "SIGN OUT", drLang: "CHANGE LANGUAGE",
-                news: "ACTIVE BROADCASTS", recent: "RECENT INCIDENTS", inboxTitle: "INBOX", helpTitle: "TECH SUPPORT",
-                allReports: "ALL REPORTS", notifTitle: "NOTIFICATIONS", send: "SEND REQUEST",
-                welcome: "WELCOME BACK,", total: "TOTAL", pending: "PENDING", resolved: "RESOLVED", broadcasts: "SYSTEM BROADCASTS"
+                recent: "RECENT INCIDENTS", inboxTitle: "INBOX", helpTitle: "TECH SUPPORT",
+                allReports: "ALL REPORTS", send: "SEND REQUEST", welcome: "WELCOME BACK,", total: "TOTAL", pending: "PENDING", resolved: "RESOLVED"
             },
             ar: { 
                 wizard: "إرسال بلاغ", step1: "أين المشكلة؟", step2: "التصنيف", step3: "المنطقة", step4: "التفاصيل", 
                 site: "الموقع", siteD: "العمليات الميدانية", housing: "السكن", housingD: "منطقة المعيشة", 
                 safety: "سلامة", service: "خدمة", back: "رجوع", submit: "إرسال", 
-                loginTitle: "NIT الميدانية", loginSub: "دخول آمن للموظف", loginErr: "بيانات الدخول غير صحيحة",
+                loginTitle: "NIT الميدانية", loginSub: "دخول آمن للموظف", loginErr: "البيانات خاطئة",
                 nbHome: "الرئيسية", nbReports: "بلاغاتي", nbInbox: "الرسائل", nbHelp: "دعم", 
                 drHome: "الرئيسية", drReports: "قائمة بلاغاتي", drMessages: "رسائلي", drSupport: "فني", drLogout: "خروج", drLang: "تغيير اللغة",
-                news: "التعميمات النشطة", recent: "آخر البلاغات", inboxTitle: "بريد الرسائل", helpTitle: "الدعم الفني",
-                allReports: "كل البلاغات", notifTitle: "التنبيهات", send: "إرسال الطلب",
-                welcome: "مرحباً بك،", total: "الإجمالي", pending: "تحت المعالجة", resolved: "تم الإنجاز", broadcasts: "تعميمات النظام"
+                recent: "آخر البلاغات", inboxTitle: "بريد الرسائل", helpTitle: "الدعم الفني",
+                allReports: "كل البلاغات", send: "إرسال الطلب", welcome: "مرحباً بك،", total: "الإجمالي", pending: "قيد الانتظار", resolved: "تم الإنجاز"
             },
             ur: { 
                 wizard: "رپورٹ جمع کریں", step1: "کہاں؟", step2: "قسم", step3: "علاقہ", step4: "تفصیل", 
                 site: "سائٹ", siteD: "فیلڈ آپریشنز", housing: "رہائش", housingD: "رہائشی علاقہ", 
                 safety: "حفاظت", service: "سروس", back: "پیچھے", submit: "جمع کریں", 
-                loginTitle: "NIT انٹیل", loginSub: "محفوظ رسائی", loginErr: "رسائی مسترد کر دی گئی",
+                loginTitle: "NIT انٹیل", loginSub: "محفوظ رسائی", loginErr: "درست نہیں",
                 nbHome: "ہوم", nbReports: "رپورٹس", nbInbox: "پیغامات", nbHelp: "مدد", 
                 drHome: "ہوم", drReports: "میری رپورٹس", drMessages: "پیغامات", drSupport: "مدد", drLogout: "لاگ آؤٹ", drLang: "زبان تبدیل کریں",
-                news: "براہ راست خبریں", recent: "حالیہ واقعات", inboxTitle: "ان باکس", helpTitle: "ٹیکنیکل سپورٹ",
-                allReports: "تمام رپورٹس", notifTitle: "اطلاعات", send: "درخواست بھیجیں",
-                welcome: "خوش آمدید،", total: "کل", pending: "زیر التواء", resolved: "حل شدہ", broadcasts: "سسٹم نشریات"
+                recent: "حالیہ واقعات", inboxTitle: "ان باکس", helpTitle: "ٹیکنیکل سپورٹ",
+                allReports: "تمام رپورٹس", send: "درخواست بھیجیں", welcome: "خوش آمدید،", total: "کل", pending: "زیر التواء", resolved: "حل شدہ"
             }
         };
 
         const treeLocalized = {
             en: { 
-                housing: { safety: { branches: { h: { label: "Danger", items: ['Fire', 'Electric'] } } }, service: { branches: { t: { label: "Tech", items: ['Broken'] } } } },
+                housing: { safety: { branches: { h: { label: "Danger", items: ['Fire'] } } }, service: { branches: { t: { label: "Tech", items: ['Broken'] } } } },
                 site: { safety: { branches: { h: { label: "Hazard", items: ['Fall'] } } }, service: { branches: { l: { label: "Logistics", items: ['Delay'] } } } }
             },
             ar: {
@@ -486,237 +265,101 @@
         function applyLocalization() {
             const t = i18n[appLang]; if(!t) return;
             const set = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
-            
-            set('wizard-title', t.wizard);
-            set('t-login-title', t.loginTitle);
-            set('t-login-sub', t.loginSub);
-            set('login-err', t.loginErr);
-            set('t-signin-btn', t.submit);
-            
-            set('nb-home', t.nbHome);
-            set('nb-reports', t.nbReports);
-            set('nb-inbox', t.nbInbox);
-            set('nb-help', t.nbHelp);
-            
-            set('dr-home', t.drHome);
-            set('dr-reports', t.drReports);
-            set('dr-messages', t.drMessages);
-            set('dr-support', t.drSupport);
-            set('dr-lang', t.drLang);
-            set('dr-logout', t.drLogout);
-
+            set('wizard-title', t.wizard); set('t-login-title', t.loginTitle); set('t-login-sub', t.loginSub); set('login-err', t.loginErr); set('t-signin-btn', t.submit);
+            set('nb-home', t.nbHome); set('nb-reports', t.nbReports); set('nb-inbox', t.nbInbox); set('nb-help', t.nbHelp);
+            set('dr-home', t.drHome); set('dr-reports', t.drReports); set('dr-messages', t.drMessages); set('dr-support', t.drSupport); set('dr-lang', t.drLang); set('dr-logout', t.drLogout);
             set('t-step-1', t.step1); set('t-step-2', t.step2); set('t-step-3', t.step3); set('t-step-4', t.step4);
-            set('t-site', t.site); set('t-site-desc', t.siteD);
-            set('t-housing', t.housing); set('t-housing-desc', t.housingD);
-            set('t-safety', t.safety); set('t-service', t.service);
-            set('t-news', t.broadcasts); set('t-recent', t.recent);
-            set('t-all-reports', t.allReports); set('t-inbox', t.inboxTitle);
-            set('t-notifs', t.notifTitle); set('t-help-title', t.helpTitle);
-            set('t-send-ticket', t.send); set('submit-btn', t.submit);
-            set('t-welcome', t.welcome);
-            
-            document.querySelectorAll('.stat-lbl').forEach((el, idx) => { el.innerText = [t.total, t.pending, t.resolved][idx]; });
+            set('t-site', t.site); set('t-site-desc', t.siteD); set('t-housing', t.housing); set('t-housing-desc', t.housingD);
+            set('t-safety', t.safety); set('t-service', t.service); set('t-recent', t.recent);
+            set('t-all-reports', t.allReports); set('t-inbox', t.inboxTitle); set('t-help-title', t.helpTitle);
+            set('t-send-ticket', t.send); set('submit-btn', t.submit); set('t-welcome', t.welcome);
+            document.querySelectorAll('.stat-lbl').forEach((el, idx) => { if(el) el.innerText = [t.total, t.pending, t.resolved][idx]; });
             document.querySelectorAll('.btn-back-text').forEach(el => el.innerText = t.back);
         }
 
         function selectLanguage(l) {
-            appLang = l; localStorage.setItem('app_lang', l);
-            document.body.dir = (l === 'ar' || l === 'ur') ? 'rtl' : 'ltr';
-            const ls = document.getElementById('lang-screen');
-            if(ls) { ls.style.opacity = '0'; setTimeout(() => ls.style.display='none', 600); }
-            applyLocalization(); initApp();
+            appLang = l; localStorage.setItem('app_lang', l); document.body.dir = (l === 'ar' || l === 'ur') ? 'rtl' : 'ltr';
+            document.getElementById('lang-screen').style.display='none'; applyLocalization(); initApp();
         }
 
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            const target = document.getElementById('s-' + id);
-            if(target) target.classList.add('active');
-            const isPop = ['chat', 'detail', 'create', 'login', 'lang-screen'].includes(id);
-            const nav = document.getElementById('main-nav'), plus = document.getElementById('main-plus');
-            if(nav) nav.style.display = isPop ? 'none' : 'flex';
-            if(plus) plus.style.display = isPop ? 'none' : 'flex';
-            if(id === 'reports') sync();
-            if(id === 'chat-list') renderChatHub();
-            if(id === 'notifs') renderNotifs();
+            const target = document.getElementById('s-' + id); if(target) target.classList.add('active');
+            const isPop = ['create', 'login', 'lang-screen'].includes(id);
+            document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
+            document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
             closeDrawer();
         }
 
         async function doLogin() {
             const id = document.getElementById('login-id').value.trim();
-            const pass = document.getElementById('login-pass').value.trim();
-            if(pass === '12') {
+            if(document.getElementById('login-pass').value === '12') {
                 let snap = await db.collection('employees').where('emp_no', 'in', [id, Number(id), String(id)]).get();
-                if(!snap.empty) { currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; localStorage.setItem('nit_user', JSON.stringify(currentUser)); initApp(); }
-                else { document.getElementById('login-err').style.display = 'block'; }
+                if(!snap.empty) { currentUser = snap.docs[0].data(); localStorage.setItem('nit_user', JSON.stringify(currentUser)); initApp(); }
+                else { document.getElementById('login-err').style.display='block'; }
             }
         }
 
-        async function initApp() {
+        function initApp() {
             if(!currentUser) { switchScreen('login'); return; }
-            const g = ["main-header", "main-nav", "main-plus"];
-            g.forEach(id => document.getElementById(id).style.display = 'flex');
-            document.getElementById('hm-name').innerText = currentUser.name;
-            document.getElementById('dr-name').innerText = currentUser.name;
-            document.getElementById('dr-id').innerText = "EMP ID: " + currentUser.emp_no;
-            switchScreen('home');
-            sync();
+            ["main-header", "main-nav", "main-plus"].forEach(id => document.getElementById(id).style.display = 'flex');
+            document.getElementById('hm-name').innerText = currentUser.name; document.getElementById('dr-name').innerText = currentUser.name; document.getElementById('dr-id').innerText = "EMP ID: " + currentUser.emp_no;
+            switchScreen('home'); sync();
         }
 
         function sync() {
             if(!currentUser) return;
             if(unsubSync) unsubSync();
             unsubSync = db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).onSnapshot(snap => {
-                reports = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                renderReports();
+                reports = snap.docs.map(d => d.data()); renderReports();
             });
         }
 
         function renderReports() {
-            const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
-            if(!f) return;
-            const open = reports.filter(r => r.status && r.status.toLowerCase() !== 'done').length;
+            const f = document.getElementById('full-l'), m = document.getElementById('mini-l'); if(!f) return;
+            const open = reports.filter(r => r.status !== 'done').length;
             document.getElementById('s-total').innerText = reports.length;
             document.getElementById('s-open').innerText = open;
             document.getElementById('s-done').innerText = reports.length - open;
-
             let html = reports.map(r => `
-                <div class="case-main-card" onclick="openDetail('${r.id}')">
+                <div class="case-main-card">
                     <div style="display:flex; justify-content:space-between; align-items:center">
                         <div style="display:flex; align-items:center; gap:12px">
-                            <div style="width:35px; height:35px; border-radius:10px; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; color:var(--p)">
-                                <i class="fas ${r.type && r.type.toLowerCase().includes('safety') ? 'fa-shield-alt' : 'fa-tools'}"></i>
-                            </div>
-                            <div>
-                                <b style="font-size:13px; color:var(--p)">CASE #${r.case_num}</b>
-                                <p style="font-size:10px; opacity:0.6">${r.type || 'Standard'}</p>
-                            </div>
+                            <i class="fas ${r.type.toLowerCase().includes('safety')?'fa-shield-alt':'fa-tools'}" style="color:var(--p)"></i>
+                            <div><b>CASE #${r.case_num}</b><p style="font-size:10px; opacity:0.6">${r.type}</p></div>
                         </div>
-                        <span class="status-pill" style="background:${r.status==='done'?'#dcfce7':'#fef3c7'}; color:${r.status==='done'?'#16a34a':'#d97706'}">
-                            ${r.status==='done' ? i18n[appLang].resolved : i18n[appLang].pending}
-                        </span>
+                        <span class="status-pill" style="background:${r.status==='done'?'#dcfce7':'#fef3c7'}">${r.status==='done'?i18n[appLang].resolved:i18n[appLang].pending}</span>
                     </div>
-                </div>
-            `).join('');
-            f.innerHTML = html || '<p style="text-align:center; opacity:0.3; padding:40px">No Active Reports</p>';
-            if(m) m.innerHTML = reports.slice(0,5).map(r => html.substring(html.indexOf('<div class="case-main-card"'), html.indexOf('</div>')+6)).join(''); // Logic hack for brevity
-            if(m) m.innerHTML = html; // Simple fallback
-        }
-r => `
-                <div class="case-main-card" onclick="openDetail('${r.id}')">
-                    <div style="display:flex; justify-content:space-between">
-                        <b>CASE #${r.case_num}</b>
-                        <span class="status-tag" style="background:${r.status==='done'?'#dcfce7':'#fef3c7'}">${r.status||'OPEN'}</span>
-                    </div>
-                    <p style="font-size:12px; margin-top:5px">${r.type}</p>
-                </div>
-            `).join('');
-            f.innerHTML = html || '<p style="text-align:center; opacity:0.3">No Reports</p>';
-            if(m) m.innerHTML = html;
+                </div>`).join('');
+            f.innerHTML = html || 'No Reports'; m.innerHTML = html;
         }
 
         async function submitReport() {
-            const desc = document.getElementById('case-desc').value;
-            if(!desc) return;
-            const btn = document.getElementById('submit-btn'); btn.innerText = "Transmitting..."; btn.disabled = true;
-            try {
-                const cRef = db.collection('settings').doc('counters'); await cRef.set({ report_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
-                const snap = await cRef.get(); const num = snap.data().report_count;
-                const ref = db.collection('reports').doc(String(num));
-                await ref.set({ emp_no: currentUser.emp_no, case_num: num, type: (currentType||'')+(currentSubType?' - '+currentSubType:''), description: desc, status: 'open', created_at: new Date().toISOString() });
-                document.getElementById('status-modal').classList.add('active');
-                switchScreen('home');
-            } catch(e) { console.error(e); }
+            const desc = document.getElementById('case-desc').value; if(!desc) return;
+            const cRef = db.collection('settings').doc('counters'); await cRef.set({ report_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+            const snap = await cRef.get(); const num = snap.data().report_count;
+            await db.collection('reports').doc(String(num)).set({ emp_no: currentUser.emp_no, case_num: num, type: currentType, status: 'open', description: desc });
+            document.getElementById('status-modal').classList.add('active'); switchScreen('home');
         }
 
-        function setEnv(e, el) { currentEnv = e; goToPane(2); }
-        function setType(t, el) { currentType = t; renderBranches(); goToPane(3); }
-        
-        let currentWizardStep = 1;
-        function goToPane(n) { 
-            currentWizardStep = n;
-            document.querySelectorAll('.creation-pane').forEach(p=>p.style.display='none'); 
-            const target = document.getElementById('pane-'+n);
-            if(target) target.style.display='block'; 
-            document.getElementById('step-counter').innerText = n+'/4'; 
-        }
-        
-        function goBackWizard() {
-            if(currentWizardStep > 1) {
-                goToPane(currentWizardStep - 1);
-            } else {
-                switchScreen('home');
-            }
-        }
+        function setEnv(e) { currentEnv = e; goToPane(2); }
+        function setType(t) { currentType = t; renderBranches(); goToPane(3); }
+        function goToPane(n) { currentWizardStep = n; document.querySelectorAll('.creation-pane').forEach(p=>p.style.display='none'); document.getElementById('pane-'+n).style.display='block'; document.getElementById('step-counter').innerText = n+'/4'; }
+        function goBackWizard() { currentWizardStep > 1 ? goToPane(currentWizardStep - 1) : switchScreen('home'); }
         function renderBranches() { 
-            const cont = document.getElementById('branch-list');
             const data = (treeLocalized[appLang] || treeLocalized['en'])[currentEnv][currentType];
-            cont.innerHTML = Object.keys(data.branches).map(b => `<div class="smart-tile" onclick="currentBranch='${b}'; renderSubTypes(); goToPane(4)"><b>${data.branches[b].label}</b></div>`).join('');
-        }
-        function renderSubTypes() {
-            const cont = document.getElementById('branch-list'); // re-use or redirect
-            // Logic for sub-types
-        }
-
-        async function openDetail(id) {
-            const r = reports.find(x => x.id === id); if(!r) return;
-            document.getElementById('det-cont').innerHTML = `
-                <div class="case-main-card">
-                    <h2>CASE #${r.case_num}</h2>
-                    <p>${r.description}</p>
-                    <hr style="margin:20px 0">
-                    <p>Status: ${r.status}</p>
-                </div>
-            `;
-            switchScreen('detail');
-        }
-
-        async function renderChatHub() {
-            const list = document.getElementById('chat-report-list'); if(!list) return;
-            const snap = await db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).get();
-            list.innerHTML = snap.docs.map(d => `
-                <div class="case-main-card" onclick="openChat('${d.id}')">
-                    <b>CASE #${d.data().case_num || 'ADMIN'}</b>
-                    <p style="font-size:11px">${d.data().last_message || 'No messages'}</p>
-                </div>
-            `).join('') || '<p style="text-align:center; opacity:0.3">No Chats</p>';
-        }
-
-        async function openChat(sid) {
-            activeRoom = sid; switchScreen('chat');
-            if(unsubChat) unsubChat();
-            unsubChat = db.collection('chat_sessions').doc(sid).collection('messages').orderBy('created_at','asc').onSnapshot(s => {
-                document.getElementById('chat-cont').innerHTML = s.docs.map(m => `
-                    <div style="align-self: ${m.data().sender_id===String(currentUser.emp_no)?'flex-end':'flex-start'}; background:${m.data().sender_id===String(currentUser.emp_no)?'var(--p)':'#eee'}; color:${m.data().sender_id===String(currentUser.emp_no)?'white':'black'}; padding:10px; border-radius:10px; font-size:12px">
-                        ${m.data().text}
-                    </div>
-                `).join('');
-                const c = document.getElementById('chat-cont'); c.scrollTop = c.scrollHeight;
-            });
-        }
-
-        async function sendMessage() {
-            const txt = document.getElementById('msg-input').value; if(!txt || !activeRoom) return;
-            document.getElementById('msg-input').value = '';
-            await db.collection('chat_sessions').doc(activeRoom).collection('messages').add({ sender_id: String(currentUser.emp_no), text: txt, created_at: new Date().toISOString() });
-            await db.collection('chat_sessions').doc(activeRoom).update({ last_message: txt, updated_at: new Date().toISOString() });
+            document.getElementById('branch-list').innerHTML = Object.keys(data.branches).map(b => `<div class="smart-tile" onclick="goToPane(4)"><b>${data.branches[b].label}</b></div>`).join('');
         }
 
         function closeStatusModal() { document.getElementById('status-modal').classList.remove('active'); }
         function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
         function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
-        function showLanguageScreen() {
-            closeDrawer();
-            const ls = document.getElementById('lang-screen');
-            ls.style.display = 'flex';
-            setTimeout(() => ls.style.opacity = '1', 50);
-        }
-        function doLogout() { localStorage.removeItem('nit_user'); localStorage.removeItem('app_lang'); location.reload(); }
-        function setupFCM() { console.log("FCM Placeholder"); }
-        function renderNotifs() { console.log("Notifs Sync"); }
+        function showLanguageScreen() { closeDrawer(); document.getElementById('lang-screen').style.display = 'flex'; }
+        function doLogout() { localStorage.removeItem('nit_user'); location.reload(); }
 
         window.onload = () => {
             const lang = localStorage.getItem('app_lang'), user = localStorage.getItem('nit_user');
-            if(lang && user) { appLang = lang; currentUser = JSON.parse(user); document.getElementById('lang-screen').style.display='none'; applyLocalization(); initApp(); }
+            if(lang && user) { appLang = lang; currentUser = JSON.parse(user); selectLanguage(lang); }
             else { document.getElementById('lang-screen').style.display='flex'; }
         };
     </script>
