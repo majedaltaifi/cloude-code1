@@ -189,14 +189,51 @@
                 <i class="fas fa-bell" onclick="switchScreen('notifs')"></i>
             </header>
 
-            <div class="screen" id="s-home">
-                <div style="padding-top: 25px;"><span class="lbl-prime" id="t-welcome">WELCOME BACK,</span><h2 id="hm-name" style="font-size: 24px; font-weight: 950; color: var(--p);">Officer</h2></div>
+            <div class="screen" id="s-home" style="padding-top:20px; padding-bottom:120px">
+                <!-- User Profile Header -->
+                <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:20px; margin-top:20px">
+                    <div style="position:relative">
+                        <img src="https://ui-avatars.com/api/?name=Officer&background=0f172a&color=fff" id="hm-avatar" style="width:100px; height:100px; border-radius:50%; border:5px solid #e2e8f0; object-fit:cover; box-shadow:0 0 0 10px rgba(59,130,246,0.05)">
+                    </div>
+                    <div style="background:white; border-radius:25px; padding:25px 20px; width:100%; margin-top:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03); text-align:center">
+                        <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px">
+                            <span style="background:#f1f5f9; padding:6px 14px; border-radius:15px; font-size:11px; font-weight:700; color:#64748b">Grade: <b style="color:#0f172a">B3</b></span>
+                            <span style="background:#f1f5f9; padding:6px 14px; border-radius:15px; font-size:11px; font-weight:700; color:#64748b">Location Type: <b style="color:#0f172a">Office</b></span>
+                        </div>
+                        <h2 style="font-size:22px; font-weight:900; color:#0f172a; margin-bottom:5px" id="hm-name-card">Officer <span style="color:#94a3b8; font-weight:600">#3400</span></h2>
+                        <p style="font-size:14px; font-weight:600; color:#64748b" id="hm-job-card">Application Manager</p>
+                    </div>
+                </div>
+
+                <!-- Map Attendance Widget -->
+                <div style="background:white; border-radius:25px; padding:15px; margin-bottom:25px; box-shadow:0 4px 20px rgba(0,0,0,0.03); position:relative; overflow:hidden">
+                    <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, #f8fafc, #e2e8f0); opacity:0.6; z-index:0">
+                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="opacity:0.2">
+                            <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#64748b" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)" />
+                        </svg>
+                    </div>
+                    <div style="position:relative; z-index:1">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:15px">
+                            <span style="background:white; padding:8px 15px; border-radius:15px; font-size:14px; font-weight:900; color:#0f172a; box-shadow:0 2px 10px rgba(0,0,0,0.05)">06 : 15 : 24 <span style="font-size:10px; color:#64748b">PM</span></span>
+                            <i class="fas fa-ellipsis-v" style="color:#94a3b8; padding:10px"></i>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.9); padding:12px 15px; border-radius:15px; margin-bottom:15px; display:inline-block; box-shadow:0 2px 10px rgba(0,0,0,0.02)">
+                            <p style="font-size:11px; font-weight:700; color:#64748b; margin:0; line-height:1.5">Randa Tower Floor 6 طريق الملك<br>عبدالعزيز, An Nahdah, Randa</p>
+                        </div>
+                        <div style="position:absolute; right:30px; top:50px">
+                            <i class="fas fa-map-marker-alt" style="font-size:36px; color:#ef4444; filter:drop-shadow(0 4px 6px rgba(239,68,68,0.3))"></i>
+                        </div>
+                        <button style="width:100%; background:linear-gradient(135deg, #6366f1, #3b82f6); color:white; border:none; padding:18px; border-radius:20px; font-size:16px; font-weight:800; display:flex; justify-content:center; align-items:center; gap:10px; box-shadow:0 10px 20px rgba(59,130,246,0.3); cursor:pointer">
+                            <i class="fas fa-fingerprint" style="font-size:24px"></i> Sign In
+                        </button>
+                    </div>
+                </div>
+
                 <div class="stats-grid">
                     <div class="stat-card" onclick="gotoReportsFilter('all')"><i class="fas fa-folder-open" style="color: #3b82f6;"></i><span class="stat-num" id="s-total">0</span><span class="stat-lbl">TOTAL</span></div>
                     <div class="stat-card" onclick="gotoReportsFilter('pending')"><i class="fas fa-clock" style="color: #f59e0b;"></i><span class="stat-num" id="s-open">0</span><span class="stat-lbl">PENDING</span></div>
                     <div class="stat-card" onclick="gotoReportsFilter('resolved')"><i class="fas fa-check-double" style="color: #10b981;"></i><span class="stat-num" id="s-done">0</span><span class="stat-lbl">RESOLVED</span></div>
                 </div>
-                <span class="lbl-prime" id="t-recent" style="display:none">RECENT INCIDENTS</span>
                 <div id="mini-l" style="margin-top:5px"></div>
             </div>
 
@@ -248,15 +285,36 @@
                 </div>
             </div>
 
-            <div class="screen" id="s-chat-list">
-                <div style="padding-top:25px; padding-bottom:15px; position:sticky; top:0; background:var(--bg); z-index:10">
-                    <span class="lbl-prime" id="t-inbox">INBOX MESSAGES</span>
-                    <div style="margin-top:15px; position:relative">
-                        <i class="fas fa-search" style="position:absolute; left:20px; top:18px; color:#94a3b8"></i>
-                        <input type="text" id="inbox-search" placeholder="Search case or employee..." style="width:100%; border-radius:25px; border:none; background:white; padding:17px 20px 17px 50px; box-shadow:0 4px 15px rgba(0,0,0,0.02); font-family:inherit; color:var(--p); outline:none; font-weight:700" onkeyup="filterInbox()">
+            <div class="screen" id="s-chat-list" style="background:#f8fafc; padding:0">
+                <div style="padding:25px 20px 20px; background:#0f172a; position:sticky; top:0; z-index:10; border-radius:0 0 35px 35px; box-shadow:0 10px 20px rgba(0,0,0,0.05); margin-bottom:20px">
+                    <div style="display:flex; justify-content:center; align-items:center; position:relative; margin-bottom:20px">
+                        <i class="fas fa-chevron-left" style="position:absolute; left:5px; color:white; font-size:20px; cursor:pointer" onclick="switchScreen('home')"></i>
+                        <h2 style="color:white; font-size:16px; font-weight:900; letter-spacing:1px; margin:0; text-transform:uppercase">CHAT HUB</h2>
+                    </div>
+                    <div style="position:relative">
+                        <i class="fas fa-search" style="position:absolute; left:20px; top:17px; color:#94a3b8"></i>
+                        <input type="text" id="inbox-search" placeholder="Search by name or ID..." style="width:100%; border-radius:25px; border:none; background:white; padding:16px 20px 16px 50px; font-size:13px; font-weight:700; color:#334155; outline:none" onkeyup="filterInbox()">
                     </div>
                 </div>
-                <div id="inbox-l"></div>
+                
+                <div style="padding:0 20px 100px">
+                    <div style="display:flex; gap:15px; margin-bottom:30px; overflow-x:auto; padding-bottom:5px">
+                        <div style="display:flex; flex-direction:column; align-items:center; cursor:pointer" onclick="switchScreen('support')">
+                            <div style="width:65px; height:65px; background:white; border-radius:22px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(0,0,0,0.03); margin-bottom:8px">
+                                <i class="fas fa-headset" style="font-size:24px; color:#0f172a"></i>
+                            </div>
+                            <span style="font-size:10px; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:0.5px">Support</span>
+                        </div>
+                    </div>
+
+                    <span style="font-size:11px; font-weight:900; color:#64748b; text-transform:uppercase; display:block; margin-bottom:15px; letter-spacing:1px; margin-left:5px">RECENT MESSAGES</span>
+                    
+                    <div id="inbox-l"></div>
+                </div>
+                
+                <div style="position:fixed; bottom:95px; right:20px; width:60px; height:60px; background:#22c55e; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 25px rgba(34,197,94,0.3); z-index:100; cursor:pointer" onclick="alert('New Chat')">
+                    <i class="fab fa-whatsapp" style="color:white; font-size:32px"></i>
+                </div>
             </div>
             
             <div class="screen" id="s-support">
@@ -405,7 +463,16 @@
         function initApp() {
             if(!currentUser) { switchScreen('login'); return; }
             ["main-header", "main-nav", "main-plus"].forEach(id => document.getElementById(id).style.display = 'flex');
-            document.getElementById('hm-name').innerText = currentUser.name; document.getElementById('dr-name').innerText = currentUser.name; document.getElementById('dr-id').innerText = "EMP ID: " + currentUser.emp_no;
+            
+            document.getElementById('dr-name').innerText = currentUser.name; document.getElementById('dr-id').innerText = "EMP ID: " + currentUser.emp_no;
+            
+            const nameCard = document.getElementById('hm-name-card');
+            if(nameCard) nameCard.innerHTML = `${currentUser.name} <span style="color:#94a3b8; font-weight:600">#${currentUser.emp_no}</span>`;
+            const jobCard = document.getElementById('hm-job-card');
+            if(jobCard) jobCard.innerText = currentUser.job_title || 'Application Manager';
+            const avImg = document.getElementById('hm-avatar');
+            if(avImg) avImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=0f172a&color=fff`;
+
             switchScreen('home'); sync();
         }
 
@@ -481,6 +548,7 @@
                         <div style="background:white; border-radius:25px; padding:25px 20px 15px; border:2px solid transparent; box-shadow:0 4px 30px rgba(46,49,146,0.03)">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px">
                                 <b style="color:var(--p); font-size:15px; font-weight:950"><i class="fas fa-exchange-alt" style="margin-right:10px; color:#3b82f6; background:rgba(59,130,246,0.1); padding:8px; border-radius:8px"></i>My Recent Transactions</b>
+                                <button onclick="gotoReportsFilter('all')" style="background:none; border:none; color:#3b82f6; font-size:12px; font-weight:800; cursor:pointer; background:rgba(59,130,246,0.1); padding:5px 10px; border-radius:8px">View All</button>
                             </div>
                             <div style="position:relative; margin-left:14px">
                                 <div style="position:absolute; top:8px; bottom:25px; left:4px; width:2px; background:#e2e8f0; z-index:0"></div>
@@ -512,18 +580,17 @@
                 const inboxL = document.getElementById('inbox-l');
                 if(inboxL) {
                     const activeChats = sorted.filter(r => window.String(r.status||'open').toLowerCase() !== 'done' && window.String(r.status||'open').toLowerCase() !== 'resolved' && window.String(r.status||'open').toLowerCase() !== 'تم الإنجاز');
-                    inboxL.innerHTML = activeChats.length ? activeChats.map(r => `
-                        <div class="inbox-item" data-search="${window.String(r.case_num||'').toLowerCase()} ${window.String(r.type||'').toLowerCase()} ${window.String(r.emp_no||'').toLowerCase()}" style="display:flex; align-items:center; padding:15px; background:white; border-radius:20px; margin-bottom:12px; border:1px solid #f1f5f9; box-shadow:0 2px 10px rgba(0,0,0,0.01); cursor:pointer" onclick="openDetail('${r.id}')">
-                            <div style="position:relative; margin-right:15px">
-                                <img src="https://ui-avatars.com/api/?name=${r.emp_no||'Emp'}&background=e2e8f0&color=2e3192&font-size=0.33" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid transparent">
-                                <div style="position:absolute; bottom:0; right:0; width:12px; height:12px; border-radius:50%; background:#10b981; border:2px solid white"></div>
+                    inboxL.innerHTML = activeChats.length ? activeChats.map((r, idx) => `
+                        <div class="inbox-item" data-search="${window.String(r.case_num||'').toLowerCase()} ${window.String(r.type||'').toLowerCase()} ${window.String(r.emp_no||'').toLowerCase()}" style="background:${idx === 0 ? 'rgba(56,189,248,0.05)' : 'white'}; border:1px solid ${idx === 0 ? '#bae6fd' : 'transparent'}; box-shadow:${idx === 0 ? 'none' : '0 4px 15px rgba(0,0,0,0.02)'}; border-radius:25px; padding:15px 20px; display:flex; align-items:center; margin-bottom:12px; cursor:pointer" onclick="openDetail('${r.id}')">
+                            <div style="width:45px; height:45px; background:${idx === 0 ? 'white' : '#f1f5f9'}; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-right:15px">
+                                <i class="fas fa-user-shield" style="color:#94a3b8; font-size:18px"></i>
                             </div>
                             <div style="flex:1; overflow:hidden">
-                                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px">
-                                    <b style="font-size:14px; font-weight:950; color:var(--p)">Emp. ${r.emp_no || 'Unknown'}</b>
-                                    <span style="font-size:10px; font-weight:800; color:#94a3b8">${new Date(r.timestamp||Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px">
+                                    <b style="font-size:15px; font-weight:900; color:#0f172a">Officer ${r.emp_no || 'Unknown'}</b>
+                                    <span style="font-size:11px; color:#cbd5e1; font-weight:700">${new Date(r.timestamp||Date.now()).toISOString().split('T')[0]}</span>
                                 </div>
-                                <span style="font-size:12px; font-weight:700; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block">Appealing Case #${r.case_num || '---'} (${window.String(r.type||'Issue')})</span>
+                                <span style="font-size:13px; color:#475569; font-weight:600; display:flex; gap:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">Employee ${currentUser?.emp_no || '3734'}: CASE #${r.case_num || '---'} (${window.String(r.type||'Issue')})</span>
                             </div>
                         </div>
                     `).join('') : '<div style="text-align:center; padding:50px; color:#94a3b8"><i class="fas fa-inbox" style="font-size:45px; margin-bottom:15px; opacity:0.5"></i><p style="font-weight:800; font-size:14px">NO ACTIVE MESSAGES</p></div>';
