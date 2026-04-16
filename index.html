@@ -476,12 +476,14 @@
                 
                 <div style="margin-top:20px">
                     <span class="lbl-prime">PROBLEM TYPE</span>
-                    <div class="type-grid">
+                    <div class="type-grid" id="type-grid-main">
                         <div class="type-box active" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><span>Safety</span></div>
-                        <div class="type-box" onclick="setType('materials', this)"><i class="fas fa-box"></i><span>Materials</span></div>
-                        <div class="type-box" onclick="setType('mechanical', this)"><i class="fas fa-tools"></i><span>Mech.</span></div>
+                        <div class="type-box" onclick="setType('service', this)"><i class="fas fa-tools"></i><span>Service</span></div>
                         <div class="type-box" onclick="setType('other', this)"><i class="fas fa-info-circle"></i><span>Other</span></div>
                     </div>
+
+                    <div id="branch-selection" class="sub-type-grid" style="margin-top: -10px; margin-bottom: 20px; display: none;"></div>
+
 
                     <div id="sub-types" class="sub-type-grid"></div>
 
@@ -704,12 +706,36 @@
         let isHubStarted = false, isRenderingHub = false, unsubSync = null, unsubChat = null;
         let currentType = 'safety', currentSubType = '';
 
-        const subCats = {
-            safety: ['Fire Hazard', 'Personal Injury', 'Spillage', 'Slip/Trip'],
-            materials: ['Low Stock', 'Damaged Item', 'Wrong Receipt', 'Quality Issue'],
-            mechanical: ['Noisy Engine', 'Fluid Leak', 'Elec. Failure', 'Machine Off'],
-            other: ['General inquiry', 'Personal request', 'Site observation']
+        const problemTree = {
+            safety: {
+                label: "Safety",
+                icon: "fa-shield-alt",
+                branches: {
+                    hazard: { label: "Physical Hazard", items: ['Fire Hazard', 'Chemical Leak', 'Flooding', 'Trip Hazard'] },
+                    injury: { label: "Injury / Health", items: ['First Aid Needed', 'Employee Fall', 'Near Miss', 'Unsafe Acts'] }
+                }
+            },
+            service: {
+                label: "Service",
+                icon: "fa-tools",
+                branches: {
+                    facility: { label: "Facility Issue", items: ['AC / HVAC', 'Lighting / Power', 'Plumbing', 'Elevator'] },
+                    supplies: { label: "Supplies / IT", items: ['Low Stock', 'Network / IT', 'PPE Request', 'Access Card'] }
+                }
+            },
+            other: {
+                label: "Other",
+                icon: "fa-info-circle",
+                branches: {
+                    general: { label: "General", items: ['Observation', 'Feedback', 'Customer Idea'] },
+                    admin: { label: "Admin", items: ['HR Inquiry', 'Account Issue', 'Uniforms'] }
+                }
+            }
         };
+
+        // UI state for tree
+        let currentBranch = null;
+
 
 
         function switchScreen(id) {
@@ -738,6 +764,7 @@
             document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
             document.getElementById('wa-float').style.display = isPop ? 'none' : 'flex';
 
+            if(id === 'create') renderBranches();
             if(id === 'reports') sync();
             if(id === 'stats') updateStats();
             if(id === 'chat-list') renderChatHub();
@@ -1152,8 +1179,58 @@
         }
 
 
-        function setType(t, el) { currentType = t; document.querySelectorAll('.type-box').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderSubTypes(); }
-        function renderSubTypes() { document.getElementById('sub-types').innerHTML = (subCats[currentType]||[]).map(s=>`<div class="sub-type-item" onclick="currentSubType='${s}'; this.parentElement.querySelectorAll('.sub-type-item').forEach(x=>x.classList.remove('active')); this.classList.add('active');">${s}</div>`).join(''); }
+        function setType(t, el) { 
+            currentType = t; 
+            currentBranch = null; 
+            currentSubType = '';
+            document.querySelectorAll('.type-box').forEach(b=>b.classList.remove('active')); 
+            el.classList.add('active'); 
+            renderBranches(); 
+        }
+
+        function renderBranches() {
+            const container = document.getElementById('branch-selection');
+            const data = problemTree[currentType];
+            if(!data || !data.branches) {
+                container.style.display = 'none';
+                renderSubTypes();
+                return;
+            }
+            
+            container.style.display = 'flex';
+            container.innerHTML = Object.keys(data.branches).map(b => `
+                <div class="sub-type-item" style="border:1.5px solid #e2e8f0; background:white" onclick="setBranch('${b}', this)">
+                    ${data.branches[b].label}
+                </div>
+            `).join('');
+            
+            // Clear items until branch is chosen
+            document.getElementById('sub-types').innerHTML = '';
+        }
+
+        function setBranch(b, el) {
+            currentBranch = b;
+            currentSubType = '';
+            document.querySelectorAll('#branch-selection .sub-type-item').forEach(x=>x.classList.remove('active'));
+            el.classList.add('active');
+            renderSubTypes();
+        }
+
+        function renderSubTypes() { 
+            const subArea = document.getElementById('sub-types');
+            if(!currentBranch) {
+                subArea.innerHTML = '';
+                return;
+            }
+            
+            const items = problemTree[currentType].branches[currentBranch].items;
+            subArea.innerHTML = items.map(s => `
+                <div class="sub-type-item" onclick="currentSubType='${s}'; this.parentElement.querySelectorAll('.sub-type-item').forEach(x=>x.classList.remove('active')); this.classList.add('active');">
+                    ${s}
+                </div>
+            `).join(''); 
+        }
+
 
         let activeImgB64 = null;
         function handleFile(input) {
