@@ -75,27 +75,27 @@
         .lang-grid { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; 
+            gap: 12px; 
             width: 100%; 
-            margin-top: 30px;
+            margin-top: 35px;
         }
         .lang-square {
             aspect-ratio: 1 / 1;
             background: white;
-            border-radius: 30px;
+            border-radius: 22px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 8px;
             cursor: pointer;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: 0.3s;
             border: none;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
         }
-        .lang-square:active { transform: scale(0.9); }
-        .lang-square i { font-size: 40px; color: var(--p); }
-        .lang-square span { font-size: 13px; font-weight: 950; color: #1e293b; }
+        .lang-square:active { transform: scale(0.95); }
+        .lang-square i { font-size: 35px; color: var(--p); }
+        .lang-square span { font-size: 14px; font-weight: 700; color: #1e293b; }
 
         /* SMART TILES */
         .smart-tile { 
