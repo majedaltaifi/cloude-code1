@@ -56,25 +56,27 @@
 
         :root { --p: #2e3192; --s: #80d1e9; --bg: #f8fafc; --glass: rgba(255,255,255,0.7); --neon: #80d1e9; }
         
-        body { font-family: 'IBM Plex Sans Arabic', 'Inter', sans-serif; background: #f0f4f8; overflow: hidden; margin:0; }
+        body { font-family: 'IBM Plex Sans Arabic', 'Inter', 'Noto Sans Arabic', sans-serif; background: #f0f4f8; overflow: hidden; margin:0; }
         
         /* LANGUAGE SPLASH */
         #lang-screen { 
-            position: fixed; inset: 0; z-index: 9000; 
+            position: fixed; inset: 0; z-index: 9999; 
             background: linear-gradient(135deg, #2e3192, #1b1d5a); 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.5s ease-in-out;
+            transition: 0.8s cubic-bezier(0.65, 0, 0.35, 1);
         }
         .lang-card {
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2);
-            padding: 40px; border-radius: 40px; width: 85%; max-width: 400px; text-align: center; color: white;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.2);
+            padding: 45px 35px; border-radius: 45px; width: 88%; max-width: 420px; text-align: center; color: white;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.4);
         }
         .lang-btn {
-            background: white; color: var(--p); padding: 18px; border-radius: 20px; font-weight: 950;
-            margin-top: 15px; cursor: pointer; transition: 0.3s; font-size: 18px; width: 100%; border: none;
+            background: rgba(255,255,255,0.95); color: #1e293b; padding: 22px; border-radius: 22px; font-weight: 950;
+            margin-top: 15px; cursor: pointer; transition: 0.4s; font-size: 17px; width: 100%; border: none;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
         }
-        .lang-btn:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .lang-btn:hover { background: white; transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+        .lang-btn i { font-size: 20px; color: var(--p); }
 
         /* SMART TILES */
         .smart-tile { 
@@ -141,6 +143,24 @@
 </head>
 
 <body>
+    <div id="lang-screen">
+        <div class="lang-card">
+            <img src="https://nesma-it.com/wp-content/uploads/2023/10/NIT-Logo-White.png" style="width:120px; margin-bottom:30px">
+            <h2 style="font-weight:950; margin-bottom:10px; font-size:24px">SELECT LANGUAGE</h2>
+            <p style="opacity:0.6; font-size:12px; margin-bottom:30px; letter-spacing:1px; font-weight:700">CHOOSE YOUR PREFERRED TONGUE</p>
+            
+            <button class="lang-btn" onclick="selectLanguage('en')">
+                <i class="fas fa-globe-americas"></i> ENGLISH
+            </button>
+            <button class="lang-btn" onclick="selectLanguage('ar')" style="font-family:'IBM Plex Sans Arabic'">
+                <i class="fas fa-mosque"></i> العربية
+            </button>
+            <button class="lang-btn" onclick="selectLanguage('ur')" style="font-family:'Noto Sans Arabic'">
+                <i class="fas fa-language"></i> اردو (Urdu)
+            </button>
+        </div>
+    </div>
+
     <div class="momentum-bg"></div>
     <div class="phone-frame">
         <div class="app-container">
@@ -462,6 +482,15 @@
                 service: "طلب خدمة", serviceD: "النقل والإصلاحات",
                 back: "رجوع", submit: "إرسال البلاغ", details: "التفاصيل", photo: "الصورة", tap: "اضغط للإرفاق",
                 loginTitle: "منصة NIT الميدانية", loginSub: "دخول آمن", loginID: "الرقم الوظيفي", loginPass: "كلمة المرور", signIn: "تسجيل الدخول", accessDenied: "فشل الدخول"
+            },
+            ur: {
+                wizard: "رپورٹ جمع کروائیں", step1: "مسئلہ کہاں ہے؟", step2: "مسئلے کی قسم", step3: "علاقہ منتخب کریں", step4: "مخصوص مسئلہ",
+                site: "تعمیراتی سائٹ", siteD: "فیلڈ پراجیکٹس اور حفاظت",
+                housing: "ملازمین کی رہائش", housingD: "رہائش اور سہولیات",
+                safety: "حفاظت / خطرہ", safetyD: "خطرات اور واقعات",
+                service: "سروس کی درخواست", serviceD: "نقل و حمل اور مرمت",
+                back: "پیمانہ", submit: "رپورٹ بھیجیں", details: "تفصیلات", photo: "تصویر", tap: "منسلک کرنے کے لیے تھپتھپائیں",
+                loginTitle: "NIT انٹیل ہب", loginSub: "محفوظ رسائی", loginID: "ملازم شناختی کارڈ", loginPass: "پاس ورڈ", signIn: "سائن ان کریں", accessDenied: "رسائی مسترد کر دی گئی"
             }
         };
 
@@ -473,18 +502,24 @@
             ar: {
                 housing: { safety: { branches: { h: { label: "خطر", items: ['حريق', 'كهرباء مكشوفة', 'نظافة'] } } }, service: { branches: { t: { label: "النقل", items: ['تأخر الباص', 'باص غير نظيف', 'سواقة خطرة'] }, u: { label: "المرافق", items: ['المياه', 'الكهرباء', 'عطل مكيف'] } } } },
                 site: { safety: { branches: { h: { label: "مخاطر", items: ['خطر سقوط', 'سقالات', 'حفرة مكشوفة'] }, p: { label: "السلامة", items: ['لا يوجد خوذة', 'لا يوجد سترة'] } } }, service: { branches: { l: { label: "لوجستيات", items: ['تأخر الشاحنة', 'صهريج الماء', 'تعطل معدة'] } } } }
+            },
+            ur: {
+                housing: { safety: { branches: { h: { label: "خطرہ", items: ['آگ', 'بجلی', 'صفائی'] } } }, service: { branches: { t: { label: "نقل و حمل", items: ['بس کی تاخیر', 'گندی بس', 'خراب ڈرائیونگ'] }, u: { label: "سہولیات", items: ['پانی', 'بجلی', 'اے سی کا مسئلہ'] } } } },
+                site: { safety: { branches: { h: { label: "خطرات", items: ['گرنے کا خطرہ', 'سہاروں', 'سوراخ'] }, p: { label: "حفاظت", items: ['ہیلمٹ نہیں', 'واسکیٹ نہیں'] } } }, service: { branches: { l: { label: "لاجسٹکس", items: ['ٹرک کی تاخیر', 'پانی کا ٹینک', 'مشین کی مرمت'] } } } }
             }
         };
 
         function selectLanguage(l) {
             appLang = l;
-            document.body.dir = l === 'ar' ? 'rtl' : 'ltr';
+            localStorage.setItem('app_lang', l);
+            document.body.dir = (l === 'ar' || l === 'ur') ? 'rtl' : 'ltr';
             document.getElementById('lang-screen').style.opacity = '0';
+            document.getElementById('lang-screen').style.pointerEvents = 'none';
             setTimeout(() => {
                 document.getElementById('lang-screen').style.display='none';
-            }, 500);
+            }, 800);
             applyLocalization();
-            initApp(); // Start the actual app logic after language is chosen
+            initApp(); 
         }
 
         function applyLocalization() {
@@ -1052,10 +1087,24 @@
 
         // App starts ONLY when language is chosen or if already chosen before
         window.onload = () => {
-             // If language was previously selected, skip splash
+             // We want EVERY user to see language selection at least once per session OR clear if they logout
              const lastLang = localStorage.getItem('app_lang');
-             if(lastLang) selectLanguage(lastLang);
+             if(lastLang) {
+                 appLang = lastLang;
+                 document.getElementById('lang-screen').style.display = 'none';
+                 document.body.dir = (appLang === 'ar' || appLang === 'ur') ? 'rtl' : 'ltr';
+                 applyLocalization();
+                 initApp();
+             } else {
+                 document.getElementById('lang-screen').style.display = 'flex';
+             }
         };
+
+        function doLogout() { 
+            localStorage.removeItem('nit_user'); 
+            localStorage.removeItem('app_lang'); // Force language re-selection on logout
+            location.reload(); 
+        }
     </script>
 </body>
 </html>
