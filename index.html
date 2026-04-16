@@ -295,10 +295,6 @@
                     
                     <div id="inbox-l"></div>
                 </div>
-                
-                <div style="position:fixed; bottom:95px; right:20px; width:60px; height:60px; background:#22c55e; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 25px rgba(34,197,94,0.3); z-index:100; cursor:pointer" onclick="alert('New Chat')">
-                    <i class="fab fa-whatsapp" style="color:white; font-size:32px"></i>
-                </div>
             </div>
             
             <div class="screen" id="s-support">
@@ -608,21 +604,7 @@
 
                 const inboxL = document.getElementById('inbox-l');
                 if(inboxL) {
-                    const activeChats = sorted.filter(r => window.String(r.status||'open').toLowerCase() !== 'done' && window.String(r.status||'open').toLowerCase() !== 'resolved' && window.String(r.status||'open').toLowerCase() !== 'تم الإنجاز');
-                    inboxL.innerHTML = activeChats.length ? activeChats.map((r, idx) => `
-                        <div class="inbox-item" data-search="${window.String(r.case_num||'').toLowerCase()} ${window.String(r.type||'').toLowerCase()} ${window.String(r.emp_no||'').toLowerCase()}" style="background:${idx === 0 ? 'rgba(56,189,248,0.05)' : 'white'}; border:1px solid ${idx === 0 ? '#bae6fd' : 'transparent'}; box-shadow:${idx === 0 ? 'none' : '0 4px 15px rgba(0,0,0,0.02)'}; border-radius:25px; padding:15px 20px; display:flex; align-items:center; margin-bottom:12px; cursor:pointer" onclick="openDetail('${r.id}')">
-                            <div style="width:45px; height:45px; background:${idx === 0 ? 'white' : '#f1f5f9'}; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-right:15px">
-                                <i class="fas fa-user-shield" style="color:#94a3b8; font-size:18px"></i>
-                            </div>
-                            <div style="flex:1; overflow:hidden">
-                                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px">
-                                    <b style="font-size:15px; font-weight:900; color:#0f172a">Officer ${r.emp_no || 'Unknown'}</b>
-                                    <span style="font-size:11px; color:#cbd5e1; font-weight:700">${new Date(r.timestamp||Date.now()).toISOString().split('T')[0]}</span>
-                                </div>
-                                <span style="font-size:13px; color:#475569; font-weight:600; display:flex; gap:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">Employee ${currentUser?.emp_no || '3734'}: CASE #${r.case_num || '---'} (${window.String(r.type||'Issue')})</span>
-                            </div>
-                        </div>
-                    `).join('') : '<div style="text-align:center; padding:50px; color:#94a3b8"><i class="fas fa-inbox" style="font-size:45px; margin-bottom:15px; opacity:0.5"></i><p style="font-weight:800; font-size:14px">NO ACTIVE MESSAGES</p></div>';
+                    inboxL.innerHTML = '<div style="text-align:center; padding:50px; color:#94a3b8"><i class="fas fa-inbox" style="font-size:45px; margin-bottom:15px; opacity:0.5"></i><p style="font-weight:800; font-size:14px">NO ACTIVE MESSAGES</p></div>';
                 }
             } catch(e) {
                 console.error("renderReports fatal:", e);
