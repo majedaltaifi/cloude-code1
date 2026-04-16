@@ -218,7 +218,7 @@
                         <div style="position:absolute; bottom:2px; right:2px; width:18px; height:18px; background:#10b981; border:3px solid white; border-radius:50%"></div>
                     </div>
                     
-                    <div style="display:flex; justify-content:center; gap:8px; margin-bottom:12px">
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:12px">
                         <span style="background:#f1f5f9; padding:6px 14px; border-radius:10px; font-size:11px; font-weight:800; color:#64748b">Grade: <b style="color:#0f172a">B3</b></span>
                         <span style="background:#f1f5f9; padding:6px 14px; border-radius:10px; font-size:11px; font-weight:800; color:#64748b">Office</span>
                     </div>
@@ -572,10 +572,19 @@
             
             switchScreen('chat-view');
             
-            // Reset my unread count for this room
+            // Explicitly Reset my unread count for this room
+            const myID = String(currentUser.emp_no);
             const updates = {};
-            updates[`unread_counts.${currentUser.emp_no}`] = 0;
-            await db.collection('chat_sessions').doc(sid).update(updates);
+            updates[`unread_counts.${myID}`] = 0;
+            
+            try {
+                await db.collection('chat_sessions').doc(sid).update(updates);
+                // Prompt immediate local UI hide for better UX
+                const navDot = document.getElementById('notif-dot-nav');
+                if(navDot) {
+                    // We only hide if this was the last unread room, but for now we trust the next sync snapshot
+                }
+            } catch(e) { console.error("Unread reset failed:", e); }
 
             if(unsubMsgs) unsubMsgs();
             unsubMsgs = db.collection('chat_sessions').doc(sid).collection('messages')
