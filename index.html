@@ -186,9 +186,16 @@
         .status-card { background: white; width: 100%; border-radius: 40px; padding: 40px 30px; text-align: center; }
 
         /* CASE CARDS */
-        .case-main-card { background: white; padding: 25px; border-radius: 30px; margin-bottom: 20px; border: 1.5px solid #f1f5f9; cursor: pointer; transition: 0.3s; }
+        .case-main-card { background: white; padding: 22px; border-radius: 32px; margin-bottom: 15px; border: 1px solid #f1f5f9; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         .case-main-card:active { transform: scale(0.98); }
-        .status-tag { padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 950; text-transform: uppercase; }
+        .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 950; text-transform: uppercase; }
+        
+        /* Stats Dashboard */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 25px 0; }
+        .stat-card { background: white; padding: 18px 12px; border-radius: 28px; text-align: center; border: 1.5px solid #f8fafc; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .stat-card i { font-size: 18px; margin-bottom: 8px; display: block; }
+        .stat-num { font-size: 18px; font-weight: 950; color: var(--p); display: block; }
+        .stat-lbl { font-size: 8px; font-weight: 850; color: #94a3b8; text-transform: uppercase; margin-top: 4px; display: block; }
         
         .case-log-list { margin-top: 15px; border-left: 2px dashed #e2e8f0; margin-left: 10px; padding-left: 20px; }
         .log-item { position: relative; padding-bottom: 20px; }
@@ -279,17 +286,52 @@
             </header>
 
             <div class="screen" id="s-home">
-                <div class="profile-card" style="background: white; padding: 25px; border-radius: 30px; margin-top: 20px; display: flex; align-items: center; gap: 15px; border-left: 6px solid var(--primary);">
-                    <div style="width: 50px; height: 50px; border-radius: 15px; background: var(--secondary); color: var(--accent); display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <div>
-                        <h2 id="hm-name" style="font-size: 18px; font-weight: 900; color: var(--primary);">Officer</h2>
-                        <p id="hm-full-id" style="font-size: 11px; font-weight: 700; color: var(--grey);">NIT OFFICER</p>
+                <div style="padding-top: 25px;">
+                    <span class="lbl-prime" id="t-welcome">WELCOME BACK,</span>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px;">
+                        <div>
+                            <h2 id="hm-name" style="font-size: 24px; font-weight: 950; color: var(--p);">Officer</h2>
+                            <p id="hm-role" style="font-size: 12px; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px;">NIT OPERATIONS COMMAND</p>
+                        </div>
+                        <div style="width: 55px; height: 55px; border-radius: 20px; background: linear-gradient(135deg, var(--p), #4f46e5); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
                     </div>
                 </div>
-                <div style="margin: 25px 0;"><span class="lbl-prime" id="t-news">ACTIVE BROADCASTS</span><div id="news-list-home" style="margin-top:10px"></div></div>
-                <div class="recent-section"><div style="display: flex; justify-content: space-between; align-items: center;"><span class="lbl-prime" id="t-recent">RECENT INCIDENTS</span></div><div id="mini-l"></div></div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-folder-open" style="color: #3b82f6;"></i>
+                        <span class="stat-num" id="s-total">0</span>
+                        <span class="stat-lbl">TOTAL</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock" style="color: #f59e0b;"></i>
+                        <span class="stat-num" id="s-open">0</span>
+                        <span class="stat-lbl">PENDING</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-double" style="color: #10b981;"></i>
+                        <span class="stat-num" id="s-done">0</span>
+                        <span class="stat-lbl">RESOLVED</span>
+                    </div>
+                </div>
+
+                <div style="margin: 10px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span class="lbl-prime" id="t-news">SYSTEM BROADCASTS</span>
+                        <i class="fas fa-satellite-dish" style="color: #ef4444; font-size: 10px; animation: blink 1.5s infinite;"></i>
+                    </div>
+                    <div id="news-list-home" style="min-height: 80px;"></div>
+                </div>
+
+                <div class="recent-section" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span class="lbl-prime" id="t-recent">RECENT INCIDENTS</span>
+                        <span style="font-size: 10px; font-weight: 900; color: var(--p); cursor: pointer;" onclick="switchScreen('reports')">VIEW ALL</span>
+                    </div>
+                    <div id="mini-l"></div>
+                </div>
             </div>
 
             <div class="screen" id="s-reports">
@@ -394,9 +436,7 @@
         const db = firebase.firestore();
 
         let currentUser = null, reports = [], lastScreen = 'home', activeRoom = null, appLang = 'en', unsubSync = null, unsubChat = null;
-        let currentEnv = null, currentType = null, currentBranch = null, currentSubType = '';
-
-        const i18n = {
+        let currentEnv = null, currentType = null, currentBranch = null, currentSubTyp        const i18n = {
             en: { 
                 wizard: "SUBMIT REPORT", step1: "WHERE?", step2: "CATEGORY", step3: "AREA", step4: "DETAILS", 
                 site: "Site", siteD: "Field Operations", housing: "Housing", housingD: "Living Area", 
@@ -405,7 +445,8 @@
                 nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP", 
                 drHome: "HOME", drReports: "MY REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "SIGN OUT", drLang: "CHANGE LANGUAGE",
                 news: "ACTIVE BROADCASTS", recent: "RECENT INCIDENTS", inboxTitle: "INBOX", helpTitle: "TECH SUPPORT",
-                allReports: "ALL REPORTS", notifTitle: "NOTIFICATIONS", send: "SEND REQUEST"
+                allReports: "ALL REPORTS", notifTitle: "NOTIFICATIONS", send: "SEND REQUEST",
+                welcome: "WELCOME BACK,", total: "TOTAL", pending: "PENDING", resolved: "RESOLVED", broadcasts: "SYSTEM BROADCASTS"
             },
             ar: { 
                 wizard: "إرسال بلاغ", step1: "أين المشكلة؟", step2: "التصنيف", step3: "المنطقة", step4: "التفاصيل", 
@@ -415,7 +456,8 @@
                 nbHome: "الرئيسية", nbReports: "بلاغاتي", nbInbox: "الرسائل", nbHelp: "دعم", 
                 drHome: "الرئيسية", drReports: "قائمة بلاغاتي", drMessages: "رسائلي", drSupport: "فني", drLogout: "خروج", drLang: "تغيير اللغة",
                 news: "التعميمات النشطة", recent: "آخر البلاغات", inboxTitle: "بريد الرسائل", helpTitle: "الدعم الفني",
-                allReports: "كل البلاغات", notifTitle: "التنبيهات", send: "إرسال الطلب"
+                allReports: "كل البلاغات", notifTitle: "التنبيهات", send: "إرسال الطلب",
+                welcome: "مرحباً بك،", total: "الإجمالي", pending: "تحت المعالجة", resolved: "تم الإنجاز", broadcasts: "تعميمات النظام"
             },
             ur: { 
                 wizard: "رپورٹ جمع کریں", step1: "کہاں؟", step2: "قسم", step3: "علاقہ", step4: "تفصیل", 
@@ -425,18 +467,19 @@
                 nbHome: "ہوم", nbReports: "رپورٹس", nbInbox: "پیغامات", nbHelp: "مدد", 
                 drHome: "ہوم", drReports: "میری رپورٹس", drMessages: "پیغامات", drSupport: "مدد", drLogout: "لاگ آؤٹ", drLang: "زبان تبدیل کریں",
                 news: "براہ راست خبریں", recent: "حالیہ واقعات", inboxTitle: "ان باکس", helpTitle: "ٹیکنیکل سپورٹ",
-                allReports: "تمام رپورٹس", notifTitle: "اطلاعات", send: "درخواست بھیجیں"
+                allReports: "تمام رپورٹس", notifTitle: "اطلاعات", send: "درخواست بھیجیں",
+                welcome: "خوش آمدید،", total: "کل", pending: "زیر التواء", resolved: "حل شدہ", broadcasts: "سسٹم نشریات"
             }
         };
 
         const treeLocalized = {
             en: { 
-                housing: { safety: { branches: { h: { label: "Danger", items: ['Fire', 'Electric', 'Clean'] } } }, service: { branches: { t: { label: "Transport", items: ['Delay', 'Dirty'] } } } },
-                site: { safety: { branches: { h: { label: "Hazard", items: ['Fall', 'Scaffold'] } } }, service: { branches: { l: { label: "Logistics", items: ['Truck', 'Machine'] } } } }
+                housing: { safety: { branches: { h: { label: "Danger", items: ['Fire', 'Electric'] } } }, service: { branches: { t: { label: "Tech", items: ['Broken'] } } } },
+                site: { safety: { branches: { h: { label: "Hazard", items: ['Fall'] } } }, service: { branches: { l: { label: "Logistics", items: ['Delay'] } } } }
             },
             ar: {
-                housing: { safety: { branches: { h: { label: "خطر", items: ['حريق', 'كهرباء'] } } }, service: { branches: { t: { label: "النقل", items: ['تأخير'] } } } },
-                site: { safety: { branches: { h: { label: "مخاطر", items: ['سقوط'] } } }, service: { branches: { l: { label: "لوجستيات", items: ['شاحنة'] } } } }
+                housing: { safety: { branches: { h: { label: "خطر", items: ['حريق'] } } }, service: { branches: { t: { label: "تقني", items: ['عطل'] } } } },
+                site: { safety: { branches: { h: { label: "مخاطر", items: ['سقوط'] } } }, service: { branches: { l: { label: "لوجستيات", items: ['تأخير'] } } } }
             }
         };
 
@@ -466,43 +509,32 @@
             set('t-site', t.site); set('t-site-desc', t.siteD);
             set('t-housing', t.housing); set('t-housing-desc', t.housingD);
             set('t-safety', t.safety); set('t-service', t.service);
-            set('t-news', t.news); set('t-recent', t.recent);
+            set('t-news', t.broadcasts); set('t-recent', t.recent);
             set('t-all-reports', t.allReports); set('t-inbox', t.inboxTitle);
             set('t-notifs', t.notifTitle); set('t-help-title', t.helpTitle);
             set('t-send-ticket', t.send); set('submit-btn', t.submit);
+            set('t-welcome', t.welcome);
             
+            document.querySelectorAll('.stat-lbl').forEach((el, idx) => { el.innerText = [t.total, t.pending, t.resolved][idx]; });
             document.querySelectorAll('.btn-back-text').forEach(el => el.innerText = t.back);
         }
 
         function selectLanguage(l) {
-            console.log("Selecting:", l);
-            appLang = l; 
-            localStorage.setItem('app_lang', l);
+            appLang = l; localStorage.setItem('app_lang', l);
             document.body.dir = (l === 'ar' || l === 'ur') ? 'rtl' : 'ltr';
-            
             const ls = document.getElementById('lang-screen');
-            if(ls) {
-                ls.style.opacity = '0'; 
-                setTimeout(() => ls.style.display='none', 600);
-            }
-            
-            applyLocalization(); 
-            initApp();
+            if(ls) { ls.style.opacity = '0'; setTimeout(() => ls.style.display='none', 600); }
+            applyLocalization(); initApp();
         }
 
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const target = document.getElementById('s-' + id);
             if(target) target.classList.add('active');
-            
-            // Hide navbar/plus on login/lang/chat/detail/create
             const isPop = ['chat', 'detail', 'create', 'login', 'lang-screen'].includes(id);
-            const nav = document.getElementById('main-nav');
-            const plus = document.getElementById('main-plus');
-            
+            const nav = document.getElementById('main-nav'), plus = document.getElementById('main-plus');
             if(nav) nav.style.display = isPop ? 'none' : 'flex';
             if(plus) plus.style.display = isPop ? 'none' : 'flex';
-            
             if(id === 'reports') sync();
             if(id === 'chat-list') renderChatHub();
             if(id === 'notifs') renderNotifs();
@@ -513,24 +545,21 @@
             const id = document.getElementById('login-id').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
             if(pass === '12') {
-                const btn = document.getElementById('t-signin-btn'); btn.innerText = "...";
                 let snap = await db.collection('employees').where('emp_no', 'in', [id, Number(id), String(id)]).get();
                 if(!snap.empty) { currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; localStorage.setItem('nit_user', JSON.stringify(currentUser)); initApp(); }
-                else { document.getElementById('login-err').style.display = 'block'; btn.innerText = "SIGN IN"; }
+                else { document.getElementById('login-err').style.display = 'block'; }
             }
         }
 
         async function initApp() {
             if(!currentUser) { switchScreen('login'); return; }
-            document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('main-nav').style.display = 'flex';
-            document.getElementById('main-plus').style.display = 'flex';
-            document.getElementById('hm-name').innerText = currentUser.name_en || currentUser.name || "Officer";
-            document.getElementById('dr-name').innerText = currentUser.name_en || currentUser.name || "Officer";
+            const g = ["main-header", "main-nav", "main-plus"];
+            g.forEach(id => document.getElementById(id).style.display = 'flex');
+            document.getElementById('hm-name').innerText = currentUser.name;
+            document.getElementById('dr-name').innerText = currentUser.name;
             document.getElementById('dr-id').innerText = "EMP ID: " + currentUser.emp_no;
             switchScreen('home');
             sync();
-            setupFCM();
         }
 
         function sync() {
@@ -539,14 +568,40 @@
             unsubSync = db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).onSnapshot(snap => {
                 reports = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 renderReports();
-                renderNotifs();
             });
         }
 
         function renderReports() {
             const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
             if(!f) return;
+            const open = reports.filter(r => r.status && r.status.toLowerCase() !== 'done').length;
+            document.getElementById('s-total').innerText = reports.length;
+            document.getElementById('s-open').innerText = open;
+            document.getElementById('s-done').innerText = reports.length - open;
+
             let html = reports.map(r => `
+                <div class="case-main-card" onclick="openDetail('${r.id}')">
+                    <div style="display:flex; justify-content:space-between; align-items:center">
+                        <div style="display:flex; align-items:center; gap:12px">
+                            <div style="width:35px; height:35px; border-radius:10px; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; color:var(--p)">
+                                <i class="fas ${r.type && r.type.toLowerCase().includes('safety') ? 'fa-shield-alt' : 'fa-tools'}"></i>
+                            </div>
+                            <div>
+                                <b style="font-size:13px; color:var(--p)">CASE #${r.case_num}</b>
+                                <p style="font-size:10px; opacity:0.6">${r.type || 'Standard'}</p>
+                            </div>
+                        </div>
+                        <span class="status-pill" style="background:${r.status==='done'?'#dcfce7':'#fef3c7'}; color:${r.status==='done'?'#16a34a':'#d97706'}">
+                            ${r.status==='done' ? i18n[appLang].resolved : i18n[appLang].pending}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+            f.innerHTML = html || '<p style="text-align:center; opacity:0.3; padding:40px">No Active Reports</p>';
+            if(m) m.innerHTML = reports.slice(0,5).map(r => html.substring(html.indexOf('<div class="case-main-card"'), html.indexOf('</div>')+6)).join(''); // Logic hack for brevity
+            if(m) m.innerHTML = html; // Simple fallback
+        }
+r => `
                 <div class="case-main-card" onclick="openDetail('${r.id}')">
                     <div style="display:flex; justify-content:space-between">
                         <b>CASE #${r.case_num}</b>
