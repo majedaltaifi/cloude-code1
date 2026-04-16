@@ -90,9 +90,10 @@
         .smart-tile .info b { font-size: 16px; color: var(--p); font-weight: 850; letter-spacing: -0.5px; }
         .smart-tile .info span { font-size: 11px; color: #64748b; font-weight: 600; }
 
-        /* SLEEK PROGRESS */
-        .smart-progress { height: 6px; background: #e2e8f0; border-radius: 10px; margin-bottom: 30px; position: relative; overflow: hidden; }
-        .smart-progress-bar { height: 100%; background: linear-gradient(to right, var(--p), var(--s)); transition: 0.6s cubic-bezier(0.65, 0, 0.35, 1); width: 25%; box-shadow: 0 0 10px var(--s); }
+        .step-badge {
+            background: rgba(46,49,146,0.05); color: var(--p); padding: 4px 12px; border-radius: 12px;
+            font-size: 12px; font-weight: 950; margin-left: 10px; border: 1px solid rgba(46,49,146,0.1);
+        }
 
         /* BUTTONS */
         .btn-smart { background: var(--p); color: white; border: none; padding: 20px; border-radius: 25px; font-weight: 900; width: 100%; font-size: 16px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(46,49,146,0.2); }
@@ -207,15 +208,13 @@
                 </div>
             </div>
 
-            <!-- WIZARD PANE (CREATE) -->
             <div class="screen" id="s-create">
-                <div style="padding: 20px 0 10px; display: flex; align-items: center; gap: 15px;">
-                    <i class="fas fa-arrow-left" style="color:var(--p); font-size:20px" onclick="resetCreationFlow(); switchScreen('home');"></i>
-                    <h2 id="wizard-title" style="font-size:20px; font-weight:950; color:var(--p)">SUBMIT REPORT</h2>
-                </div>
-
-                <div class="smart-progress">
-                    <div id="smart-progress-bar" class="smart-progress-bar"></div>
+                <div style="padding: 25px 0 25px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-arrow-left" style="color:var(--p); font-size:20px" onclick="resetCreationFlow(); switchScreen('home');"></i>
+                        <h2 id="wizard-title" style="font-size:18px; font-weight:950; color:var(--p)">SUBMIT</h2>
+                    </div>
+                    <div id="step-counter" class="step-badge">1/4</div>
                 </div>
 
                 <!-- Step 1: Environment -->
@@ -522,8 +521,12 @@
 
         function goToPane(n) {
             document.querySelectorAll('.creation-pane').forEach(p => p.style.display = 'none');
-            document.getElementById('pane-' + n).style.display = 'block';
-            document.getElementById('smart-progress-bar').style.width = (n / 4 * 100) + '%';
+            const target = document.getElementById('pane-' + n);
+            if(target) {
+                target.style.display = 'block';
+                target.style.animation = 'fadeInUp 0.4s ease forwards';
+            }
+            document.getElementById('step-counter').innerText = n + '/4';
         }
 
         function setEnv(e, el) {
