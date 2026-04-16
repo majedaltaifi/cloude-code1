@@ -113,6 +113,13 @@
         .stat-num { font-size: 18px; font-weight: 950; color: var(--p); display: block; }
         .stat-lbl { font-size: 8px; font-weight: 850; color: #94a3b8; text-transform: uppercase; margin-top: 4px; display: block; }
         .lbl-prime { font-size: 10px; font-weight: 950; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; display: block; }
+        
+        /* Intelligence Detail Styles */
+        .detail-header { padding: 30px; background: white; border-radius: 35px; border-bottom: 4px solid var(--p); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .detail-info-row { display: flex; align-items: center; gap: 15px; margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 22px; }
+        .detail-info-row i { font-size: 18px; color: var(--p); width: 30px; text-align: center; }
+        .detail-info-row b { font-size: 12px; color: #64748b; }
+        .detail-info-row span { font-size: 14px; font-weight: 850; color: var(--p); }
     </style>
 </head>
 
@@ -311,7 +318,8 @@
             if(!currentUser) return;
             if(unsubSync) unsubSync();
             unsubSync = db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).onSnapshot(snap => {
-                reports = snap.docs.map(d => d.data()); renderReports();
+                reports = snap.docs.map(d => ({id: d.id, ...d.data()})); 
+                renderReports();
             });
         }
 
@@ -322,7 +330,7 @@
             document.getElementById('s-open').innerText = open;
             document.getElementById('s-done').innerText = reports.length - open;
             let html = reports.map(r => `
-                <div class="case-main-card">
+                <div class="case-main-card" onclick="openDetail('${r.id}')">
                     <div style="display:flex; justify-content:space-between; align-items:center">
                         <div style="display:flex; align-items:center; gap:12px">
                             <i class="fas ${r.type.toLowerCase().includes('safety')?'fa-shield-alt':'fa-tools'}" style="color:var(--p)"></i>
@@ -349,6 +357,48 @@
         function renderBranches() { 
             const data = (treeLocalized[appLang] || treeLocalized['en'])[currentEnv][currentType];
             document.getElementById('branch-list').innerHTML = Object.keys(data.branches).map(b => `<div class="smart-tile" onclick="goToPane(4)"><b>${data.branches[b].label}</b></div>`).join('');
+        }
+
+        async function openDetail(id) {
+            const r = reports.find(x => x.id === id); if(!r) return;
+            const t = i18n[appLang];
+            const isDone = r.status === 'done';
+            
+            document.getElementById('det-cont').innerHTML = `
+                <div class="detail-header">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start">
+                        <div>
+                            <span class="lbl-prime">INTEL REPORT</span>
+                            <h2 style="font-size:28px; font-weight:950; color:var(--p)">CASE #${r.case_num}</h2>
+                        </div>
+                        <div style="width:50px; height:50px; border-radius:15px; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; color:var(--p)">
+                             <i class="fas ${r.type.toLowerCase().includes('safety')?'fa-shield-alt':'fa-tools'}"></i>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px">
+                        <span class="status-pill" style="font-size:12px; padding:8px 20px; background:${isDone?'#dcfce7':'#fef3c7'}; color:${isDone?'#16a34a':'#d97706'}">
+                             ${isDone ? t.resolved : t.pending}
+                        </span>
+                    </div>
+                </div>
+                <div class="case-main-card">
+                    <span class="lbl-prime">DETAILS</span>
+                    <p style="font-size:16px; font-weight:700; color:#334155; line-height:1.6">${r.description || 'No additional details provided.'}</p>
+                </div>
+                <div class="detail-info-row">
+                    <i class="fas fa-tag"></i>
+                    <div><b>CATEGORY</b><br><span>${r.type}</span></div>
+                </div>
+                <div style="margin-top:25px; display:grid; grid-template-columns:1fr 1fr; gap:12px">
+                    <button class="btn-secondary" onclick="switchScreen('home')" style="margin:0">
+                        <i class="fas fa-arrow-left"></i> <span class="btn-back-text">BACK</span>
+                    </button>
+                    <button class="btn-smart" onclick="switchScreen('chat-list')" style="padding:15px">
+                        <i class="fas fa-comments"></i> CHAT
+                    </button>
+                </div>
+            `;
+            switchScreen('detail');
         }
 
         function closeStatusModal() { document.getElementById('status-modal').classList.remove('active'); }
