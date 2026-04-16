@@ -215,6 +215,7 @@
             <div class="drawer-menu-item" onclick="switchScreen('reports')"><i class="fas fa-file-alt"></i> <span id="dr-reports">MY REPORTS</span></div>
             <div class="drawer-menu-item" onclick="switchScreen('chat-list')"><i class="fas fa-comments"></i> <span id="dr-messages">MESSAGES</span></div>
             <div class="drawer-menu-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i> <span id="dr-support">SUPPORT</span></div>
+            <div class="drawer-menu-item" onclick="showLanguageScreen()"><i class="fas fa-globe"></i> <span id="dr-lang">LANGUAGE</span></div>
         </div>
         <div class="drawer-menu-item" onclick="doLogout()" style="color: #ef4444; background: #fee2e2; border-radius: 20px;">
             <i class="fas fa-power-off"></i> <span id="dr-logout">SIGN OUT</span>
@@ -402,7 +403,7 @@
                 safety: "Safety", service: "Service", back: "BACK", submit: "SUBMIT", 
                 loginTitle: "NIT INTEL HUB", loginSub: "SECURE ACCESS AREA", loginErr: "ACCESS DENIED",
                 nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP", 
-                drHome: "HOME", drReports: "MY REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "SIGN OUT",
+                drHome: "HOME", drReports: "MY REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "SIGN OUT", drLang: "CHANGE LANGUAGE",
                 news: "ACTIVE BROADCASTS", recent: "RECENT INCIDENTS", inboxTitle: "INBOX", helpTitle: "TECH SUPPORT",
                 allReports: "ALL REPORTS", notifTitle: "NOTIFICATIONS", send: "SEND REQUEST"
             },
@@ -412,7 +413,7 @@
                 safety: "سلامة", service: "خدمة", back: "رجوع", submit: "إرسال", 
                 loginTitle: "NIT الميدانية", loginSub: "دخول آمن للموظف", loginErr: "بيانات الدخول غير صحيحة",
                 nbHome: "الرئيسية", nbReports: "بلاغاتي", nbInbox: "الرسائل", nbHelp: "دعم", 
-                drHome: "الرئيسية", drReports: "قائمة بلاغاتي", drMessages: "رسائلي", drSupport: "فني", drLogout: "خروج",
+                drHome: "الرئيسية", drReports: "قائمة بلاغاتي", drMessages: "رسائلي", drSupport: "فني", drLogout: "خروج", drLang: "تغيير اللغة",
                 news: "التعميمات النشطة", recent: "آخر البلاغات", inboxTitle: "بريد الرسائل", helpTitle: "الدعم الفني",
                 allReports: "كل البلاغات", notifTitle: "التنبيهات", send: "إرسال الطلب"
             },
@@ -422,7 +423,7 @@
                 safety: "حفاظت", service: "سروس", back: "پیچھے", submit: "جمع کریں", 
                 loginTitle: "NIT انٹیل", loginSub: "محفوظ رسائی", loginErr: "رسائی مسترد کر دی گئی",
                 nbHome: "ہوم", nbReports: "رپورٹس", nbInbox: "پیغامات", nbHelp: "مدد", 
-                drHome: "ہوم", drReports: "میری رپورٹس", drMessages: "پیغامات", drSupport: "مدد", drLogout: "لاگ آؤٹ",
+                drHome: "ہوم", drReports: "میری رپورٹس", drMessages: "پیغامات", drSupport: "مدد", drLogout: "لاگ آؤٹ", drLang: "زبان تبدیل کریں",
                 news: "براہ راست خبریں", recent: "حالیہ واقعات", inboxTitle: "ان باکس", helpTitle: "ٹیکنیکل سپورٹ",
                 allReports: "تمام رپورٹس", notifTitle: "اطلاعات", send: "درخواست بھیجیں"
             }
@@ -458,6 +459,7 @@
             set('dr-reports', t.drReports);
             set('dr-messages', t.drMessages);
             set('dr-support', t.drSupport);
+            set('dr-lang', t.drLang);
             set('dr-logout', t.drLogout);
 
             set('t-step-1', t.step1); set('t-step-2', t.step2); set('t-step-3', t.step3); set('t-step-4', t.step4);
@@ -647,6 +649,12 @@
         function closeStatusModal() { document.getElementById('status-modal').classList.remove('active'); }
         function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
         function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
+        function showLanguageScreen() {
+            closeDrawer();
+            const ls = document.getElementById('lang-screen');
+            ls.style.display = 'flex';
+            setTimeout(() => ls.style.opacity = '1', 50);
+        }
         function doLogout() { localStorage.removeItem('nit_user'); localStorage.removeItem('app_lang'); location.reload(); }
         function setupFCM() { console.log("FCM Placeholder"); }
         function renderNotifs() { console.log("Notifs Sync"); }
