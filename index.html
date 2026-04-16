@@ -475,17 +475,32 @@
                 </header>
                 
                 <div style="margin-top:20px">
-                    <span class="lbl-prime">PROBLEM TYPE</span>
-                    <div class="type-grid" id="type-grid-main">
-                        <div class="type-box active" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><span>Safety</span></div>
-                        <div class="type-box" onclick="setType('service', this)"><i class="fas fa-tools"></i><span>Service</span></div>
-                        <div class="type-box" onclick="setType('other', this)"><i class="fas fa-info-circle"></i><span>Other</span></div>
+                    <span class="lbl-prime">1. SELECT ENVIRONMENT / اختر الموقع</span>
+                    <div class="type-grid" id="env-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <div class="type-box" onclick="setEnv('office', this)" style="padding: 15px;"><i class="fas fa-building" style="font-size: 24px;"></i><span style="font-size: 11px;">Office</span></div>
+                        <div class="type-box" onclick="setEnv('site', this)" style="padding: 15px;"><i class="fas fa-hard-hat" style="font-size: 24px;"></i><span style="font-size: 11px;">Site</span></div>
+                        <div class="type-box" onclick="setEnv('housing', this)" style="padding: 15px;"><i class="fas fa-home" style="font-size: 24px;"></i><span style="font-size: 11px;">Housing</span></div>
                     </div>
 
-                    <div id="branch-selection" class="sub-type-grid" style="margin-top: -10px; margin-bottom: 20px; display: none;"></div>
+                    <div id="step-type" style="display: none; margin-top: 20px;">
+                        <span class="lbl-prime">2. PROBLEM TYPE / نوع المشكلة</span>
+                        <div class="type-grid" id="type-grid-main">
+                            <div class="type-box" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><span>Safety</span></div>
+                            <div class="type-box" onclick="setType('service', this)"><i class="fas fa-tools"></i><span>Service</span></div>
+                            <div class="type-box" onclick="setType('other', this)"><i class="fas fa-info-circle"></i><span>Other</span></div>
+                        </div>
+                    </div>
 
+                    <div id="step-branch" style="display: none; margin-top: 10px;">
+                        <span class="lbl-prime">3. AREA / مجال المشكلة</span>
+                        <div id="branch-selection" class="sub-type-grid" style="margin-top: 5px; margin-bottom: 20px;"></div>
+                    </div>
 
-                    <div id="sub-types" class="sub-type-grid"></div>
+                    <div id="step-sub" style="display: none; margin-top: 10px;">
+                        <span class="lbl-prime">4. SPECIFIC PROBLEM / المشكلة المحددة</span>
+                        <div id="sub-types" class="sub-type-grid"></div>
+                    </div>
+
 
                     <span class="lbl-prime">WRITE PROBLEM</span>
                     <div class="write-box">
@@ -707,34 +722,36 @@
         let currentType = 'safety', currentSubType = '';
 
         const problemTree = {
-            safety: {
-                label: "Safety",
-                icon: "fa-shield-alt",
-                branches: {
-                    hazard: { label: "Physical Hazard", items: ['Fire Hazard', 'Chemical Leak', 'Flooding', 'Trip Hazard'] },
-                    injury: { label: "Injury / Health", items: ['First Aid Needed', 'Employee Fall', 'Near Miss', 'Unsafe Acts'] }
+            office: {
+                label: "Office",
+                types: {
+                    safety: { branches: { hazard: { label: "Physical Hazard", items: ['Slippery Floor', 'Fire Extinguisher', 'Trip Hazard'] }, health: { label: "Health / Hygiene", items: ['Ventilation', 'Smoking Area', 'Cleanliness'] } } },
+                    service: { branches: { it: { label: "IT / Network", items: ['Internet Down', 'Printer Error', 'PC Failure'] }, facility: { label: "Facility Main.", items: ['AC Cooling', 'Lighting', 'Water Dispenser'] } } },
+                    other: { branches: { general: { label: "General", items: ['Stationery Req.', 'ID Card', 'Meeting Room'] } } }
                 }
             },
-            service: {
-                label: "Service",
-                icon: "fa-tools",
-                branches: {
-                    facility: { label: "Facility Issue", items: ['AC / HVAC', 'Lighting / Power', 'Plumbing', 'Elevator'] },
-                    supplies: { label: "Supplies / IT", items: ['Low Stock', 'Network / IT', 'PPE Request', 'Access Card'] }
+            site: {
+                label: "Site",
+                types: {
+                    safety: { branches: { hazard: { label: "Site Hazard", items: ['Scaffolding', 'Excavation Risk', 'High Heights'] }, ppe: { label: "PPE / Equipment", items: ['No Helmet', 'Broken Harness', 'No Safety Shoes'] } } },
+                    service: { branches: { equipment: { label: "Heavy Equip.", items: ['Generator Fail', 'Crane Issue', 'Fuel Leak'] }, resources: { label: "Resources", items: ['Low Material', 'Missing Tools', 'Fuel Lack'] } } },
+                    other: { branches: { project: { label: "Project", items: ['Delay Alert', 'Inspection Req.', 'Permit Issue'] } } }
                 }
             },
-            other: {
-                label: "Other",
-                icon: "fa-info-circle",
-                branches: {
-                    general: { label: "General", items: ['Observation', 'Feedback', 'Customer Idea'] },
-                    admin: { label: "Admin", items: ['HR Inquiry', 'Account Issue', 'Uniforms'] }
+            housing: {
+                label: "Housing",
+                types: {
+                    safety: { branches: { env: { label: "Living Safety", items: ['Emergency Exit', 'Exposed Wires', 'Pest Control'] } } },
+                    service: { branches: { utilities: { label: "Utilities", items: ['No Water', 'Power Outage', 'Sewage Issue'] }, comfort: { label: "Comfort", items: ['AC Failure', 'Laundry Room', 'Mattress/Bed'] } } },
+                    other: { branches: { general: { label: "Request", items: ['Transport Req.', 'Leave Request', 'Medical Issue'] } } }
                 }
             }
         };
 
         // UI state for tree
+        let currentEnv = null;
         let currentBranch = null;
+
 
 
 
@@ -764,7 +781,7 @@
             document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
             document.getElementById('wa-float').style.display = isPop ? 'none' : 'flex';
 
-            if(id === 'create') renderBranches();
+            if(id === 'create') resetCreationFlow();
             if(id === 'reports') sync();
             if(id === 'stats') updateStats();
             if(id === 'chat-list') renderChatHub();
@@ -1179,25 +1196,41 @@
         }
 
 
+        function setEnv(env, el) {
+            currentEnv = env;
+            currentType = null;
+            currentBranch = null;
+            currentSubType = '';
+            document.querySelectorAll('#env-grid .type-box').forEach(b=>b.classList.remove('active'));
+            el.classList.add('active');
+            
+            document.getElementById('step-type').style.display = 'block';
+            document.getElementById('step-branch').style.display = 'none';
+            document.getElementById('step-sub').style.display = 'none';
+            document.querySelectorAll('#type-grid-main .type-box').forEach(b=>b.classList.remove('active'));
+        }
+
         function setType(t, el) { 
             currentType = t; 
             currentBranch = null; 
             currentSubType = '';
-            document.querySelectorAll('.type-box').forEach(b=>b.classList.remove('active')); 
+            document.querySelectorAll('#type-grid-main .type-box').forEach(b=>b.classList.remove('active')); 
             el.classList.add('active'); 
+            
+            document.getElementById('step-branch').style.display = 'block';
+            document.getElementById('step-sub').style.display = 'none';
             renderBranches(); 
         }
 
         function renderBranches() {
             const container = document.getElementById('branch-selection');
-            const data = problemTree[currentType];
+            const data = problemTree[currentEnv].types[currentType];
             if(!data || !data.branches) {
-                container.style.display = 'none';
+                container.parentElement.style.display = 'none';
                 renderSubTypes();
                 return;
             }
             
-            container.style.display = 'flex';
             container.innerHTML = Object.keys(data.branches).map(b => `
                 <div class="sub-type-item" style="border:1.5px solid #e2e8f0; background:white" onclick="setBranch('${b}', this)">
                     ${data.branches[b].label}
@@ -1213,6 +1246,7 @@
             currentSubType = '';
             document.querySelectorAll('#branch-selection .sub-type-item').forEach(x=>x.classList.remove('active'));
             el.classList.add('active');
+            document.getElementById('step-sub').style.display = 'block';
             renderSubTypes();
         }
 
@@ -1223,12 +1257,26 @@
                 return;
             }
             
-            const items = problemTree[currentType].branches[currentBranch].items;
+            const items = problemTree[currentEnv].types[currentType].branches[currentBranch].items;
             subArea.innerHTML = items.map(s => `
                 <div class="sub-type-item" onclick="currentSubType='${s}'; this.parentElement.querySelectorAll('.sub-type-item').forEach(x=>x.classList.remove('active')); this.classList.add('active');">
                     ${s}
                 </div>
             `).join(''); 
+        }
+
+        function resetCreationFlow() {
+            currentEnv = null;
+            currentType = null;
+            currentBranch = null;
+            currentSubType = '';
+            document.querySelectorAll('#env-grid .type-box').forEach(b=>b.classList.remove('active'));
+            document.getElementById('step-type').style.display = 'none';
+            document.getElementById('step-branch').style.display = 'none';
+            document.getElementById('step-sub').style.display = 'none';
+            document.getElementById('case-desc').value = '';
+            activeImgB64 = null;
+            document.getElementById('image-preview-cont').innerHTML = `<i class="fas fa-camera" style="font-size:32px; color:#94a3b8"></i><p style="margin:12px 0 0 0; font-size:16px; font-weight:950; color:#94a3b8; letter-spacing:1px">PHOTOGRAPH</p>`;
         }
 
 
@@ -1276,7 +1324,7 @@
                     emp_no: currentUser.emp_no,
                     user_name: currentUser.name_en || currentUser.name,
                     case_num: caseNum,
-                    type: currentType + (currentSubType ? ' - ' + currentSubType : ''),
+                    type: (currentEnv ? currentEnv.toUpperCase() : '') + ' - ' + currentType + (currentSubType ? ' - ' + currentSubType : ''),
                     description: desc,
                     site: site,
                     status: 'open',
