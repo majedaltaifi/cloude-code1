@@ -72,8 +72,9 @@
         .lang-btn {
             background: white; border-radius: 20px; padding: 18px 25px; display: flex; align-items: center; gap: 20px;
             cursor: pointer; transition: 0.3s; font-size: 18px; font-weight: 800; color: #0f172a; border: none; outline: none;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); width: 100%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); width: 100%; -webkit-appearance: none; -moz-appearance: none; appearance: none;
         }
+        .lang-btn * { pointer-events: none; }
         .lang-btn i { font-size: 26px; color: var(--p); width: 40px; text-align: center; }
         .lang-btn:active { transform: scale(0.97); }
 
@@ -163,9 +164,9 @@
                     <h2 style="font-weight:950; margin-bottom:10px; font-size:20px">SELECT LANGUAGE</h2>
                     <p style="opacity:0.6; font-size:10px; margin-bottom:25px; font-weight:700">PREFERRED SYSTEM TONGUE</p>
                     <div class="lang-list">
-                        <div class="lang-btn" onclick="selectLanguage('en')"><i class="fas fa-globe"></i><span>English</span></div>
-                        <div class="lang-btn" onclick="selectLanguage('ar')"><i class="fas fa-mosque"></i><span>العربية</span></div>
-                        <div class="lang-btn" onclick="selectLanguage('ur')"><i class="fas fa-language"></i><span>Urdu</span></div>
+                        <button class="lang-btn" onclick="selectLanguage('en')"><i class="fas fa-globe"></i><span>English</span></button>
+                        <button class="lang-btn" onclick="selectLanguage('ar')"><i class="fas fa-mosque"></i><span>العربية</span></button>
+                        <button class="lang-btn" onclick="selectLanguage('ur')"><i class="fas fa-language"></i><span>Urdu</span></button>
                     </div>
                 </div>
             </div>
