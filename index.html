@@ -435,9 +435,15 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const target = document.getElementById('s-' + id);
             if(target) target.classList.add('active');
-            const isPop = ['chat', 'detail', 'create'].includes(id);
-            document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
-            document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
+            
+            // Hide navbar/plus on login/lang/chat/detail/create
+            const isPop = ['chat', 'detail', 'create', 'login', 'lang-screen'].includes(id);
+            const nav = document.getElementById('main-nav');
+            const plus = document.getElementById('main-plus');
+            
+            if(nav) nav.style.display = isPop ? 'none' : 'flex';
+            if(plus) plus.style.display = isPop ? 'none' : 'flex';
+            
             if(id === 'reports') sync();
             if(id === 'chat-list') renderChatHub();
             if(id === 'notifs') renderNotifs();
