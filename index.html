@@ -210,9 +210,9 @@
                 </div>
 
                 <div style="margin: 25px 0;">
-                    <span class="lbl-prime" style="color: var(--primary); font-size: 10px; letter-spacing: 1px; font-weight: 900;">ACTIVE BROADCASTS</span>
+                    <span class="lbl-prime" id="t-news">ACTIVE BROADCASTS</span>
                     <div class="glass-card" style="padding: 20px; margin-top: 10px; background: var(--secondary); border: none;">
-                        <div style="display: flex; align-items: center; gap: 15px; color: white;">
+                        <div style="display: flex; align-items: center; gap: 15px; color: white;" id="news-list-home">
                             <i class="fas fa-bullhorn" style="color: var(--accent); font-size: 20px;"></i>
                             <p style="font-size: 13px; font-weight: 700;">Zero Absences: Abdullah Salem (Mar)</p>
                         </div>
@@ -221,7 +221,7 @@
 
                 <div class="recent-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <span class="lbl-prime" style="margin:0;">RECENT INCIDENTS</span>
+                        <span class="lbl-prime" style="margin:0;" id="t-recent">RECENT INCIDENTS</span>
                         <a href="#" onclick="switchScreen('reports')" style="font-size: 10px; font-weight: 900; color: var(--primary); text-decoration: none;">VIEW ALL</a>
                     </div>
                     <div id="mini-l"></div>
@@ -245,13 +245,19 @@
                             <div style="width:50px; height:50px; background: rgba(245,158,11,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
                                 <i class="fas fa-hard-hat" style="color:#f59e0b"></i>
                             </div>
-                            <div class="info"><b id="t-site">Construction Site</b><span id="t-site-desc">Field projects & safety</span></div>
+                            <div class="info"><b id="t-site">Project Site</b><span id="t-site-desc">Field & Safety</span></div>
                         </div>
                         <div class="smart-tile" onclick="setEnv('housing', this)">
                             <div style="width:50px; height:50px; background: rgba(59,130,246,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
                                 <i class="fas fa-home" style="color:#3b82f6"></i>
                             </div>
-                            <div class="info"><b id="t-housing">Employee Housing</b><span id="t-housing-desc">Living & utilities</span></div>
+                            <div class="info"><b id="t-housing">Housing</b><span id="t-housing-desc">Living Area</span></div>
+                        </div>
+                        <div class="smart-tile" onclick="setEnv('office', this)">
+                            <div style="width:50px; height:50px; background: rgba(16,185,129,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
+                                <i class="fas fa-building" style="color:#10b981"></i>
+                            </div>
+                            <div class="info"><b id="t-office">Office</b><span id="t-office-desc">Headquarters</span></div>
                         </div>
                     </div>
                 </div>
@@ -375,14 +381,14 @@
 
             <!-- Bottom Navbar -->
             <nav class="navbar" id="main-nav" style="display: none;">
-                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-th-large"></i><span>HOME / الرئيسية</span></div>
-                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-list-ul"></i><span>REPORTS / بلاغاتي</span></div>
+                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-th-large"></i><span id="nb-home">HOME</span></div>
+                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-list-ul"></i><span id="nb-reports">REPORTS</span></div>
                 <div style="width: 70px;"></div>
                 <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')">
-                    <i class="fas fa-comment-alt"></i><span>INBOX / البريد</span>
+                    <i class="fas fa-comment-alt"></i><span id="nb-inbox">INBOX</span>
                     <div id="chat-count-badge" class="nav-badge">0</div>
                 </div>
-                <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>HELP / الدعم</span></div>
+                <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span id="nb-help">HELP</span></div>
             </nav>
 
             <div class="plus-btn" id="main-plus" style="display: none;" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
@@ -468,11 +474,11 @@
             en: {
                 wizard: "SUBMIT REPORT", step1: "WHERE IS THE ISSUE?", step2: "PROBLEM CATEGORY", step3: "SELECT AREA", step4: "SPECIFIC ISSUE",
                 site: "Construction Site", siteD: "Field projects & safety",
-                housing: "Employee Housing", housingD: "Living & utilities",
-                safety: "Safety / Danger", safetyD: "Hazards & incidents",
-                service: "Service Request", serviceD: "Transport & repairs",
+                housing: "Employee Housing", housingD: "Living &                service: "Service Request", serviceD: "Transport & repairs",
                 back: "BACK", submit: "SUBMIT REPORT", details: "DETAILS", photo: "PHOTOGRAPH", tap: "TAP TO ATTACH",
-                loginTitle: "NIT INTEL HUB", loginSub: "SECURE ACCESS", loginID: "Employee ID", loginPass: "Password", signIn: "SIGN IN", accessDenied: "ACCESS DENIED"
+                loginTitle: "NIT INTEL HUB", loginSub: "SECURE ACCESS", loginID: "Employee ID", loginPass: "Password", signIn: "SIGN IN", accessDenied: "ACCESS DENIED",
+                nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP",
+                office: "Office", officeD: "Headquarters", news: "ACTIVE BROADCASTS", recent: "RECENT INCIDENTS"
             },
             ar: {
                 wizard: "إرسال بلاغ", step1: "أين تقع المشكلة؟", step2: "تصنيف المشكلة", step3: "اختر القسم", step4: "تحديد المشكلة",
@@ -481,7 +487,9 @@
                 safety: "بلاغ سلامة / خطر", safetyD: "المخاطر والحوادث",
                 service: "طلب خدمة", serviceD: "النقل والإصلاحات",
                 back: "رجوع", submit: "إرسال البلاغ", details: "التفاصيل", photo: "الصورة", tap: "اضغط للإرفاق",
-                loginTitle: "منصة NIT الميدانية", loginSub: "دخول آمن", loginID: "الرقم الوظيفي", loginPass: "كلمة المرور", signIn: "تسجيل الدخول", accessDenied: "فشل الدخول"
+                loginTitle: "منصة NIT الميدانية", loginSub: "دخول آمن", loginID: "الرقم الوظيفي", loginPass: "كلمة المرور", signIn: "تسجيل الدخول", accessDenied: "فشل الدخول",
+                nbHome: "الرئيسية", nbReports: "بلاغاتي", nbInbox: "البريد", nbHelp: "الدعم",
+                office: "المكتب", officeD: "المكتب الرئيسي", news: "التعميمات النشطة", recent: "آخر البلاغات"
             },
             ur: {
                 wizard: "رپورٹ جمع کروائیں", step1: "مسئلہ کہاں ہے؟", step2: "مسئلے کی قسم", step3: "علاقہ منتخب کریں", step4: "مخصوص مسئلہ",
@@ -489,19 +497,31 @@
                 housing: "ملازمین کی رہائش", housingD: "رہائش اور سہولیات",
                 safety: "حفاظت / خطرہ", safetyD: "خطرات اور واقعات",
                 service: "سروس کی درخواست", serviceD: "نقل و حمل اور مرمت",
-                back: "پیمانہ", submit: "رپورٹ بھیجیں", details: "تفصیلات", photo: "تصویر", tap: "منسلک کرنے کے لیے تھپتھپائیں",
-                loginTitle: "NIT انٹیل ہب", loginSub: "محفوظ رسائی", loginID: "ملازم شناختی کارڈ", loginPass: "پاس ورڈ", signIn: "سائن ان کریں", accessDenied: "رسائی مسترد کر دی گئی"
+                back: "پیمانہ", submit: "رپورٹ بھیجیں", details: "تفصلات", photo: "تصویر", tap: "منسلک کرنے کے لیے تھپتھپائیں",
+                loginTitle: "NIT انٹیل ہب", loginSub: "محفوظ رسائی", loginID: "ملازم شناختی کارڈ", loginPass: "پاس ورڈ", signIn: "سائن ان کریں", accessDenied: "رسائی مسترد کر دی گئی",
+                nbHome: "ہوم پیج", nbReports: "میری رپورٹیں", nbInbox: "ان باکس", nbHelp: "مدد",
+                office: "دفتر", officeD: "ہیڈ کوارٹر", news: "اہم اعلانات", recent: "حالیہ واقعات"
             }
         };
 
         const treeLocalized = {
             en: {
                 housing: { safety: { branches: { h: { label: "Danger", items: ['Fire', 'Electric', 'Cleanliness'] } } }, service: { branches: { t: { label: "Transport", items: ['Bus Delay', 'Dirty Bus', 'Bad Driving'] }, u: { label: "Utilities", items: ['Water', 'Power', 'AC Issue'] } } } },
-                site: { safety: { branches: { h: { label: "Hazard", items: ['Fall Risk', 'Scaffold', 'Hole'] }, p: { label: "PPE", items: ['No Helmet', 'No Vest'] } } }, service: { branches: { l: { label: "Logistics", items: ['Truck Delay', 'Water Tank', 'Fix Machine'] } } } }
+                site: { safety: { branches: { h: { label: "Hazard", items: ['Fall Risk', 'Scaffold', 'Hole'] }, p: { label: "PPE", items: ['No Helmet', 'No Vest'] } } }, service: { branches: { l: { label: "Logistics", items: ['Truck Delay', 'Water Tank', 'Fix Machine'] } } } },
+                office: { safety: { branches: { e: { label: "Exit", items: ['Blocked Exit', 'No Signs'] } } }, service: { branches: { m: { label: "Maintenance", items: ['AC Leak', 'Light Out', 'Broken Chair'] } } } }
             },
             ar: {
                 housing: { safety: { branches: { h: { label: "خطر", items: ['حريق', 'كهرباء مكشوفة', 'نظافة'] } } }, service: { branches: { t: { label: "النقل", items: ['تأخر الباص', 'باص غير نظيف', 'سواقة خطرة'] }, u: { label: "المرافق", items: ['المياه', 'الكهرباء', 'عطل مكيف'] } } } },
-                site: { safety: { branches: { h: { label: "مخاطر", items: ['خطر سقوط', 'سقالات', 'حفرة مكشوفة'] }, p: { label: "السلامة", items: ['لا يوجد خوذة', 'لا يوجد سترة'] } } }, service: { branches: { l: { label: "لوجستيات", items: ['تأخر الشاحنة', 'صهريج الماء', 'تعطل معدة'] } } } }
+                site: { safety: { branches: { h: { label: "مخاطر", items: ['خطر سقوط', 'سقالات', 'حفرة مكشوفة'] }, p: { label: "السلامة", items: ['لا يوجد خوذة', 'لا يوجد سترة'] } } }, service: { branches: { l: { label: "لوجستيات", items: ['تأخر الشاحنة', 'صهريج الماء', 'تعطل معدة'] } } } },
+                office: { safety: { branches: { e: { label: "المخارج", items: ['مخرج طوارئ مغلق', 'لا يوجد لوحات'] } } }, service: { branches: { m: { label: "الصيانة", items: ['تهريب مكيف', 'إضاءة معطلة', 'كرسي مكسور'] } } } }
+            },
+            ur: {
+                housing: { safety: { branches: { h: { label: "خطرہ", items: ['آگ', 'بجلی', 'صفائی'] } } }, service: { branches: { t: { label: "نقل و حمل", items: ['بس کی تاخیر', 'گندی بس', 'خراب ڈرائیونگ'] }, u: { label: "سہولیات", items: ['پانی', 'بجلی', 'اے سی کا مسئلہ'] } } } },
+                site: { safety: { branches: { h: { label: "خطرات", items: ['گرنے کا خطرہ', 'سہاروں', 'سوراخ'] }, p: { label: "حفاظت", items: ['ہیلمٹ نہیں', 'واسکیٹ نہیں'] } } }, service: { branches: { l: { label: "لاجسٹکس", items: ['ٹرک کی تاخیر', 'پانی کا ٹینک', 'مشین کی مرمت'] } } } },
+                office: { safety: { branches: { e: { label: "باہر نکلیں", items: ['بلاک باہر نکلیں', 'کوئی نشانیاں نہیں'] } } }, service: { branches: { m: { label: "دیکھ بھال", items: ['اے سی لیک', 'لائٹ آف', 'ٹوٹی ہوئی کرسی'] } } } }
+            }
+        };
+ خوذة', 'لا يوجد سترة'] } } }, service: { branches: { l: { label: "لوجستيات", items: ['تأخر الشاحنة', 'صهريج الماء', 'تعطل معدة'] } } } }
             },
             ur: {
                 housing: { safety: { branches: { h: { label: "خطرہ", items: ['آگ', 'بجلی', 'صفائی'] } } }, service: { branches: { t: { label: "نقل و حمل", items: ['بس کی تاخیر', 'گندی بس', 'خراب ڈرائیونگ'] }, u: { label: "سہولیات", items: ['پانی', 'بجلی', 'اے سی کا مسئلہ'] } } } },
@@ -552,6 +572,18 @@
             document.getElementById('login-pass').placeholder = t.loginPass;
             document.getElementById('t-signin-btn').innerText = t.signIn;
             document.getElementById('login-err').innerText = t.accessDenied;
+
+            // Navbar Localization
+            document.getElementById('nb-home').innerText = t.nbHome;
+            document.getElementById('nb-reports').innerText = t.nbReports;
+            document.getElementById('nb-inbox').innerText = t.nbInbox;
+            document.getElementById('nb-help').innerText = t.nbHelp;
+
+            // Home UI
+            document.getElementById('t-news').innerText = t.news;
+            document.getElementById('t-recent').innerText = t.recent;
+            document.getElementById('t-office').innerText = t.office;
+            document.getElementById('t-office-desc').innerText = t.officeD;
         }
 
         function goToPane(n) {
@@ -812,7 +844,52 @@
                 
             } catch(e) {
                 console.error("Notif Error:", e);
-                list.innerHTML = '<p style="text-align:center; color:red; padding:50px">Error loading alerts.</p>';
+                async function submitReport() {
+            const desc = document.getElementById('case-desc').value;
+            if(!desc || !currentType || !currentEnv) return alert('Please complete the details');
+            
+            const btn = document.getElementById('submit-btn');
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> TRANSMITTING...';
+            btn.disabled = true;
+
+            try {
+                const counterRef = db.collection('settings').doc('counters');
+                await counterRef.set({ report_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+                
+                const sfDoc = await counterRef.get();
+                const caseNum = sfDoc.data().report_count || 1;
+
+                const envLabel = i18n[appLang][currentEnv] || currentEnv;
+                const reportDocRef = db.collection('reports').doc(String(caseNum));
+                await reportDocRef.set({
+                    user_id: currentUser.id,
+                    emp_no: currentUser.emp_no,
+                    user_name: currentUser.name_en || currentUser.name,
+                    case_num: caseNum,
+                    type: currentType.toUpperCase() + (currentSubType ? ' - ' + currentSubType : ''),
+                    description: desc,
+                    site: envLabel,
+                    status: 'open',
+                    photo_b64: activeImgB64 || null,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                });
+
+                await reportDocRef.collection('timeline').add({
+                    event_text: 'Case Logged (Serial #CASE ' + caseNum + ')',
+                    author: 'System',
+                    created_at: new Date().toISOString()
+                });
+
+                showStatus(true, caseNum);
+            } catch(e) { 
+                console.error("Submit Error:", e);
+                showStatus(false);
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+            }
+        }
             }
         }
 
