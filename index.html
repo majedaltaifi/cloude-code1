@@ -336,24 +336,37 @@
             }
         };
 
-        function selectLanguage(l) {
-            appLang = l; localStorage.setItem('app_lang', l);
-            document.body.dir = (l === 'ar' || l === 'ur') ? 'rtl' : 'ltr';
-            const ls = document.getElementById('lang-screen');
-            ls.style.opacity = '0'; setTimeout(() => ls.style.display='none', 600);
-            applyLocalization(); 
-            initApp();
-        }
-
         function applyLocalization() {
             const t = i18n[appLang]; if(!t) return;
-            document.getElementById('wizard-title').innerText = t.wizard;
-            document.getElementById('t-login-title').innerText = t.loginTitle;
-            document.getElementById('nb-home').innerText = t.nbHome;
-            document.getElementById('nb-reports').innerText = t.nbReports;
-            document.getElementById('nb-inbox').innerText = t.nbInbox;
-            document.getElementById('nb-help').innerText = t.nbHelp;
-            if(document.getElementById('dr-home')) document.getElementById('dr-home').innerText = t.drHome;
+            const set = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+            
+            set('wizard-title', t.wizard);
+            set('t-login-title', t.loginTitle);
+            set('nb-home', t.nbHome);
+            set('nb-reports', t.nbReports);
+            set('nb-inbox', t.nbInbox);
+            set('nb-help', t.nbHelp);
+            set('dr-home', t.drHome);
+            set('dr-reports', t.drReports);
+            set('dr-messages', t.drMessages);
+            set('dr-support', t.drSupport);
+            set('dr-logout', t.drLogout);
+        }
+
+        function selectLanguage(l) {
+            console.log("Selecting:", l);
+            appLang = l; 
+            localStorage.setItem('app_lang', l);
+            document.body.dir = (l === 'ar' || l === 'ur') ? 'rtl' : 'ltr';
+            
+            const ls = document.getElementById('lang-screen');
+            if(ls) {
+                ls.style.opacity = '0'; 
+                setTimeout(() => ls.style.display='none', 600);
+            }
+            
+            applyLocalization(); 
+            initApp();
         }
 
         function switchScreen(id) {
