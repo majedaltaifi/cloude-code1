@@ -171,7 +171,7 @@
                         <input id="login-id" class="login-input" type="tel" placeholder="Employee ID">
                         <input id="login-pass" class="login-input" type="password" placeholder="Password">
                         <p id="login-err" style="color:#fca5a5; font-size:11px; font-weight:900; margin-bottom:15px; text-align:center; display:none">ACCESS DENIED</p>
-                        <button class="btn-signin" onclick="doLogin()" id="t-signin-btn">SIGN IN</button>
+                        <button class="btn-smart" onclick="doLogin()" id="t-signin-btn" style="width:100%">SIGN IN</button>
                     </div>
                 </div>
             </div>
@@ -214,8 +214,8 @@
                     <div style="margin-bottom:20px; display:flex; align-items:center; gap:15px">
                         <label for="case-photo" class="smart-tile" style="flex:1; justify-content:center; cursor:pointer; background:rgba(46,49,146,0.05); border:1.5px dashed var(--p)">
                             <i class="fas fa-camera" style="font-size:24px; color:var(--p)"></i>
-                            <span style="font-size:12px; font-weight:800; color:var(--p)">ATTACH PHOTO</span>
-                            <input type="file" id="case-photo" accept="image/*" capture="environment" style="display:none" onchange="document.getElementById('photo-status').innerText = 'Photo Attached ✓'">
+                            <span style="font-size:12px; font-weight:800; color:var(--p)">ATTACH PHOTOS</span>
+                            <input type="file" id="case-photo" accept="image/*" multiple style="display:none" onchange="document.getElementById('photo-status').innerText = (this.files.length > 0 ? this.files.length + ' Attached ✓' : '')">
                         </label>
                         <span id="photo-status" style="font-size:10px; font-weight:800; color:#10b981;"></span>
                     </div>
@@ -225,11 +225,25 @@
                 </div>
             </div>
 
-            <div class="screen" id="s-chat-list"><div style="padding-top:20px"><span class="lbl-prime" id="t-inbox">INBOX</span><div id="chat-report-list"></div></div></div>
+            <div class="screen" id="s-chat-list"><div style="padding-top:20px"><span class="lbl-prime" id="t-inbox">INBOX</span><div id="inbox-l"></div></div></div>
+            
             <div class="screen" id="s-support">
                 <div style="padding-top:20px">
-                    <div class="case-main-card" style="background:var(--p); color:white; text-align:center"><i class="fas fa-headset" style="font-size:30px; margin-bottom:10px;"></i><h2 id="t-help-title">TECH SUPPORT</h2></div>
-                    <button class="btn-smart" onclick="switchScreen('chat-list')" id="t-send-ticket">SEND REQUEST</button>
+                    <div class="case-main-card" style="background:var(--p); color:white; text-align:center; padding:30px 20px">
+                        <i class="fas fa-headset" style="font-size:40px; margin-bottom:15px; display:block"></i>
+                        <h2 id="t-help-title" style="font-size:22px; font-weight:950">TECH SUPPORT</h2>
+                        <p style="font-size:12px; opacity:0.8; margin-top:5px">We are here to help you</p>
+                    </div>
+                    <span class="lbl-prime" style="margin-top:20px; display:block">HOW CAN WE HELP?</span>
+                    <select id="support-type" style="width:100%; border-radius:15px; border:1px solid #ddd; padding:15px; margin-bottom:15px; background:white; font-weight:700; color:var(--p); outline:none">
+                        <option value="system">System Issue</option>
+                        <option value="account">Account Access</option>
+                        <option value="other">Other Inquiry</option>
+                    </select>
+                    <textarea id="support-desc" style="width:100%; border-radius:20px; border:1px solid #ddd; padding:15px; min-height:120px; margin-bottom:20px;" placeholder="Describe your issue in detail..."></textarea>
+                    
+                    <button class="btn-smart" onclick="submitSupport()" id="t-send-ticket">SEND REQUEST</button>
+                    <button class="btn-secondary" onclick="switchScreen('home')" style="margin-top:10px; width:100%"><span class="btn-back-text">BACK</span></button>
                 </div>
             </div>
 
@@ -402,6 +416,21 @@
                 const fullHtml = makeHtml(sorted);
                 f.innerHTML = fullHtml || '<p style="text-align:center; opacity:0.3; padding:40px">No reports found.</p>';
                 m.innerHTML = makeHtml(sorted.slice(0, 5));
+
+                const inboxL = document.getElementById('inbox-l');
+                if(inboxL) {
+                    const activeChats = sorted.filter(r => String(r.status||'open').toLowerCase() !== 'done' && String(r.status||'open').toLowerCase() !== 'resolved' && String(r.status||'open').toLowerCase() !== 'تم الإنجاز');
+                    inboxL.innerHTML = activeChats.length ? activeChats.map(r => `
+                        <div class="smart-tile" onclick="openDetail('${r.id}')" style="margin-bottom:10px">
+                            <i class="fas fa-comments" style="color:#3b82f6; font-size:22px"></i>
+                            <div class="info" style="flex:1">
+                                <b style="font-size:14px; color:var(--p)">CASE # ${r.case_num || String(r.id).substring(0,5).toUpperCase()}</b>
+                                <span style="font-size:10px; color:#64748b; display:block; margin-top:3px">${String(r.type||'Report')} - Support Active</span>
+                            </div>
+                            <div style="width:10px; height:10px; border-radius:50%; background:#10b981;"></div>
+                        </div>
+                    `).join('') : '<div style="text-align:center; padding:50px; color:#94a3b8"><i class="fas fa-inbox" style="font-size:45px; margin-bottom:15px; opacity:0.5"></i><p style="font-weight:800; font-size:14px">NO ACTIVE MESSAGES</p></div>';
+                }
             } catch(e) {
                 console.error("renderReports fatal:", e);
                 const f = document.getElementById('full-l');
@@ -439,6 +468,7 @@
                     emp_no: String(currentUser.emp_no), 
                     case_num: num, 
                     type: currentType || 'General', 
+                    env: currentEnv || 'Field',
                     status: 'open', 
                     description: desc,
                     photo: photoData,
@@ -476,42 +506,89 @@
             document.getElementById('branch-list').innerHTML = Object.keys(data.branches).map(b => `<div class="smart-tile" onclick="goToPane(4)"><b>${data.branches[b].label}</b></div>`).join('');
         }
 
+        async function submitSupport() {
+            const desc = document.getElementById('support-desc').value; if(!desc) return;
+            const btn = document.getElementById('t-send-ticket');
+            const orig = btn.innerText;
+            btn.innerText = "SENDING..."; btn.disabled = true;
+            setTimeout(() => {
+                document.getElementById('support-desc').value = '';
+                btn.innerText = orig; btn.disabled = false;
+                const modal = document.getElementById('status-modal');
+                modal.innerHTML = `
+                    <div class="status-card" style="padding:40px 20px; text-align:center">
+                        <i class="fas fa-check-circle" style="font-size:65px; color:#10b981; margin-bottom:20px; display:block"></i>
+                        <h2 style="font-size:24px; font-weight:950; color:var(--p); margin:0">RECEIVED</h2>
+                        <p style="font-size:14px; font-weight:800; color:#64748b; margin:15px 0 25px 0">Support team will contact you soon.</p>
+                        <button class="btn-smart" onclick="closeStatusModal(); switchScreen('home')" style="width:100%">DONE</button>
+                    </div>
+                `;
+                modal.classList.add('active');
+            }, 800);
+        }
+
         async function openDetail(id) {
             const r = reports.find(x => x.id === id); if(!r) return;
             const t = i18n[appLang];
-            const isDone = r.status === 'done';
+            const st = String(r.status || 'open').toLowerCase();
+            const isDone = st === 'done' || st === 'resolved' || st === 'تم الإنجاز';
+            const cNo = r.case_num || (r.id ? String(r.id).substring(0,5).toUpperCase() : '---');
+            const typeStr = String(r.type || 'Report');
+            const envStr = String(r.env || 'Field Site').toUpperCase();
             
             document.getElementById('det-cont').innerHTML = `
                 <div class="detail-header">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start">
                         <div>
                             <span class="lbl-prime">INTEL REPORT</span>
-                            <h2 style="font-size:28px; font-weight:950; color:var(--p)">CASE #${r.case_num}</h2>
+                            <h2 style="font-size:32px; font-weight:950; color:var(--p); margin-top:5px">CASE #${cNo}</h2>
                         </div>
                         <div style="width:50px; height:50px; border-radius:15px; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; color:var(--p)">
-                             <i class="fas ${r.type.toLowerCase().includes('safety')?'fa-shield-alt':'fa-tools'}"></i>
+                             <i class="fas ${typeStr.toLowerCase().includes('safety')?'fa-shield-alt':'fa-tools'}" style="font-size:22px"></i>
                         </div>
                     </div>
-                    <div style="margin-top:20px">
-                        <span class="status-pill" style="font-size:12px; padding:8px 20px; background:${isDone?'#dcfce7':'#fef3c7'}; color:${isDone?'#16a34a':'#d97706'}">
-                             ${isDone ? t.resolved : t.pending}
-                        </span>
-                    </div>
                 </div>
+                
                 <div class="case-main-card">
-                    <span class="lbl-prime">DETAILS</span>
+                    <span class="lbl-prime" style="margin-bottom:10px; display:block">DETAILS</span>
                     <p style="font-size:16px; font-weight:700; color:#334155; line-height:1.6">${r.description || 'No additional details provided.'}</p>
                 </div>
-                <div class="detail-info-row">
-                    <i class="fas fa-tag"></i>
-                    <div><b>CATEGORY</b><br><span>${r.type}</span></div>
+                
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <div class="detail-info-row" style="flex:1; margin:0">
+                        <i class="fas fa-tag"></i>
+                        <div><b style="font-size:10px; opacity:0.7">CATEGORY</b><br><span style="font-size:14px">${typeStr}</span></div>
+                    </div>
+                    <div class="detail-info-row" style="flex:1; margin:0">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div><b style="font-size:10px; opacity:0.7">LOCATION</b><br><span style="font-size:14px">${envStr}</span></div>
+                    </div>
                 </div>
-                <div style="margin-top:25px; display:grid; grid-template-columns:1fr 1fr; gap:12px">
-                    <button class="btn-secondary" onclick="switchScreen('home')" style="margin:0">
-                        <i class="fas fa-arrow-left"></i> <span class="btn-back-text">BACK</span>
-                    </button>
-                    <button class="btn-smart" onclick="switchScreen('chat-list')" style="padding:15px">
-                        <i class="fas fa-comments"></i> CHAT
+
+                <div style="margin-top:25px; background:white; padding:25px 20px; border-radius:20px; border:1px solid #f1f5f9; box-shadow:0 4px 15px rgba(0,0,0,0.02)">
+                    <span class="lbl-prime" style="margin-bottom:20px; display:block">STATUS TRACKER</span>
+                    <div style="display:flex; justify-content:space-between; position:relative; z-index:1">
+                        <div style="position:absolute; top:20px; left:20px; right:20px; height:4px; background:#e2e8f0; z-index:-1; border-radius:2px"></div>
+                        <div style="position:absolute; top:20px; left:20px; right:20px; height:4px; background:#10b981; z-index:-1; width:${isDone?'100%':'50%'}; border-radius:2px; transition:width 1s"></div>
+                        
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:10px; width:33%">
+                            <div style="width:40px; height:40px; border-radius:50%; background:#10b981; color:white; display:flex; align-items:center; justify-content:center; border:4px solid white; box-shadow:0 0 0 1px #e2e8f0"><i class="fas fa-check" style="font-size:16px"></i></div>
+                            <span style="font-size:10px; font-weight:900; color:var(--p); text-align:center">SUBMITTED</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:10px; width:33%">
+                            <div style="width:40px; height:40px; border-radius:50%; background:#10b981; color:white; display:flex; align-items:center; justify-content:center; border:4px solid white; box-shadow:0 0 0 1px #e2e8f0"><i class="fas ${isDone?'fa-check':'fa-cog fa-spin'}" style="font-size:16px"></i></div>
+                            <span style="font-size:10px; font-weight:900; color:var(--p); text-align:center">IN PROGRESS</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:10px; width:33%">
+                            <div style="width:40px; height:40px; border-radius:50%; background:${isDone?'#10b981':'#f8fafc'}; color:${isDone?'white':'#94a3b8'}; display:flex; align-items:center; justify-content:center; border:4px solid white; box-shadow:0 0 0 1px #e2e8f0"><i class="fas fa-check" style="font-size:16px"></i></div>
+                            <span style="font-size:10px; font-weight:900; color:${isDone?'var(--p)':'#94a3b8'}; text-align:center">RESOLVED</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:25px;">
+                    <button class="btn-secondary" onclick="switchScreen('home')" style="width:100%; margin:0; border:2px solid #e2e8f0; color:var(--p)">
+                        <i class="fas fa-arrow-left"></i> <span class="btn-back-text">BACK TO DASHBOARD</span>
                     </button>
                 </div>
             `;
