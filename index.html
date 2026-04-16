@@ -11,19 +11,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-
         :root {
             --primary: #2e3192;
             --secondary: #203366;
             --accent: #80d1e9;
             --grey: #b3b3b3;
             --bg: #f1f5f9;
+            --p: #2e3192;
+            --s: #80d1e9;
+            --neon: #80d1e9;
+            --glass: rgba(255,255,255,0.7);
         }
 
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0f172a; height:100vh; overflow:hidden; display:flex; justify-content:center; align-items:center; touch-action: manipulation; }
         
-        /* Momentum Background Effect */
         .momentum-bg {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -35,10 +37,6 @@
             content: ''; position: absolute; top: -100px; right: -50px; width: 300px; height: 600px;
             background: var(--accent); opacity: 0.1; transform: skewX(-20deg);
         }
-        .momentum-bg::after {
-            content: ''; position: absolute; bottom: -50px; left: -20px; width: 200px; height: 400px;
-            background: white; opacity: 0.05; transform: skewX(-20deg);
-        }
 
         .phone-frame { width:360px; height:760px; background:#000; border-radius:55px; position:relative; padding:12px; border:10px solid #1e293b; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.6); z-index: 10; transform: scale(0.9); transform-origin: top; }
         .phone-frame::before { content:''; position:absolute; top:25px; left:50%; transform:translateX(-50%); width:100px; height:28px; background:#000; border-radius:20px; z-index:10000; }
@@ -49,16 +47,9 @@
         .screen.active { display:flex; animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* NIT BRANDED HEADER */
         .header { background:white; padding:55px 25px 30px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--accent); position: relative; }
         .header h1 { font-size:16px; font-weight:900; color: var(--primary); letter-spacing:1px; text-transform: uppercase; }
-        .brand-logo-mini { height: 24px; }
 
-        :root { --p: #2e3192; --s: #80d1e9; --bg: #f8fafc; --glass: rgba(255,255,255,0.7); --neon: #80d1e9; }
-        
-        body { font-family: 'IBM Plex Sans Arabic', 'Inter', 'Noto Sans Arabic', sans-serif; background: #f0f4f8; overflow: hidden; margin:0; }
-        
-        /* LANGUAGE SPLASH */
         #lang-screen { 
             position: absolute; inset: 0; z-index: 99999; 
             background: linear-gradient(135deg, #2e3192, #1b1d5a); 
@@ -77,124 +68,74 @@
             display: flex; align-items: center; justify-content: center; gap: 12px;
         }
         .lang-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .lang-btn i { font-size: 20px; color: var(--p); }
 
-        /* SMART TILES */
         .smart-tile { 
             background: var(--glass); backdrop-filter: blur(10px); border: 1.5px solid white; 
             padding: 22px; border-radius: 28px; display: flex; align-items: center; gap: 18px; 
-            margin-bottom: 12px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            margin-bottom: 12px; transition: 0.4s; cursor: pointer;
         }
-        .smart-tile:active { transform: scale(0.96); }
-        .smart-tile.selected { border-color: var(--p); background: white; box-shadow: 0 10px 25px rgba(46,49,146,0.1); }
-        .smart-tile i { font-size: 28px; color: var(--p); width: 45px; text-align: center; }
-        .smart-tile .info { display: flex; flex-direction: column; }
-        .smart-tile .info b { font-size: 16px; color: var(--p); font-weight: 850; letter-spacing: -0.5px; }
-        .smart-tile .info span { font-size: 11px; color: #64748b; font-weight: 600; }
+        .smart-tile.selected { border-color: var(--p); background: white; }
+        .smart-tile b { font-size: 16px; color: var(--p); font-weight: 850; }
+        .smart-tile span { font-size: 11px; color: #64748b; }
 
-        .step-badge {
-            background: rgba(46,49,146,0.05); color: var(--p); padding: 4px 12px; border-radius: 12px;
-            font-size: 12px; font-weight: 950; margin-left: 10px; border: 1px solid rgba(46,49,146,0.1);
-        }
+        .btn-smart { background: var(--p); color: white; border: none; padding: 20px; border-radius: 25px; font-weight: 900; width: 100%; font-size: 16px; cursor: pointer; }
+        .btn-secondary { background: white; color: var(--p); border: 1.5px solid #e2e8f0; padding: 15px; border-radius: 20px; width: 100%; font-weight: 850; margin-top: 10px; }
 
-        /* BUTTONS */
-        .btn-smart { background: var(--p); color: white; border: none; padding: 20px; border-radius: 25px; font-weight: 900; width: 100%; font-size: 16px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(46,49,146,0.2); }
-        .btn-smart:disabled { opacity: 0.4; }
-        .btn-secondary { background: white; color: var(--p); border: 1.5px solid #e2e8f0; padding: 15px; border-radius: 20px; width: 100%; font-weight: 850; margin-top: 10px; font-size: 14px; cursor:pointer; }
-
-        /* NAV BAR PREMIUM */
         .navbar { position:absolute; bottom:0; left:0; width:100%; height:95px; background:white; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-around; padding-bottom:15px; z-index:200; border-radius: 40px 40px 0 0; }
-        .nav-item { display:flex; flex-direction:column; align-items:center; color: #94a3b8; flex:1; gap:4px; font-size: 8px; font-weight: 950; letter-spacing: 0.5px; }
+        .nav-item { display:flex; flex-direction:column; align-items:center; color: #94a3b8; flex:1; gap:4px; font-size: 8px; font-weight: 950; }
         .nav-item.active { color:var(--primary); }
-        .nav-item i { font-size:20px; }
 
         .plus-btn { position:absolute; bottom:45px; left:50%; transform:translateX(-50%); width:68px; height:68px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:28px; border:5px solid white; box-shadow:0 10px 25px rgba(46,49,146,0.3); z-index:400; }
 
-        .btn-p { width:100%; background:var(--primary); color:white; padding:20px; border-radius:22px; border:none; font-weight:950; letter-spacing:1px; font-size:14px; box-shadow: 0 8px 20px rgba(46,49,146,0.2); }
-        .btn-p:disabled { opacity: 0.5; filter: grayscale(1); }
+        .glass-login { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); border-radius: 40px; padding: 40px 30px; width: 100%; }
+        .login-input { background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 22px; padding: 20px; width: 100%; color: white; font-weight: 700; margin-bottom: 15px; }
+        .btn-signin { background: var(--s); color: var(--p); font-weight: 950; padding: 22px; border-radius: 22px; width: 100%; border: none; }
 
-        /* SMART LOGIN */
-        .glass-login { 
-            background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255,255,255,0.2); border-radius: 40px; 
-            padding: 40px 30px; width: 100%; transition: 0.5s;
-        }
-        .login-input { 
-            background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.1); 
-            border-radius: 22px; padding: 20px; width: 100%; color: white; 
-            font-weight: 700; margin-bottom: 15px; font-size: 15px; outline: none;
-            transition: 0.3s;
-        }
-        .login-input:focus { border-color: var(--s); background: rgba(255,255,255,0.15); }
-        .btn-signin { 
-            background: var(--s); color: var(--p); font-weight: 950; 
-            padding: 22px; border-radius: 22px; border: none; width: 100%; 
-            cursor: pointer; font-size: 16px; margin-top: 10px;
-            box-shadow: 0 10px 20px rgba(128, 209, 233, 0.3);
-        }
-
-        /* NOTIFICATIONS */
-        .bell-wrap { position: relative; width: 42px; height: 42px; background: #f8fafc; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--primary); }
-        .bell-badge { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; border: 2px solid #f8fafc; display: none; }
-        .bell-badge.active { display: block; }
-
-        /* DRAWER SYSTEM */
         .drawer-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 1000; display: none; opacity: 0; transition: 0.3s; }
         .drawer-overlay.active { display: block; opacity: 1; }
-        .drawer { position: absolute; top: 0; left: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); padding: 50px 25px; display: flex; flex-direction: column; box-shadow: 20px 0 50px rgba(0,0,0,0.1); border-radius: 0 45px 45px 0; }
+        .drawer { position: absolute; top: 0; left: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.4s; padding: 50px 25px; display: flex; flex-direction: column; border-radius: 0 45px 45px 0; }
         .drawer.active { left: 0; }
+        .drawer-menu-item { padding: 18px; border-radius: 18px; display: flex; align-items: center; gap: 15px; font-weight: 850; color: var(--p); cursor: pointer; }
 
-        .drawer-menu-item { padding: 18px; border-radius: 18px; display: flex; align-items: center; gap: 15px; font-weight: 850; color: var(--p); cursor: pointer; transition: 0.3s; margin-bottom: 8px; font-size: 13px; }
-        .drawer-menu-item:hover { background: #f1f5f9; color: var(--neon); }
-        .drawer-menu-item i { font-size: 18px; width: 25px; }
-
-        /* MISSING UI ELEMENTS STYLING */
         .notif-hud { position: absolute; top: 120px; left: 50%; transform: translateX(-50%) translateY(-100px); width: 90%; background: white; padding: 15px; border-radius: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); z-index: 5000; opacity: 0; transition: 0.5s; pointer-events: none; border-left: 5px solid var(--p); }
         .notif-hud.active { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
-        .hud-icon { width: 40px; height: 40px; background: rgba(46,49,146,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--p); font-size: 18px; }
+        .hud-icon { width: 40px; height: 40px; background: rgba(46,49,146,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--p); }
         .hud-content h4 { font-size: 12px; font-weight: 900; color: var(--p); }
         .hud-content p { font-size: 10px; font-weight: 700; color: #64748b; }
 
         .status-modal { position: absolute; inset: 0; background: rgba(15,23,42,0.8); backdrop-filter: blur(8px); z-index: 6000; display: none; align-items: center; justify-content: center; padding: 30px; }
-        .status-modal.active { display: flex; animation: fadeIn 0.3s forwards; }
-        .status-card { background: white; width: 100%; border-radius: 40px; padding: 40px 30px; text-align: center; transform: scale(0.8); animation: popIn 0.4s 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
-        @keyframes popIn { to { transform: scale(1); opacity: 1; } }
+        .status-modal.active { display: flex; }
+        .status-card { background: white; width: 100%; border-radius: 40px; padding: 40px 30px; text-align: center; }
 
-        .case-main-card { background: white; padding: 25px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1.5px solid #f1f5f9; }
+        .case-main-card { background: white; padding: 25px; border-radius: 30px; margin-bottom: 20px; border: 1.5px solid #f1f5f9; }
         .status-tag { padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 950; text-transform: uppercase; }
         
         .case-log-list { margin-top: 15px; border-left: 2px dashed #e2e8f0; margin-left: 10px; padding-left: 20px; }
         .log-item { position: relative; padding-bottom: 20px; }
         .log-dot { position: absolute; left: -27px; top: 0; width: 12px; height: 12px; border-radius: 50%; border: 3px solid white; }
         .log-txt { font-size: 12px; font-weight: 800; color: var(--p); }
-        .log-meta { font-size: 9px; font-weight: 600; color: #94a3b8; margin-top: 2px; }
-
+        .log-meta { font-size: 9px; font-weight: 600; color: #94a3b8; }
         .lbl-prime { font-size: 10px; font-weight: 950; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
 </head>
 
 <body>
     <div class="momentum-bg"></div>
-
     <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
     <div id="drawer" class="drawer">
         <div style="text-align: center; margin-bottom: 40px;">
-            <div style="width: 80px; height: 80px; background: var(--p); color: var(--s); border-radius: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 35px; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(46,49,146,0.2);">
+            <div style="width: 80px; height: 80px; background: var(--p); color: var(--s); border-radius: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 35px; margin-bottom: 15px;">
                 <i class="fas fa-user-shield"></i>
             </div>
-            <h2 id="dr-name" style="font-size: 18px; font-weight: 950; color: var(--p);">Loading...</h2>
+            <h2 id="dr-name" style="font-size: 18px; font-weight: 950; color: var(--p);">Officer</h2>
             <p id="dr-id" style="font-size: 11px; font-weight: 800; color: #94a3b8;">EMP ID: ----</p>
         </div>
-
         <div style="flex: 1;">
             <div class="drawer-menu-item" onclick="switchScreen('home')"><i class="fas fa-home"></i> <span id="dr-home">HOME</span></div>
             <div class="drawer-menu-item" onclick="switchScreen('reports')"><i class="fas fa-file-alt"></i> <span id="dr-reports">MY REPORTS</span></div>
             <div class="drawer-menu-item" onclick="switchScreen('chat-list')"><i class="fas fa-comments"></i> <span id="dr-messages">MESSAGES</span></div>
             <div class="drawer-menu-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i> <span id="dr-support">SUPPORT</span></div>
         </div>
-
         <div class="drawer-menu-item" onclick="doLogout()" style="color: #ef4444; background: #fee2e2; border-radius: 20px;">
             <i class="fas fa-power-off"></i> <span id="dr-logout">SIGN OUT</span>
         </div>
@@ -202,54 +143,40 @@
 
     <div class="phone-frame">
         <div class="app-container">
-            <!-- Language Screen Overlay inside App Container -->
             <div id="lang-screen">
                 <div class="lang-card">
                     <svg viewBox="0 0 100 100" style="width:70px; height:70px; margin-bottom:20px;">
                         <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="2" opacity="0.3" />
-                        <path d="M30 70 V30 L70 70 V30" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M30 70 V30 L70 70 V30" stroke="white" stroke-width="8" fill="none" />
                     </svg>
                     <h2 style="font-weight:950; margin-bottom:10px; font-size:20px">SELECT LANGUAGE</h2>
                     <p style="opacity:0.6; font-size:10px; margin-bottom:25px; font-weight:700">PREFERRED SYSTEM TONGUE</p>
-                    
-                    <button class="lang-btn" onclick="selectLanguage('en')">
-                        <i class="fas fa-globe"></i> English
-                    </button>
-                    <button class="lang-btn" onclick="selectLanguage('ar')" style="font-family:'IBM Plex Sans Arabic'">
-                        <i class="fas fa-mosque"></i> العربية
-                    </button>
-                    <button class="lang-btn" onclick="selectLanguage('ur')" style="font-family:'Noto Sans Arabic'">
-                        <i class="fas fa-language"></i> اردو (Urdu)
-                    </button>
+                    <button class="lang-btn" onclick="selectLanguage('en')"><i class="fas fa-globe"></i> English</button>
+                    <button class="lang-btn" onclick="selectLanguage('ar')"><i class="fas fa-mosque"></i> العربية</button>
+                    <button class="lang-btn" onclick="selectLanguage('ur')"><i class="fas fa-language"></i> اردو (Urdu)</button>
                     <a href="javascript:location.reload(true)" style="color:white; font-size:9px; opacity:0.3; margin-top:20px; display:block">RELOAD SYSTEM</a>
                 </div>
             </div>
 
-            <!-- LOGIN SCREEN -->
             <div class="screen active login-bg" id="s-login">
                 <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:35px; background: linear-gradient(135deg, #1e293b, #0f172a); border-radius:50px">
                     <svg viewBox="0 0 100 100" style="width:100px; height:100px; margin-bottom:30px;">
                         <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="2" opacity="0.3" />
-                        <path d="M30 70 V30 L70 70 V30" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M30 70 V30 L70 70 V30" stroke="white" stroke-width="8" fill="none" />
                     </svg>
-                    
                     <div class="glass-login">
                         <div style="text-align: center; margin-bottom: 30px;">
-                            <h2 style="color:white; font-size:22px; font-weight:950; letter-spacing:1px;" id="t-login-title">NIT INTEL HUB</h2>
-                            <p style="color:var(--s); font-weight:900; font-size:10px; letter-spacing:2px; opacity:0.6" id="t-login-sub">SECURE ACCESS</p>
+                            <h2 style="color:white; font-size:22px; font-weight:950;" id="t-login-title">NIT INTEL HUB</h2>
+                            <p style="color:var(--s); font-weight:900; font-size:10px;" id="t-login-sub">SECURE ACCESS</p>
                         </div>
-
                         <input id="login-id" class="login-input" type="tel" placeholder="Employee ID">
                         <input id="login-pass" class="login-input" type="password" placeholder="Password">
-
                         <p id="login-err" style="color:#f87171; font-size:11px; font-weight:900; margin-bottom:15px; text-align:center; display:none">ACCESS DENIED</p>
-
                         <button class="btn-signin" onclick="doLogin()" id="t-signin-btn">SIGN IN</button>
                     </div>
                 </div>
             </div>
 
-            <!-- MAIN NAVIGATION HEADER -->
             <header class="header" id="main-header" style="display:none">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <i class="fas fa-bars" style="color:var(--primary); font-size:20px;" onclick="openDrawer()"></i>
@@ -261,1136 +188,173 @@
                 </div>
             </header>
 
-            <!-- Home Screen -->
             <div class="screen" id="s-home">
                 <div class="profile-card" style="background: white; padding: 25px; border-radius: 30px; margin-top: 20px; display: flex; align-items: center; gap: 15px; border-left: 6px solid var(--primary);">
-                    <div style="width: 50px; height: 50px; border-radius: 15px; background: var(--secondary); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    <div style="width: 50px; height: 50px; border-radius: 15px; background: var(--secondary); color: var(--accent); display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-user-shield"></i>
                     </div>
                     <div>
-                        <h2 id="hm-name" style="font-size: 18px; font-weight: 900; color: var(--primary);">Loading...</h2>
+                        <h2 id="hm-name" style="font-size: 18px; font-weight: 900; color: var(--primary);">Officer</h2>
                         <p id="hm-full-id" style="font-size: 11px; font-weight: 700; color: var(--grey);">NIT OFFICER</p>
                     </div>
                 </div>
+                <div style="margin: 25px 0;"><span class="lbl-prime" id="t-news">ACTIVE BROADCASTS</span><div id="news-list-home"></div></div>
+                <div class="recent-section"><div style="display: flex; justify-content: space-between; align-items: center;"><span class="lbl-prime" id="t-recent">RECENT INCIDENTS</span></div><div id="mini-l"></div></div>
+            </div>
 
-                <div style="margin: 25px 0;">
-                    <span class="lbl-prime" id="t-news">ACTIVE BROADCASTS</span>
-                    <div class="glass-card" style="padding: 20px; margin-top: 10px; background: var(--secondary); border: none;">
-                        <div style="display: flex; align-items: center; gap: 15px; color: white;" id="news-list-home">
-                            <i class="fas fa-bullhorn" style="color: var(--accent); font-size: 20px;"></i>
-                            <p style="font-size: 13px; font-weight: 700;">Zero Absences: Abdullah Salem (Mar)</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="recent-section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <span class="lbl-prime" style="margin:0;" id="t-recent">RECENT INCIDENTS</span>
-                        <a href="#" onclick="switchScreen('reports')" style="font-size: 10px; font-weight: 900; color: var(--primary); text-decoration: none;">VIEW ALL</a>
-                    </div>
-                    <div id="mini-l"></div>
-                </div>
+            <div class="screen" id="s-reports">
+                <div style="padding-top:20px"><span class="lbl-prime">ALL REPORTS</span><div id="full-l"></div></div>
             </div>
 
             <div class="screen" id="s-create">
-                <div style="padding: 25px 0 25px; display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <i class="fas fa-arrow-left" style="color:var(--p); font-size:20px" onclick="resetCreationFlow(); switchScreen('home');"></i>
-                        <h2 id="wizard-title" style="font-size:18px; font-weight:950; color:var(--p)">SUBMIT</h2>
-                    </div>
-                    <div id="step-counter" class="step-badge">1/4</div>
+                <div style="padding: 25px 0; display: flex; align-items: center; justify-content: space-between;">
+                   <i class="fas fa-arrow-left" style="color:var(--p); font-size:20px" onclick="switchScreen('home')"></i>
+                   <h2 id="wizard-title" style="font-size:18px; font-weight:950; color:var(--p)">SUBMIT</h2>
+                   <div id="step-counter" class="step-badge">1/4</div>
                 </div>
-
-                <!-- Step 1: Environment -->
-                <div id="pane-1" class="creation-pane">
-                    <span class="lbl-prime" id="t-step-1">WHERE IS THE ISSUE?</span>
-                    <div id="env-list" style="margin-top:15px">
-                        <div class="smart-tile" onclick="setEnv('site', this)">
-                            <div style="width:50px; height:50px; background: rgba(245,158,11,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
-                                <i class="fas fa-hard-hat" style="color:#f59e0b"></i>
-                            </div>
-                            <div class="info"><b id="t-site">Project Site</b><span id="t-site-desc">Field & Safety</span></div>
-                        </div>
-                        <div class="smart-tile" onclick="setEnv('housing', this)">
-                            <div style="width:50px; height:50px; background: rgba(59,130,246,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
-                                <i class="fas fa-home" style="color:#3b82f6"></i>
-                            </div>
-                            <div class="info"><b id="t-housing">Housing</b><span id="t-housing-desc">Living Area</span></div>
-                        </div>
-                        <div class="smart-tile" onclick="setEnv('office', this)">
-                            <div style="width:50px; height:50px; background: rgba(16,185,129,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
-                                <i class="fas fa-building" style="color:#10b981"></i>
-                            </div>
-                            <div class="info"><b id="t-office">Office</b><span id="t-office-desc">Headquarters</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 2: Type -->
-                <div id="pane-2" class="creation-pane" style="display:none">
-                    <span class="lbl-prime" id="t-step-2">PROBLEM CATEGORY</span>
-                    <div id="type-list" style="margin-top:15px">
-                        <div class="smart-tile" onclick="setType('safety', this)">
-                            <div style="width:50px; height:50px; background: rgba(239,68,68,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
-                                <i class="fas fa-shield-alt" style="color:#ef4444"></i>
-                            </div>
-                            <div class="info"><b id="t-safety">Safety / Danger</b><span id="t-safety-desc">Hazard & incidents</span></div>
-                        </div>
-                        <div class="smart-tile" onclick="setType('service', this)">
-                            <div style="width:50px; height:50px; background: rgba(128,209,233,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
-                                <i class="fas fa-tools" style="color:var(--s)"></i>
-                            </div>
-                            <div class="info"><b id="t-service">Service Request</b><span id="t-service-desc">Transport & repairs</span></div>
-                        </div>
-                    </div>
-                    <button class="btn-secondary" onclick="goToPane(1)" id="t-back">BACK</button>
-                </div>
-
-                <!-- Step 3: Area -->
-                <div id="pane-3" class="creation-pane" style="display:none">
-                    <span class="lbl-prime" id="t-step-3">SELECT AREA</span>
-                    <div id="branch-list" style="margin-top:15px"></div>
-                    <button class="btn-secondary" onclick="goToPane(2)" id="t-back2">BACK</button>
-                </div>
-
-                <!-- Step 4: Finalize -->
+                <div id="pane-1" class="creation-pane"><span class="lbl-prime" id="t-step-1">WHERE IS THE ISSUE?</span><div id="env-list" style="margin-top:15px">
+                    <div class="smart-tile" onclick="setEnv('site', this)"><i class="fas fa-hard-hat"></i><div class="info"><b id="t-site">Site</b><span id="t-site-desc">Field</span></div></div>
+                    <div class="smart-tile" onclick="setEnv('housing', this)"><i class="fas fa-home"></i><div class="info"><b id="t-housing">Housing</b><span id="t-housing-desc">Living</span></div></div>
+                </div></div>
+                <div id="pane-2" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-2">CATEGORY</span><div id="type-list" style="margin-top:15px">
+                    <div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div>
+                    <div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div>
+                </div></div>
+                <div id="pane-3" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-3">AREA</span><div id="branch-list"></div></div>
                 <div id="pane-4" class="creation-pane" style="display:none">
-                    <span class="lbl-prime" id="t-step-4">SPECIFIC PROBLEM</span>
-                    <div id="sub-list" style="margin-top:15px"></div>
-
-                    <div style="margin-top: 25px;">
-                        <span class="lbl-prime" id="t-details">DETAILS</span>
-                        <div class="glass-card" style="padding: 15px; margin-top:10px">
-                            <textarea id="case-desc" placeholder="..." style="width: 100%; border: none; background: transparent; outline: none; font-weight: 700; min-height: 100px;"></textarea>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 20px;">
-                        <span class="lbl-prime" id="t-photo">PHOTOGRAPH</span>
-                        <div class="smart-tile" onclick="document.getElementById('case-img-input').click()" style="justify-content:center; padding:30px; border-style:dashed; border-color:var(--s)">
-                            <input type="file" id="case-img-input" accept="image/*" style="display:none" onchange="handleFile(this)">
-                            <div id="image-preview-cont" style="text-align:center">
-                                <i class="fas fa-camera" style="font-size:30px; color:var(--s)"></i>
-                                <p style="font-weight:900; color:var(--p); margin-top:10px" id="t-tap">TAP TO ATTACH</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="margin: 40px 0 120px;">
-                        <button class="btn-smart" id="submit-btn" onclick="submitReport()"></button>
-                        <button class="btn-secondary" onclick="goToPane(3)" id="t-back3">BACK</button>
-                    </div>
+                    <span class="lbl-prime" id="t-step-4">DETAILS</span>
+                    <textarea id="case-desc" placeholder="..." style="width: 100%; border-radius:20px; border:1px solid #ddd; padding:15px; min-height:100px; margin-bottom:20px"></textarea>
+                    <button class="btn-smart" id="submit-btn" onclick="submitReport()">SUBMIT</button>
                 </div>
             </div>
 
-            <!-- Stats -->
-            <div class="screen" id="s-stats">
-                <div class="glass-card" style="background: var(--primary); color: white; padding: 35px; text-align: center; border-radius: 40px; margin-top: 20px;">
-                    <span style="font-size: 10px; font-weight: 900; opacity: 0.6; letter-spacing: 1px;">TOTAL LOGGED INCIDENTS</span>
-                    <h1 id="stat-total" style="font-size: 64px; font-weight: 900;">0</h1>
-                </div>
-                <!-- Mini Stats -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
-                    <div class="glass-card" style="padding: 20px; border-left: 4px solid var(--accent);" onclick="updateStats('pending')">
-                        <span style="font-size: 9px; font-weight: 900; color: var(--grey);">PENDING</span>
-                        <div id="stat-pend" style="font-size: 24px; font-weight: 900; color: var(--primary);">0</div>
-                    </div>
-                    <div class="glass-card" style="padding: 20px; border-left: 4px solid #10b981;" onclick="updateStats('done')">
-                        <span style="font-size: 9px; font-weight: 900; color: var(--grey);">RESOLVED</span>
-                        <div id="stat-done" style="font-size: 24px; font-weight: 900; color: #10b981;">0</div>
-                    </div>
-                </div>
-                <div id="stat-activity" style="margin-top: 25px;"></div>
-            </div>
-
-            <!-- Inbox -->
             <div class="screen" id="s-chat-list">
-                <div style="padding-top:20px">
-                    <span class="lbl-prime">SECURE MESSAGES / الرسائل الجارية</span>
-                    <div id="chat-report-list"></div>
-                </div>
+                <div style="padding-top:20px"><span class="lbl-prime">INBOX</span><div id="chat-report-list"></div></div>
             </div>
 
-            <!-- Support Screen: Professional Form -->
             <div class="screen" id="s-support">
-                <div style="padding-top:20px; padding-bottom:120px">
-                    <div class="glass-card" style="padding:25px; background:linear-gradient(135deg, var(--p), #1e293b); color:white; border-radius:35px; margin-bottom:25px; text-align:center">
-                        <i class="fas fa-headset" style="font-size:40px; color:var(--s); margin-bottom:15px"></i>
-                        <h2 id="t-help-title" style="font-size:20px; font-weight:950">TECH SUPPORT HUB</h2>
-                        <p id="t-help-sub" style="font-size:11px; opacity:0.7; font-weight:700">Submit your technical inquiry directly</p>
-                    </div>
-
-                    <div class="glass-card" style="padding:22px; border-radius:30px">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:15px">
-                            <div class="input-group">
-                                <span class="lbl-prime" style="font-size:9px">OFFICER NAME</span>
-                                <input id="supp-name" class="login-input" style="background:#f1f5f9; color:#64748b; border:none" readonly>
-                            </div>
-                            <div class="input-group">
-                                <span class="lbl-prime" style="font-size:9px">EMPLOYEE ID</span>
-                                <input id="supp-id" class="login-input" style="background:#f1f5f9; color:#64748b; border:none" readonly>
-                            </div>
-                        </div>
-
-                        <div class="input-group" style="margin-bottom:15px">
-                            <span class="lbl-prime">CONTACT MOBILE</span>
-                            <input id="supp-mobile" class="login-input" type="tel" style="border:1.5px solid #e2e8f0; color:#1e293b" placeholder="+966 5x xxx xxxx">
-                        </div>
-
-                        <div class="input-group" style="margin-bottom:15px">
-                            <span class="lbl-prime">EMAIL ADDRESS</span>
-                            <input id="supp-email" class="login-input" type="email" style="border:1.5px solid #e2e8f0; color:#1e293b" placeholder="name@nesma.com">
-                        </div>
-
-                        <div class="input-group" style="margin-bottom:15px">
-                            <span class="lbl-prime">SUBJECT / الموضوع</span>
-                            <input id="supp-subject" class="login-input" style="border:1.5px solid #e2e8f0; color:#1e293b" placeholder="Main issue heading">
-                        </div>
-
-                        <div class="input-group" style="margin-bottom:20px">
-                            <span class="lbl-prime">ISSUE DETAILS / التفاصيل</span>
-                            <textarea id="supp-details" class="login-input" style="border:1.5px solid #e2e8f0; color:#1e293b; min-height:100px; padding:15px" placeholder="Explain the problem..."></textarea>
-                        </div>
-
-                        <button class="btn-smart" onclick="submitSupportTicket()" id="t-send-ticket">SEND REQUEST / إرسال الطلب</button>
-                    </div>
+                <div style="padding-top:20px">
+                    <span class="lbl-prime">TECH SUPPORT</span>
+                    <input id="supp-mobile" class="login-input" style="color:black" placeholder="Mobile">
+                    <input id="supp-email" class="login-input" style="color:black" placeholder="Email">
+                    <input id="supp-subject" class="login-input" style="color:black" placeholder="Subject">
+                    <textarea id="supp-details" class="login-input" style="color:black; min-height:100px" placeholder="Details"></textarea>
+                    <button class="btn-smart" onclick="submitSupportTicket()" id="t-send-ticket">SEND</button>
                 </div>
             </div>
 
-            <!-- Detail Screen -->
-            <div class="screen" id="s-detail">
-                <div id="det-cont" style="padding-top:20px"></div>
-            </div>
-
-            <!-- Chat Messaging Screen -->
             <div class="screen" id="s-chat">
-                <div style="height:100%; display:flex; flex-direction:column; padding:0; padding-bottom:80px">
-                    <div style="background:white; padding:20px; display:flex; align-items:center; gap:15px; border-bottom:1.5px solid #f1f5f9; position:sticky; top:0; z-index:100">
-                        <i class="fas fa-arrow-left" style="color:var(--p); font-size:18px" onclick="switchScreen('chat-list')"></i>
-                        <div>
-                            <h2 id="chat-title" style="font-size:16px; font-weight:950; color:var(--p)">SUPPORT CHANNEL</h2>
-                            <p id="chat-target" style="font-size:9px; font-weight:700; color:#64748b">ADMINISTRATION</p>
-                        </div>
+                <div style="height:100%; display:flex; flex-direction:column;">
+                    <div style="padding:20px; border-bottom:1px solid #ddd; display:flex; align-items:center; gap:20px">
+                        <i class="fas fa-arrow-left" onclick="switchScreen('chat-list')"></i>
+                        <h2 id="chat-title">Chat</h2>
                     </div>
-                    <div id="chat-cont" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px"></div>
-                    <div style="padding:15px; background:white; display:flex; gap:10px; border-top:1.5px solid #f1f5f9; position:sticky; bottom:0">
-                        <textarea id="msg-input" placeholder="Type message..." style="flex:1; background:#f8fafc; border:none; border-radius:15px; padding:12px; font-weight:700; outline:none; font-size:14px; resize:none; max-height:45px"></textarea>
-                        <button onclick="sendMessage()" style="width:45px; height:45px; background:var(--p); color:white; border:none; border-radius:12px; font-size:18px">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+                    <div id="chat-cont" style="flex:1; overflow-y:auto; padding:20px"></div>
+                    <div style="padding:15px; display:flex; gap:10px">
+                        <input id="msg-input" style="flex:1; padding:10px; border-radius:10px; border:1px solid #ddd">
+                        <button onclick="sendMessage()" style="padding:10px; background:var(--p); color:white; border-radius:10px; border:none"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
             </div>
 
-            <!-- Bottom Navbar -->
             <nav class="navbar" id="main-nav" style="display: none;">
-                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-th-large"></i><span id="nb-home">HOME</span></div>
-                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-list-ul"></i><span id="nb-reports">REPORTS</span></div>
+                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-home"></i><span id="nb-home">HOME</span></div>
+                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-list"></i><span id="nb-reports">REPORTS</span></div>
                 <div style="width: 70px;"></div>
-                <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')">
-                    <i class="fas fa-comment-alt"></i><span id="nb-inbox">INBOX</span>
-                    <div id="chat-count-badge" class="nav-badge">0</div>
-                </div>
+                <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')"><i class="fas fa-comment"></i><span id="nb-inbox">INBOX</span><div id="chat-count-badge" style="display:none; position:absolute; top:-5px; background:red; color:white; border-radius:50%; width:15px; height:15px; font-size:10px; align-items:center; justify-content:center">0</div></div>
                 <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span id="nb-help">HELP</span></div>
             </nav>
-
             <div class="plus-btn" id="main-plus" style="display: none;" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
 
-            <!-- NOTIF HUD -->
-            <div id="notif-hud" class="notif-hud">
-                <div class="hud-icon"><i class="fas fa-shield-alt"></i></div>
-                <div class="hud-content">
-                    <h4 id="hud-title">NIT SECURE</h4>
-                    <p id="hud-msg">System initialized.</p>
-                </div>
-            </div>
+            <div id="notif-hud" class="notif-hud"><div class="hud-icon"><i class="fas fa-bell"></i></div><div class="hud-content"><h4 id="hud-title">NIT</h4><p id="hud-msg">...</p></div></div>
+            <div id="status-modal" class="status-modal"><div class="status-card"><h2>REACHED</h2><p id="status-msg">Transmitted</p><button class="btn-smart" onclick="closeStatusModal()">DONE</button></div></div>
+        </div>
+    </div>
 
-            <!-- Status Modal -->
-            <div id="status-modal" class="status-modal">
-                <div class="status-card">
-                    <div id="status-icon" class="status-icon"></div>
-                    <h2 id="status-title">REACHED</h2>
-                    <p id="status-msg">Your report transmitted.</p>
-                    <div id="status-case-wrap">
-                        <div id="status-case-num" class="case-num-badge">#CASE ---</div>
-                    </div>
-                    <button class="btn-status-close" onclick="closeStatusModal()">DONE / تم</button>
-                </div>
-            </div>
-
-        </div> <!-- End App Container -->
-    </div> <!-- End Phone Frame -->
-
-
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck",
-            authDomain: "cloude-code1.firebaseapp.com",
-            projectId: "cloude-code1",
-            storageBucket: "cloude-code1.firebasestorage.app",
-            messagingSenderId: "553630040386",
-            appId: "1:553630040386:web:361da3353836ac709188db"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck", authDomain: "cloude-code1.firebaseapp.com", projectId: "cloude-code1", storageBucket: "cloude-code1.firebasestorage.app", messagingSenderId: "553630040386", appId: "1:553630040386:web:361da3353836ac709188db" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const messaging = firebase.messaging();
 
-        async function setupFCM() {
-            try {
-                const vapidKey = 'BGKnHACfCh_rN3J_ivDu9o5z1d7MK7K8ajdYy-h51aDfg2-EKeSpWOID6k1Rcy4wSzPflC1OtV27Zh6pVDGTWXY';
-                
-                // Manual SW registration for iOS/PWA reliability
-                if ('serviceWorker' in navigator) {
-                    const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
-                    console.log('SW Registered for Background Alerts');
-                    
-                    const permission = await Notification.requestPermission();
-                    if (permission !== 'granted') return console.log('Notification permission denied');
-
-                    const token = await messaging.getToken({ 
-                        vapidKey: vapidKey,
-                        serviceWorkerRegistration: registration
-                    });
-                    
-                    if (token) {
-                        await db.collection('fcm_tokens').doc(String(currentUser.emp_no)).set({
-                            emp_no: currentUser.emp_no,
-                            token: token,
-                            updated_at: new Date().toISOString()
-                        });
-                        console.log('FCM Device Identity Secured');
-                    }
-                }
-            } catch(e) { console.error("FCM Background Sync Fail:", e); }
-        }
-
-        let currentUser = null, reports = [], lastScreen = 'home', activeImgB64 = null, activeRoom = null;
-        let isHubStarted = false, isRenderingHub = false, unsubSync = null, unsubChat = null;
-        let currentType = 'safety', currentSubType = '', currentEnv = null, currentBranch = null;
-        let appLang = 'en';
+        let currentUser = null, reports = [], lastScreen = 'home', activeImgB64 = null, activeRoom = null, appLang = 'en', unsubSync = null, unsubChat = null;
 
         const i18n = {
-            en: {
-                wizard: "SUBMIT REPORT", step1: "WHERE IS THE ISSUE?", step2: "PROBLEM CATEGORY", step3: "SELECT AREA", step4: "SPECIFIC ISSUE",
-                site: "Construction Site", siteD: "Field & Safety",
-                housing: "Employee Housing", housingD: "Living Area",
-                safety: "Safety / Danger", safetyD: "Hazards & Incidents",
-                service: "Service Request", serviceD: "Transport & Repairs",
-                back: "BACK", submit: "SUBMIT REPORT", details: "DETAILS", photo: "PHOTOGRAPH", tap: "TAP TO ATTACH",
-                loginTitle: "NIT INTEL HUB", loginSub: "SECURE ACCESS", loginID: "Employee ID", loginPass: "Password", signIn: "SIGN IN", accessDenied: "ACCESS DENIED",
-                nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP",
-                office: "Office", officeD: "Headquarters", news: "ACTIVE BROADCASTS", recent: "RECENT INCIDENTS",
-                drHome: "HOME", drReports: "MY REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "SIGN OUT"
-            },
-            ar: {
-                wizard: "إرسال بلاغ", step1: "أين تقع المشكلة؟", step2: "تصنيف المشكلة", step3: "اختر القسم", step4: "تحديد المشكلة",
-                site: "موقع المشروع", siteD: "المواقع الإنشائية والسلامة",
-                housing: "سكن الموظفين", housingD: "المرافق ومعيشة",
-                safety: "بلاغ سلامة / خطر", safetyD: "المخاطر والحوادث",
-                service: "طلب خدمة", serviceD: "النقل والإصلاحات",
-                back: "رجوع", submit: "إرسال البلاغ", details: "التفاصيل", photo: "الصورة", tap: "اضغط للإرفاق",
-                loginTitle: "منصة NIT الميدانية", loginSub: "دخول آمن", loginID: "الرقم الوظيفي", loginPass: "كلمة المرور", signIn: "تسجيل الدخول", accessDenied: "فشل الدخول",
-                nbHome: "الرئيسية", nbReports: "بلاغاتي", nbInbox: "البريد", nbHelp: "الدعم",
-                office: "المكتب", officeD: "المكتب الرئيسي", news: "التعميمات النشطة", recent: "آخر البلاغات",
-                drHome: "الرئيسية", drReports: "بلاغاتي", drMessages: "المراسلات", drSupport: "الدعم الفني", drLogout: "تسجيل الخروج"
-            },
-            ur: {
-                wizard: "رپورٹ جمع کروائیں", step1: "مسئلہ کہاں ہے؟", step2: "مسئلے کی قسم", step3: "علاقہ منتخب کریں", step4: "مخصوص مسئلہ",
-                site: "تعمیراتی سائٹ", siteD: "فیلڈ پراجيكٹس اور حفاظت",
-                housing: "ملازمین کی رہائش", housingD: "رہائش اور سہولیات",
-                safety: "حفاظت / خطرہ", safetyD: "خطرات اور واقعات",
-                service: "سروس کی درخواست", serviceD: "نقل و حمل اور مرمت",
-                back: "پیمانہ", submit: "رپورٹ بھیجیں", details: "تفصلات", photo: "تصویر", tap: "منسلک کرنے کے لیے تھپتھپائیں",
-                loginTitle: "NIT انٹیل ہب", loginSub: "محفوظ رسائی", loginID: "ملازم شناختی کارڈ", loginPass: "پاس ورڈ", signIn: "سائن ان کریں", accessDenied: "رسائی مسترد کر دی گئی",
-                nbHome: "ہوم پیج", nbReports: "میری رپورٹیں", nbInbox: "ان باکس", nbHelp: "مدد",
-                office: "دفتر", officeD: "ہیڈ کوارٹر", news: "اہم اعلانات", recent: "حالیہ واقعات",
-                drHome: "ہوم پیج", drReports: "میری رپورٹیں", drMessages: "پیغامات", drSupport: "مدد", drLogout: "لاگ آؤٹ"
-            }
+            en: { wizard: "SUBMIT REPORT", step1: "WHERE?", site: "Site", siteD: "Field", housing: "Housing", housingD: "Living", safety: "Safety", service: "Service", back: "BACK", submit: "SUBMIT", loginTitle: "NIT INTEL", loginSub: "SECURE", nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP", drHome: "HOME", drReports: "REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "LOGOUT" },
+            ar: { wizard: "إرسال بلاغ", step1: "أين؟", site: "الموقع", siteD: "الميدان", housing: "السكن", housingD: "المعيشة", safety: "سلامة", service: "خدمة", back: "رجوع", submit: "إرسال", loginTitle: "NIT الميدانية", loginSub: "دخول", nbHome: "الرئيسية", nbReports: "بلاغاتي", nbInbox: "الرسائل", nbHelp: "مساعدة", drHome: "الرئيسية", drReports: "بلاغاتي", drMessages: "رسائلي", drSupport: "دعم", drLogout: "خروج" }
         };
-
-        const treeLocalized = {
-            en: {
-                housing: { safety: { branches: { h: { label: "Danger", items: ['Fire', 'Electric', 'Cleanliness'] } } }, service: { branches: { t: { label: "Transport", items: ['Bus Delay', 'Dirty Bus', 'Bad Driving'] }, u: { label: "Utilities", items: ['Water', 'Power', 'AC Issue'] } } } },
-                site: { safety: { branches: { h: { label: "Hazard", items: ['Fall Risk', 'Scaffold', 'Hole'] }, p: { label: "PPE", items: ['No Helmet', 'No Vest'] } } }, service: { branches: { l: { label: "Logistics", items: ['Truck Delay', 'Water Tank', 'Fix Machine'] } } } },
-                office: { safety: { branches: { e: { label: "Exit", items: ['Blocked Exit', 'No Signs'] } } }, service: { branches: { m: { label: "Maintenance", items: ['AC Leak', 'Light Out', 'Broken Chair'] } } } }
-            },
-            ar: {
-                housing: { safety: { branches: { h: { label: "خطر", items: ['حريق', 'كهرباء مكشوفة', 'نظافة'] } } }, service: { branches: { t: { label: "النقل", items: ['تأخر الباص', 'باص غير نظيف', 'سواقة خطرة'] }, u: { label: "المرافق", items: ['المياه', 'الكهرباء', 'عطل مكيف'] } } } },
-                site: { safety: { branches: { h: { label: "مخاطر", items: ['خطر سقوط', 'سقالات', 'حفرة مكشوفة'] }, p: { label: "السلامة", items: ['لا يوجد خوذة', 'لا يوجد سترة'] } } }, service: { branches: { l: { label: "لوجستيات", items: ['تأخر الشاحنة', 'صهريج الماء', 'تعطل معدة'] } } } },
-                office: { safety: { branches: { e: { label: "المخارج", items: ['مخرج طوارئ مغلق', 'لا يوجد لوحات'] } } }, service: { branches: { m: { label: "الصيانة", items: ['تهريب مكيف', 'إضاءة معطلة', 'كرسي مكسور'] } } } }
-            },
-            ur: {
-                housing: { safety: { branches: { h: { label: "خطرہ", items: ['آگ', 'بجلی', 'صفائی'] } } }, service: { branches: { t: { label: "نقل و حمل", items: ['بس کی تاخیر', 'گندی بس', 'خراب ڈرائیونگ'] }, u: { label: "سہولیات", items: ['پانی', 'بجلی', 'اے سی کا مسئلہ'] } } } },
-                site: { safety: { branches: { h: { label: "خطرات", items: ['گرنے کا خطرہ', 'سہاروں', 'سوراخ'] }, p: { label: "حفاظت", items: ['ہیلمٹ نہیں', 'واسکیٹ نہیں'] } } }, service: { branches: { l: { label: "لاجسٹکس", items: ['ٹرک کی تاخیر', 'پانی کا ٹینک', 'مشین کی مرمت'] } } } },
-                office: { safety: { branches: { e: { label: "باہر نکلیں", items: ['بلاک باہر نکلیں', 'کوئی نشانیاں نہیں'] } } }, service: { branches: { m: { label: "دیکھ بھال", items: ['اے سی لیک', 'لائٹ آف', 'ٹوٹی ہوئی کرسی'] } } } }
-            }
-        };
-
 
         function selectLanguage(l) {
-            console.log("Language Selected:", l);
-            appLang = l;
-            localStorage.setItem('app_lang', l);
-            document.body.dir = (l === 'ar' || l === 'ur') ? 'rtl' : 'ltr';
-            
-            const ls = document.getElementById('lang-screen');
-            if(ls) {
-                ls.style.opacity = '0';
-                ls.style.pointerEvents = 'none';
-                setTimeout(() => { ls.style.display='none'; }, 600);
-            }
-            
-            applyLocalization();
-            if (typeof initApp === "function") initApp();
-            else switchScreen('login');
+            appLang = l; localStorage.setItem('app_lang', l);
+            document.body.dir = (l === 'ar') ? 'rtl' : 'ltr';
+            document.getElementById('lang-screen').style.display = 'none';
+            applyLocalization(); 
+            initApp();
         }
 
         function applyLocalization() {
-            const t = i18n[appLang];
+            const t = i18n[appLang]; if(!t) return;
             document.getElementById('wizard-title').innerText = t.wizard;
-            document.getElementById('t-step-1').innerText = t.step1;
-            document.getElementById('t-step-2').innerText = t.step2;
-            document.getElementById('t-step-3').innerText = t.step3;
-            document.getElementById('t-step-4').innerText = t.step4;
-            document.getElementById('t-site').innerText = t.site;
-            document.getElementById('t-site-desc').innerText = t.siteD;
-            document.getElementById('t-housing').innerText = t.housing;
-            document.getElementById('t-housing-desc').innerText = t.housingD;
-            document.getElementById('t-safety').innerText = t.safety;
-            document.getElementById('t-safety-desc').innerText = t.safetyD;
-            document.getElementById('t-service').innerText = t.service;
-            document.getElementById('t-service-desc').innerText = t.serviceD;
-            document.getElementById('t-back').innerText = t.back;
-            document.getElementById('t-back2').innerText = t.back;
-            document.getElementById('t-back3').innerText = t.back;
-            document.getElementById('submit-btn').innerText = t.submit;
-            document.getElementById('t-details').innerText = t.details;
-            document.getElementById('t-photo').innerText = t.photo;
-            document.getElementById('t-tap').innerText = t.tap;
-
-            // Login Localization
             document.getElementById('t-login-title').innerText = t.loginTitle;
-            document.getElementById('t-login-sub').innerText = t.loginSub;
-            document.getElementById('login-id').placeholder = t.loginID;
-            document.getElementById('login-pass').placeholder = t.loginPass;
-            document.getElementById('t-signin-btn').innerText = t.signIn;
-            document.getElementById('login-err').innerText = t.accessDenied;
-
-            // Navbar Localization
             document.getElementById('nb-home').innerText = t.nbHome;
             document.getElementById('nb-reports').innerText = t.nbReports;
             document.getElementById('nb-inbox').innerText = t.nbInbox;
             document.getElementById('nb-help').innerText = t.nbHelp;
-            
-            // Drawer Localization
-            if(document.getElementById('dr-home')) document.getElementById('dr-home').innerText = t.drHome;
-            if(document.getElementById('dr-reports')) document.getElementById('dr-reports').innerText = t.drReports;
-            if(document.getElementById('dr-messages')) document.getElementById('dr-messages').innerText = t.drMessages;
-            if(document.getElementById('dr-support')) document.getElementById('dr-support').innerText = t.drSupport;
-            if(document.getElementById('dr-logout')) document.getElementById('dr-logout').innerText = t.drLogout;
-
-            // Home UI
-            document.getElementById('t-news').innerText = t.news;
-            document.getElementById('t-recent').innerText = t.recent;
-            document.getElementById('t-office').innerText = t.office;
-            document.getElementById('t-office-desc').innerText = t.officeD;
-        }
-
-        function goToPane(n) {
-            document.querySelectorAll('.creation-pane').forEach(p => p.style.display = 'none');
-            const target = document.getElementById('pane-' + n);
-            if(target) {
-                target.style.display = 'block';
-                target.style.animation = 'fadeInUp 0.4s ease forwards';
-            }
-            document.getElementById('step-counter').innerText = n + '/4';
-        }
-
-        function setEnv(e, el) {
-            currentEnv = e;
-            document.querySelectorAll('#env-list .smart-tile').forEach(x=>x.classList.remove('selected'));
-            el.classList.add('selected');
-            setTimeout(() => goToPane(2), 200);
-        }
-
-        function setType(t, el) {
-            currentType = t;
-            document.querySelectorAll('#type-list .smart-tile').forEach(x=>x.classList.remove('selected'));
-            el.classList.add('selected');
-            renderBranches();
-            setTimeout(() => goToPane(3), 200);
-        }
-
-        function renderBranches() {
-            const container = document.getElementById('branch-list');
-            const data = treeLocalized[appLang][currentEnv][currentType];
-            container.innerHTML = Object.keys(data.branches).map(b => `
-                <div class="smart-tile" onclick="setBranch('${b}', this)">
-                    <div style="width:50px; height:50px; background: rgba(46,49,146,0.05); border-radius:15px; display:flex; align-items:center; justify-content:center">
-                        <i class="fas fa-layer-group"></i>
-                    </div>
-                    <div class="info"><b>${data.branches[b].label}</b><span>Select area</span></div>
-                </div>
-            `).join('');
-        }
-
-        function setBranch(b, el) {
-            currentBranch = b;
-            document.querySelectorAll('#branch-list .smart-tile').forEach(x=>x.classList.remove('selected'));
-            el.classList.add('selected');
-            renderSubTypes();
-            setTimeout(() => goToPane(4), 200);
-        }
-
-        function renderSubTypes() {
-            const container = document.getElementById('sub-list');
-            const items = treeLocalized[appLang][currentEnv][currentType].branches[currentBranch].items;
-            container.innerHTML = items.map(s => `
-                <div class="smart-tile" onclick="currentSubType='${s}'; document.querySelectorAll('#sub-list .smart-tile').forEach(x=>x.classList.remove('selected')); this.classList.add('selected');">
-                    <div style="width:40px; height:40px; background: rgba(46,49,146,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center">
-                        <i class="fas fa-check" style="font-size:16px"></i>
-                    </div>
-                    <div class="info"><b>${s}</b></div>
-                </div>
-            `).join('');
-        }
-
-        function resetCreationFlow() {
-            currentEnv = null; currentType = null; currentBranch = null; currentSubType = '';
-            document.querySelectorAll('.smart-tile').forEach(b=>b.classList.remove('selected'));
-            document.getElementById('case-desc').value = '';
-            activeImgB64 = null;
-            document.getElementById('image-preview-cont').innerHTML = `<i class="fas fa-camera" style="font-size:30px; color:var(--s)"></i><p style="font-weight:900; color:var(--p); margin-top:10px" id="t-tap">${i18n[appLang].tap}</p>`;
-            goToPane(1);
         }
 
         function switchScreen(id) {
-            const screens = document.querySelectorAll('.screen');
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const target = document.getElementById('s-' + id);
-            
-            // Phase 1: Fade out others
-            screens.forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
-            if (target) {
-                target.style.display = 'flex';
-                // Fast reflow + trigger animation
-                requestAnimationFrame(() => {
-                    target.classList.add('active');
-                });
-            }
-            
-            // Intelligence for Back Button
-            const navMap = {'home': 'home', 'reports': 'home', 'chat-list': 'home', 'support': 'home', 'stats': 'home', 'create': 'home', 'notifs': 'home', 'detail': 'reports', 'chat': 'chat-list'};
-            
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            const icons = {'home':'bn-home','reports':'bn-reports','chat-list':'bn-chat-list','support':'bn-support'};
-            if(icons[id]) document.getElementById(icons[id]).classList.add('active');
-            
+            if(target) target.classList.add('active');
             const isPop = ['chat', 'detail'].includes(id);
             document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
             document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
-
-            if(id === 'create') resetCreationFlow();
             if(id === 'reports') sync();
-            if(id === 'stats') updateStats();
-            if(id === 'chat-list') renderChatHub();
-            if(id === 'notifs') renderNotifs();
-            if(id === 'support') {
-                document.getElementById('supp-name-val').innerText = currentUser.name_en || currentUser.name || "Officer";
-                document.getElementById('supp-id-val').innerText = "ID: " + (currentUser.emp_no || "0000");
-            }
             closeDrawer();
-        }
-
-
-        let lastReadNotif = localStorage.getItem('last_notif_read') || new Date().toISOString();
-        function clearNotifBadge() {
-            document.getElementById('bell-badge').classList.remove('active');
-            lastReadNotif = new Date().toISOString();
-            localStorage.setItem('last_notif_read', lastReadNotif);
-        }
-
-        async function openChat(sid) {
-            activeRoom = sid;
-            switchScreen('chat');
-            
-            // Clear badge for this room on open
-            if(unreadChats[sid]) {
-                unreadChats[sid] = 0;
-                updateChatBadges();
-                // Optionally mark as read in Firestore
-            }
-            
-            lastReadNotif = new Date().toISOString();
-            localStorage.setItem('last_notif_read', lastReadNotif);
-            updateChatBadges();
-        }
-
-        function openDrawer() { 
-            document.getElementById('drawer').classList.add('active'); 
-            document.getElementById('drawer-overlay').classList.add('active'); 
-        }
-        function closeDrawer() { 
-            document.getElementById('drawer').classList.remove('active'); 
-            document.getElementById('drawer-overlay').classList.remove('active'); 
-        }
-
-        function triggerNotif(title, msg) {
-            document.getElementById('hud-title').innerText = title;
-            document.getElementById('hud-msg').innerText = msg;
-            document.getElementById('notif-hud').classList.add('active');
-            try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play(); } catch(e){}
-            setTimeout(closeHUD, 5000);
-        }
-
-        function closeHUD() { document.getElementById('notif-hud').classList.remove('active'); }
-
-        async function initApp() {
-            if (!currentUser) { switchScreen('login'); return; }
-            
-            // IMMEDIATE BINDING - DO NOT WAIT FOR SYNC
-            const empName = currentUser.name_en || currentUser.name || "Officer";
-            const empID = currentUser.emp_no || "0000";
-            
-            document.getElementById('hm-name').innerText = empName;
-            document.getElementById('hm-full-id').innerText = "EMP ID: " + empID;
-            document.getElementById('hm-site-val').innerText = currentUser.site || "Main HQ";
-            
-            // Support Form
-            document.getElementById('supp-name').value = empName;
-            document.getElementById('supp-id').value = empID;
-            
-            // Drawer Info
-            document.getElementById('dr-name').innerText = empName;
-            document.getElementById('dr-id').innerText = "EMP ID: " + empID;
-            
-            document.getElementById('main-nav').style.display = 'flex';
-            document.getElementById('main-plus').style.display = 'flex';
-            
-            switchScreen('home');
-            sync();
-            setupFCM();
-            startNotifListener();
-        }
-
-
-
-        async function renderNotifs() {
-            const list = document.getElementById('notif-list');
-            if(!list) return;
-            list.innerHTML = '<p style="text-align:center; padding:50px; opacity:0.3; font-weight:900">SYNCING ALERTS...</p>';
-            
-            try {
-                // Fetch flat without orderBy to avoid index requirements
-                const [bcSnap, sessSnap] = await Promise.all([
-                    db.collection('broadcasts').limit(10).get(),
-                    db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).limit(10).get()
-                ]);
-
-                // Fallback for Reports: check user_id first
-                let repSnap = await db.collection('reports').where('user_id', '==', currentUser.id).limit(10).get();
-                if(repSnap.empty) {
-                    repSnap = await db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).limit(10).get();
-                }
-                
-                let combined = [];
-
-                bcSnap.docs.forEach(d => {
-                    const data = d.data();
-                    const demoTitles = ['Zero Absences', 'HR Reminder', 'Top Site (Safety)'];
-                    if (!demoTitles.includes(data.title)) {
-                        combined.push({ title: data.title || 'Broadcast', desc: data.content || '', type: 'info', time: data.created_at, link: null });
-                    }
-                });
-                
-                repSnap.docs.forEach(d => {
-                    const data = d.data();
-                    if(data.status === 'done' || data.updated_at) {
-                        const isResolved = data.status === 'done';
-                        combined.push({ 
-                            title: isResolved ? 'Case Completed' : 'Case Update', 
-                            desc: isResolved ? `Case #CASE ${data.case_num || '000'} resolved.` : `Activity on Case #CASE ${data.case_num || '000'}.`, 
-                            type: isResolved ? 'success' : 'info', 
-                            time: data.updated_at || data.created_at,
-                            link: { screen: 'detail', id: d.id }
-                        });
-                    }
-                });
-
-                sessSnap.docs.forEach(d => {
-                    const data = d.data();
-                    combined.push({ 
-                        title: 'New Message', 
-                        desc: data.last_message || 'You have a new unread message.', 
-                        type: 'alert', 
-                        time: data.updated_at,
-                        link: { screen: 'chat', id: d.id }
-                    });
-                });
-                
-                combined.sort((a,b) => new Date(b.time) - new Date(a.time));
-                
-                list.innerHTML = combined.map(n => {
-                    const linkAttr = n.link ? JSON.stringify(n.link).replace(/"/g, '&quot;') : 'null';
-                    return `
-                        <div class="notif-card ${n.time > lastReadNotif ? 'unread' : ''}" onclick="handleNotifClick(${linkAttr})">
-                            <div class="notif-icon ${n.type === 'success' ? 'ni-success' : (n.type === 'alert' ? 'ni-alert' : 'ni-info')}">
-                                <i class="fas ${n.type === 'success' ? 'fa-check-circle' : (n.type === 'alert' ? 'fa-comment-alt' : 'fa-info-circle')}"></i>
-                            </div>
-                            <div class="notif-content">
-                                <b>${n.title}</b>
-                                <p>${n.desc}</p>
-                                <div class="notif-time">${n.time ? n.time.substring(11,16) : 'Now'} • ${n.time ? n.time.substring(0,10) : ''}</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('') || '<div style="text-align:center; padding:100px 50px; opacity:0.3; font-weight:900">ALL CAUGHT UP</div>';
-                
-            } catch(e) {
-                console.error("Notif Error:", e);
-                if(list) list.innerHTML = '<p style="text-align:center; color:red; padding:50px">Error loading alerts.</p>';
-            }
-        }
-
-        async function submitReport() {
-            const desc = document.getElementById('case-desc').value;
-            if(!desc || !currentType || !currentEnv) return alert('Please complete the details');
-            
-            const btn = document.getElementById('submit-btn');
-            const oldHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> TRANSMITTING...';
-            btn.disabled = true;
-
-            try {
-                const counterRef = db.collection('settings').doc('counters');
-                await counterRef.set({ report_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
-                
-                const sfDoc = await counterRef.get();
-                const caseNum = sfDoc.data().report_count || 1;
-
-                const envLabel = i18n[appLang][currentEnv] || currentEnv;
-                const reportDocRef = db.collection('reports').doc(String(caseNum));
-                await reportDocRef.set({
-                    user_id: currentUser.id,
-                    emp_no: currentUser.emp_no,
-                    user_name: currentUser.name_en || currentUser.name,
-                    case_num: caseNum,
-                    type: currentType.toUpperCase() + (currentSubType ? ' - ' + currentSubType : ''),
-                    description: desc,
-                    site: envLabel,
-                    status: 'open',
-                    photo_b64: activeImgB64 || null,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                });
-
-                await reportDocRef.collection('timeline').add({
-                    event_text: 'Case Logged (Serial #CASE ' + caseNum + ')',
-                    author: 'System',
-                    created_at: new Date().toISOString()
-                });
-
-                showStatus(true, caseNum);
-            } catch(e) { 
-                console.error("Submit Error:", e);
-                showStatus(false);
-                btn.innerHTML = oldHtml;
-                btn.disabled = false;
-            }
-        }
-
-        function handleNotifClick(link) {
-            if(!link) return;
-            if(link.screen === 'detail') openDetail(link.id);
-            if(link.screen === 'chat') openChat(link.id);
-        }
-
-        function goBack() {
-            const current = document.querySelector('.screen.active').id.replace('s-', '');
-            const backMap = { 'detail': 'reports', 'chat': 'chat-list', 'create': 'home', 'stats': 'home', 'notifs': 'home', 'support': 'home' };
-            switchScreen(backMap[current] || 'home');
-        }
-
-
-        function showForgotModal() { document.getElementById('forgot-modal').classList.add('active'); }
-        function closeForgotModal() { document.getElementById('forgot-modal').classList.remove('active'); }
-
-        async function doReset() {
-            const id = document.getElementById('forgot-id').value.trim();
-            if(!id) return;
-            const btn = document.getElementById('forgot-btn');
-            const oldHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> FINDING...';
-            btn.disabled = true;
-
-            try {
-                let snap = await db.collection('employees').where('emp_no', 'in', [id, Number(id), String(id)]).get();
-                if(snap.empty) {
-                    alert("ID not found in system.");
-                } else {
-                    const data = snap.docs[0].data();
-                    if(!data.email) {
-                        alert("No email is linked to this ID. Please contact HR.");
-                    } else {
-                        // Using Firebase Auth built-in reset
-                        await firebase.auth().sendPasswordResetEmail(data.email);
-                        alert("Reset link sent to " + data.email);
-                        closeForgotModal();
-                    }
-                }
-            } catch(e) {
-                console.error("Reset Error:", e);
-                alert("Error: " + e.message);
-            } finally {
-                btn.innerHTML = oldHtml;
-                btn.disabled = false;
-            }
         }
 
         async function doLogin() {
             const id = document.getElementById('login-id').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
-            if (!id || !pass) return;
-            
-            const btn = document.getElementById('t-signin-btn');
-            const oldTxt = btn.innerText;
-            if(btn) { btn.innerText = "..."; btn.disabled = true; }
-            
-            // Hardcoded Verification (Admin bypass)
             if(pass === '12') {
-                try {
-                    let snap = await db.collection('employees').where('emp_no', 'in', [id, Number(id), String(id)]).get();
-                    if (snap.empty) { 
-                        document.getElementById('login-err').style.display = 'block'; 
-                        if(btn) { btn.innerText = oldTxt; btn.disabled = false; }
-                    } else { 
-                        currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; 
-                        localStorage.setItem('nit_user', JSON.stringify(currentUser)); 
-                        initApp();
-                    }
-                } catch (e) { 
-                    alert("Sync failed. Check connection."); 
-                    if(btn) { btn.innerText = oldTxt; btn.disabled = false; }
-                }
-                return;
+                let snap = await db.collection('employees').where('emp_no', 'in', [id, Number(id)]).get();
+                if(!snap.empty) { currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; localStorage.setItem('nit_user', JSON.stringify(currentUser)); initApp(); }
+                else document.getElementById('login-err').style.display = 'block';
             }
-            document.getElementById('login-err').style.display = 'block';
-            if(btn) { btn.innerText = oldTxt; btn.disabled = false; }
-        }
-
-
-        let unreadChats = {};
-        function updateChatBadges() {
-            const total = Object.values(unreadChats).reduce((a,b) => a+b, 0);
-            const badge = document.getElementById('chat-count-badge');
-            if(badge) {
-                badge.innerText = total;
-                badge.style.display = total > 0 ? 'flex' : 'none';
-            }
-        }
-
-        function sync() {
-            if (!currentUser) return;
-            if(unsubSync) unsubSync();
-            
-            const empVal = String(currentUser.emp_no);
-            unsubSync = db.collection('reports')
-                .where('emp_no', 'in', [empVal, Number(empVal)])
-                .onSnapshot(snap => {
-                    reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                    renderReports();
-                    updateStats();
-                }, err => {
-                    console.error("Sync Error:", err);
-                });
-            
-            // Also sync Broadacasts for the home screen
-            renderNotifs();
-        }
-
-        function updateStats() {
-            if(!reports) return;
-            const total = reports.length;
-            const pending = reports.filter(r => r.status !== 'done').length;
-            const done = reports.filter(r => r.status === 'done').length;
-            
-            if(document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
-            if(document.getElementById('stat-pend')) document.getElementById('stat-pend').innerText = pending;
-            if(document.getElementById('stat-done')) document.getElementById('stat-done').innerText = done;
-        }
-
-        async function renderChatHub() {
-            const list = document.getElementById('chat-report-list');
-            if(!list) return;
-            list.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">SYNCING CHATS...</div>';
-
-            try {
-                const snap = await db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).get();
-                if(snap.empty) {
-                    list.innerHTML = '<div style="text-align:center; padding:100px 50px; opacity:0.3; font-weight:900">NO ACTIVE CONVERSATIONS</div>';
-                    return;
-                }
-                
-                list.innerHTML = snap.docs.map(d => {
-                    const data = d.data();
-                    const isUnread = unreadChats[d.id] > 0;
-                    return `
-                        <div class="chat-item ${isUnread ? 'unread' : ''}" onclick="openChat('${d.id}')" style="background:white; padding:20px; border-radius:22px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between">
-                            <div style="display:flex; align-items:center; gap:15px">
-                                <div style="width:50px; height:50px; background:var(--p); color:white; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:20px">
-                                    <i class="fas fa-comments"></i>
-                                </div>
-                                <div>
-                                    <b style="color:var(--p); font-size:14px">CASE #${data.case_num || 'ADMIN'}</b>
-                                    <p style="font-size:11px; color:#64748b; font-weight:700">${data.last_message || 'No messages'}</p>
-                                </div>
-                            </div>
-                            <i class="fas fa-chevron-right" style="color:#cbd5e1; font-size:12px"></i>
-                        </div>
-                    `;
-                }).join('');
-            } catch(e) { console.error("Chat list error:", e); }
-        }
-
-        async function openChat(sid) {
-            activeRoom = sid;
-            const snap = await db.collection('chat_sessions').doc(sid).get();
-            const data = snap.data();
-            document.getElementById('chat-title').innerText = "CASE #" + (data.case_num || 'ADMIN');
-            switchScreen('chat');
-            
-            // Marker as read
-            if(unsubChat) unsubChat();
-            unsubChat = db.collection('chat_sessions').doc(sid).collection('messages').orderBy('created_at','asc')
-                .onSnapshot(s => {
-                    renderMessages(s.docs.map(d => d.data()));
-                });
-        }
-
-        function renderMessages(msgs) {
-            const cont = document.getElementById('chat-cont');
-            cont.innerHTML = msgs.map(m => {
-                const isMe = String(m.sender_id) === String(currentUser.emp_no);
-                return `
-                    <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; max-width: 80%; background: ${isMe ? 'var(--p)' : '#f1f5f9'}; color: ${isMe ? 'white' : '#1e293b'}; padding: 12px 18px; border-radius: ${isMe ? '20px 20px 4px 20px' : '4px 20px 20px 20px'}; font-size: 13px; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.03)">
-                        ${m.text}
-                        <div style="font-size: 8px; margin-top: 5px; opacity: 0.6; text-align: ${isMe ? 'right' : 'left'}">${(m.created_at||'').substring(11,16)}</div>
-                    </div>
-                `;
-            }).join('');
-            cont.scrollTop = cont.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const inp = document.getElementById('msg-input');
-            const txt = inp.value.trim();
-            if(!txt || !activeRoom) return;
-            
-            inp.value = '';
-            const msg = {
-                sender_id: String(currentUser.emp_no),
-                sender_name: currentUser.name_en || currentUser.name,
-                text: txt,
-                created_at: new Date().toISOString()
-            };
-            
-            await db.collection('chat_sessions').doc(activeRoom).collection('messages').add(msg);
-            await db.collection('chat_sessions').doc(activeRoom).update({
-                last_message: txt,
-                updated_at: new Date().toISOString()
-            });
-        }
-
-        async function submitSupportTicket() {
-            const mobile = document.getElementById('supp-mobile').value.trim();
-            const email = document.getElementById('supp-email').value.trim();
-            const subject = document.getElementById('supp-subject').value.trim();
-            const details = document.getElementById('supp-details').value.trim();
-            
-            if(!mobile || !email || !subject || !details) return alert("Please fill all fields");
-            if(!email.includes('@')) return alert("Invalid email");
-
-            const btn = document.getElementById('t-send-ticket');
-            btn.innerHTML = 'SENDING...'; btn.disabled = true;
-
-            try {
-                await db.collection('support_tickets').add({
-                    emp_no: currentUser.emp_no,
-                    name: currentUser.name_en || currentUser.name,
-                    mobile, email, subject, details,
-                    created_at: new Date().toISOString(),
-                    status: 'new'
-                });
-                alert("Ticket Submitted Successfully!");
-                switchScreen('home');
-            } catch(e) {
-                alert("Submission failed. Check connection.");
-            } finally {
-                btn.innerHTML = 'SEND REQUEST / إرسال الطلب'; btn.disabled = false;
-            }
-        }
-    
-
-
-
-        function renderReports() {
-            const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
-            if(!f || !m) return;
-            
-            const cardHtml = r => `
-                <div class="case-main-card" onclick="openDetail('${r.id}')" style="margin-bottom:20px; transition:0.3s">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start">
-                        <div class="type" style="color:var(--p)">${r.type}</div>
-                        <div class="status-tag" style="background:${r.status==='done'?'#dcfce7':'#fef3c7'}; color:${r.status==='done'?'#16a34a':'#d97706'}">
-                            ${(r.status||'OPEN').toUpperCase()}
-                        </div>
-                    </div>
-                    <div class="desc" style="margin:10px 0; color:#334155; font-size:13px">${(r.description||'').substring(0,80)}...</div>
-                    <div style="font-size:10px; font-weight:900; color:#94a3b8; letter-spacing:0.5px">#CASE ${r.case_num || '---'} • ${r.site || 'SITE'}</div>
-                </div>
-            `;
-
-            f.innerHTML = reports.map(r => cardHtml(r)).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">READY</div>';
-            
-            m.innerHTML = reports.slice(0,3).map(r => `
-                <div class="case-group" onclick="openDetail('${r.id}')">
-                    ${cardHtml(r)}
-                    <div class="case-log-list">
-                        <div class="log-item">
-                            <div class="log-dot" style="background:var(--p)"></div>
-                            <div class="log-txt">Logged: ${(r.created_at||'').substring(0,10)}</div>
-                        </div>
-                        <div class="log-item" style="padding-bottom:0">
-                            <div class="log-dot" style="background:${r.status==='done'?'#16a34a':'#f59e0b'}"></div>
-                            <div class="log-txt">${r.status==='done'?'Final Resolution':'Waiting for update'}</div>
-                        </div>
-                    </div>
-                </div>
-            `).join('') || '<p style="font-size:11px; opacity:0.3; padding:10px">No recent reports found</p>';
-        }
-
-
-        async function openDetail(id) {
-            const r = reports.find(x => String(x.id) === String(id)); if (!r) return;
-            const snap = await db.collection('reports').doc(String(id)).collection('timeline').orderBy('created_at','asc').get();
-            const tl = snap.docs.map(d=>d.data());
-            
-            const cont = document.getElementById('det-cont');
-            cont.innerHTML = `
-                <div class="case-main-card" style="margin-bottom:30px">
-                    <span class="lbl-prime">#CASE ${r.case_num || '000'}</span>
-                    <h2 style="font-size:26px; font-weight:900; color:var(--accent); margin-bottom:20px">${r.type.toUpperCase()}</h2>
-                    <hr style="border:none; border-top:1.5px solid #f8fafc; margin-bottom:20px">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; margin-bottom:25px">
-                        <div>
-                            <span class="lbl-prime">SITE</span>
-                            <div style="font-weight:900; font-size:16px; color:var(--primary)">${r.site || 'Randa Tower'}</div>
-                        </div>
-                        <div>
-                            <span class="lbl-prime">STATUS</span>
-                            <div style="font-weight:900; font-size:16px; color:${r.status==='done'?'#22c55e':'#38bdf8'}">${(r.status||'OPEN').toUpperCase()}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="lbl-prime">CASE DETAILS</span>
-                        <div style="font-weight:700; font-size:14px; color:#1e293b; opacity:0.8; line-height:1.6">${r.description}</div>
-                    </div>
-                </div>
-
-                ${r.photo_b64 ? `
-                <div style="margin-bottom:35px">
-                    <span class="lbl-prime">ATTACHED IMAGE</span>
-                    <div style="width:100%; border-radius:35px; overflow:hidden; box-shadow:0 15px 40px rgba(0,0,0,0.08); margin-top:10px; cursor:zoom-in" onclick="zoomImage('${r.photo_b64}')">
-                        <img src="${r.photo_b64}" style="width:100%; display:block">
-                    </div>
-                </div>
-                ` : ''}
-
-                <div>
-                    <span class="lbl-prime">FULL CASE JOURNEY</span>
-                    <div class="case-log-list" style="margin-top:20px">
-                        ${tl.map((t, idx) => `
-                        <div class="log-item" style="${idx === tl.length-1 ? 'padding-bottom:0' : ''}">
-                            <div class="log-dot" style="background:${idx===0?'#38bdf8':'#22c55e'}"></div>
-                            <div class="log-txt">${t.event_text}</div>
-                            <div class="log-meta">${t.created_at.substring(0,10)} • ${t.author || (idx===0?'System':'Admin')}</div>
-                        </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            switchScreen('detail');
-        }
-
-        function zoomImage(src) {
-            const ov = document.getElementById('zoom-overlay');
-            const img = document.getElementById('zoom-img');
-            img.src = src;
-            ov.classList.add('active');
-        }
-
-        function handleFile(input) {
-            const file = input.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                activeImgB64 = e.target.result;
-                document.getElementById('image-preview-cont').innerHTML = `<svg viewBox="0 0 100 100" style="width:100%; height:120px; object-fit:cover; border-radius:15px"><rect width="100" height="100" fill="#e2e8f0"/></svg>`;
-            };
-            reader.readAsDataURL(file);
         }
 
         async function initApp() {
-            if (!currentUser) { switchScreen('login'); return; }
-            
-            // UI Binding
-            const empName = currentUser.name_en || currentUser.name || "Officer";
-            const empID = currentUser.emp_no || "0000";
-            
-            document.getElementById('dr-name').innerText = empName;
-            document.getElementById('dr-id').innerText = "EMP ID: " + empID;
-            document.getElementById('hm-name').innerText = empName;
-            document.getElementById('hm-full-id').innerText = "EMP ID: " + empID;
-            
-            // Form Binding
-            document.getElementById('supp-name').value = empName;
-            document.getElementById('supp-id').value = empID;
-            
+            if(!currentUser) return switchScreen('login');
             document.getElementById('main-header').style.display = 'flex';
             document.getElementById('main-nav').style.display = 'flex';
             document.getElementById('main-plus').style.display = 'flex';
-            
+            document.getElementById('hm-name').innerText = currentUser.name_en || "Officer";
             switchScreen('home');
             sync();
-            setupFCM();
         }
+
+        function sync() {
+            if(unsubSync) unsubSync();
+            unsubSync = db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).onSnapshot(snap => {
+                reports = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderReports();
+            });
+        }
+
+        function renderReports() {
+            const f = document.getElementById('full-l'); if(!f) return;
+            f.innerHTML = reports.map(r => `<div class="case-main-card" onclick="openChatForReport('${r.id}')"><b>#${r.case_num}</b> - ${r.type}</div>`).join('');
+        }
+
+        function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
+        function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
+        function doLogout() { localStorage.removeItem('nit_user'); location.reload(); }
 
         window.onload = () => {
-             const lastLang = localStorage.getItem('app_lang');
-             const savedUser = localStorage.getItem('nit_user');
-
-             if(lastLang && savedUser) {
-                 appLang = lastLang;
-                 currentUser = JSON.parse(savedUser);
-                 document.getElementById('lang-screen').style.display = 'none';
-                 document.body.dir = (appLang === 'ar' || appLang === 'ur') ? 'rtl' : 'ltr';
-                 applyLocalization();
-                 initApp();
-             } else {
-                 document.getElementById('lang-screen').style.display = 'flex';
-                 document.getElementById('lang-screen').style.opacity = '1';
-                 document.getElementById('lang-screen').style.pointerEvents = 'all';
-             }
+            const saved = localStorage.getItem('nit_user');
+            if(saved) { currentUser = JSON.parse(saved); document.getElementById('lang-screen').style.display='none'; initApp(); }
         };
-
-        function doLogout() { 
-            localStorage.removeItem('nit_user'); 
-            localStorage.removeItem('app_lang');
-            location.reload(); 
-        }
     </script>
 </body>
 </html>
