@@ -54,37 +54,50 @@
         .header h1 { font-size:16px; font-weight:900; color: var(--primary); letter-spacing:1px; text-transform: uppercase; }
         .brand-logo-mini { height: 24px; }
 
-        /* GLASS CARD THEME */
-        .glass-card { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 35px; border: 1px solid white; box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
-
-        .type-box { 
-            background:white; padding:25px; border-radius:30px; 
-            display:flex; align-items:center; gap:20px; 
-            box-shadow:0 8px 15px rgba(0,0,0,0.03); 
-            transition:0.3s; border:3px solid #f1f5f9; cursor:pointer; 
-            width: 100%; margin-bottom: 12px;
+        :root { --p: #2e3192; --s: #80d1e9; --bg: #f8fafc; --glass: rgba(255,255,255,0.7); --neon: #80d1e9; }
+        
+        body { font-family: 'IBM Plex Sans Arabic', 'Inter', sans-serif; background: #f0f4f8; overflow: hidden; margin:0; }
+        
+        /* LANGUAGE SPLASH */
+        #lang-screen { 
+            position: fixed; inset: 0; z-index: 9000; 
+            background: linear-gradient(135deg, #2e3192, #1b1d5a); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 0.5s ease-in-out;
         }
-        .type-box.active { border-color:var(--primary); background: #f0f4ff; transform: scale(1.02); }
-        .type-box.safety-card.active { border-color: #ef4444; background: #fef2f2; }
-        .type-box.service-card.active { border-color: var(--primary); background: #f0f4ff; }
-        
-        .type-box i { font-size:42px; color:var(--grey); width: 60px; text-align: center; }
-        .type-box.safety-card i { color: #f87171; }
-        .type-box.service-card i { color: var(--accent); }
-        
-        .type-box .type-txt { display: flex; flex-direction: column; }
-        .type-box .type-txt b { font-size:18px; color: var(--primary); font-weight: 900; }
-        .type-box .type-txt span { font-size:12px; color: var(--grey); font-weight: 700; text-transform: uppercase; }
+        .lang-card {
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2);
+            padding: 40px; border-radius: 40px; width: 85%; max-width: 400px; text-align: center; color: white;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+        .lang-btn {
+            background: white; color: var(--p); padding: 18px; border-radius: 20px; font-weight: 950;
+            margin-top: 15px; cursor: pointer; transition: 0.3s; font-size: 18px; width: 100%; border: none;
+        }
+        .lang-btn:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
-        .sub-type-item { background:white; padding:18px 25px; border-radius:22px; font-size:14px; font-weight:950; color:var(--primary); border: 1.5px solid #e2e8f0; cursor:pointer; transition:0.2s; width: 100%; display: flex; justify-content: space-between; align-items: center; }
-        .sub-type-item.active { background:var(--primary); color:white; border-color: var(--primary); }
+        /* SMART TILES */
+        .smart-tile { 
+            background: var(--glass); backdrop-filter: blur(10px); border: 1.5px solid white; 
+            padding: 22px; border-radius: 28px; display: flex; align-items: center; gap: 18px; 
+            margin-bottom: 12px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .smart-tile:active { transform: scale(0.96); }
+        .smart-tile.selected { border-color: var(--p); background: white; box-shadow: 0 10px 25px rgba(46,49,146,0.1); }
+        .smart-tile i { font-size: 28px; color: var(--p); width: 45px; text-align: center; }
+        .smart-tile .info { display: flex; flex-direction: column; }
+        .smart-tile .info b { font-size: 16px; color: var(--p); font-weight: 850; letter-spacing: -0.5px; }
+        .smart-tile .info span { font-size: 11px; color: #64748b; font-weight: 600; }
 
-        /* PROGRESS TRACKER */
-        .progress-stepper { display: flex; justify-content: space-between; padding: 15px 10px; margin-bottom: 25px; position: relative; }
-        .progress-stepper::after { content:''; position:absolute; top:25px; left:15px; right:15px; height:3px; background:#e2e8f0; z-index:1; }
-        .step-node { width: 28px; height: 28px; background: white; border: 3px solid #e2e8f0; border-radius: 50%; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 950; color: #94a3b8; transition: 0.3s; }
-        .step-node.active { background: var(--accent); border-color: var(--primary); color: var(--primary); scale: 1.2; box-shadow: 0 0 15px rgba(128, 209, 233, 0.4); }
-        .step-node.done { background: var(--primary); border-color: var(--primary); color: white; }
+        /* SLEEK PROGRESS */
+        .smart-progress { height: 6px; background: #e2e8f0; border-radius: 10px; margin-bottom: 30px; position: relative; overflow: hidden; }
+        .smart-progress-bar { height: 100%; background: linear-gradient(to right, var(--p), var(--s)); transition: 0.6s cubic-bezier(0.65, 0, 0.35, 1); width: 25%; box-shadow: 0 0 10px var(--s); }
+
+        /* BUTTONS */
+        .btn-smart { background: var(--p); color: white; border: none; padding: 20px; border-radius: 25px; font-weight: 900; width: 100%; font-size: 16px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(46,49,146,0.2); }
+        .btn-smart:disabled { opacity: 0.4; }
+        .btn-secondary { background: white; color: var(--p); border: 1.5px solid #e2e8f0; padding: 15px; border-radius: 20px; width: 100%; font-weight: 850; margin-top: 10px; font-size: 14px; cursor:pointer; }
 
         /* NAV BAR PREMIUM */
         .navbar { position:absolute; bottom:0; left:0; width:100%; height:95px; background:white; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-around; padding-bottom:15px; z-index:200; border-radius: 40px 40px 0 0; }
@@ -182,86 +195,91 @@
                 </div>
             </div>
 
-            <!-- Create Case (Advanced 4-Step Flow) -->
+            <!-- WIZARD PANE (CREATE) -->
             <div class="screen" id="s-create">
-                <div class="progress-stepper">
-                    <div class="step-node active" id="step-1">1</div>
-                    <div class="step-node" id="step-2">2</div>
-                    <div class="step-node" id="step-3">3</div>
-                    <div class="step-node" id="step-4">4</div>
+                <div style="padding: 20px 0 10px; display: flex; align-items: center; gap: 15px;">
+                    <i class="fas fa-arrow-left" style="color:var(--p); font-size:20px" onclick="resetCreationFlow(); switchScreen('home');"></i>
+                    <h2 id="wizard-title" style="font-size:20px; font-weight:950; color:var(--p)">SUBMIT REPORT</h2>
                 </div>
 
-                    <div id="pane-1" class="creation-pane">
-                        <span class="lbl-prime">1. WHERE IS THE PROBLEM? / أين المشكلة؟</span>
-                        <div id="env-grid">
-                            <div class="type-box" onclick="setEnv('site', this)">
+                <div class="smart-progress">
+                    <div id="smart-progress-bar" class="smart-progress-bar"></div>
+                </div>
+
+                <!-- Step 1: Environment -->
+                <div id="pane-1" class="creation-pane">
+                    <span class="lbl-prime" id="t-step-1">WHERE IS THE ISSUE?</span>
+                    <div id="env-list" style="margin-top:15px">
+                        <div class="smart-tile" onclick="setEnv('site', this)">
+                            <div style="width:50px; height:50px; background: rgba(245,158,11,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
                                 <i class="fas fa-hard-hat" style="color:#f59e0b"></i>
-                                <div class="type-txt"><b>CONSTRUCTION SITE</b><span>موقع المشروع</span></div>
                             </div>
-                            <div class="type-box" onclick="setEnv('housing', this)">
+                            <div class="info"><b id="t-site">Construction Site</b><span id="t-site-desc">Field projects & safety</span></div>
+                        </div>
+                        <div class="smart-tile" onclick="setEnv('housing', this)">
+                            <div style="width:50px; height:50px; background: rgba(59,130,246,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
                                 <i class="fas fa-home" style="color:#3b82f6"></i>
-                                <div class="type-txt"><b>EMPLOYEE HOUSING</b><span>سكن العمال</span></div>
                             </div>
-                            <div class="type-box" onclick="setEnv('office', this)">
-                                <i class="fas fa-building" style="color:#64748b"></i>
-                                <div class="type-txt"><b>OFFICE / HQ</b><span>المكتب الإداري</span></div>
+                            <div class="info"><b id="t-housing">Employee Housing</b><span id="t-housing-desc">Living & utilities</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Type -->
+                <div id="pane-2" class="creation-pane" style="display:none">
+                    <span class="lbl-prime" id="t-step-2">PROBLEM CATEGORY</span>
+                    <div id="type-list" style="margin-top:15px">
+                        <div class="smart-tile" onclick="setType('safety', this)">
+                            <div style="width:50px; height:50px; background: rgba(239,68,68,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
+                                <i class="fas fa-shield-alt" style="color:#ef4444"></i>
+                            </div>
+                            <div class="info"><b id="t-safety">Safety / Danger</b><span id="t-safety-desc">Hazard & incidents</span></div>
+                        </div>
+                        <div class="smart-tile" onclick="setType('service', this)">
+                            <div style="width:50px; height:50px; background: rgba(128,209,233,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center">
+                                <i class="fas fa-tools" style="color:var(--s)"></i>
+                            </div>
+                            <div class="info"><b id="t-service">Service Request</b><span id="t-service-desc">Transport & repairs</span></div>
+                        </div>
+                    </div>
+                    <button class="btn-secondary" onclick="goToPane(1)" id="t-back">BACK</button>
+                </div>
+
+                <!-- Step 3: Area -->
+                <div id="pane-3" class="creation-pane" style="display:none">
+                    <span class="lbl-prime" id="t-step-3">SELECT AREA</span>
+                    <div id="branch-list" style="margin-top:15px"></div>
+                    <button class="btn-secondary" onclick="goToPane(2)" id="t-back2">BACK</button>
+                </div>
+
+                <!-- Step 4: Finalize -->
+                <div id="pane-4" class="creation-pane" style="display:none">
+                    <span class="lbl-prime" id="t-step-4">SPECIFIC PROBLEM</span>
+                    <div id="sub-list" style="margin-top:15px"></div>
+
+                    <div style="margin-top: 25px;">
+                        <span class="lbl-prime" id="t-details">DETAILS</span>
+                        <div class="glass-card" style="padding: 15px; margin-top:10px">
+                            <textarea id="case-desc" placeholder="..." style="width: 100%; border: none; background: transparent; outline: none; font-weight: 700; min-height: 100px;"></textarea>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <span class="lbl-prime" id="t-photo">PHOTOGRAPH</span>
+                        <div class="smart-tile" onclick="document.getElementById('case-img-input').click()" style="justify-content:center; padding:30px; border-style:dashed; border-color:var(--s)">
+                            <input type="file" id="case-img-input" accept="image/*" style="display:none" onchange="handleFile(this)">
+                            <div id="image-preview-cont" style="text-align:center">
+                                <i class="fas fa-camera" style="font-size:30px; color:var(--s)"></i>
+                                <p style="font-weight:900; color:var(--p); margin-top:10px" id="t-tap">TAP TO ATTACH</p>
                             </div>
                         </div>
                     </div>
 
-                    <div id="pane-2" class="creation-pane" style="display: none;">
-                        <span class="lbl-prime">2. TYPE OF PROBLEM / نوع البلاغ</span>
-                        <div id="type-grid-main">
-                            <div class="type-box safety-card" onclick="setType('safety', this)">
-                                <i class="fas fa-shield-alt"></i>
-                                <div class="type-txt"><b>SAFETY / DANGER</b><span>بلاغ سلامة أو خطر</span></div>
-                            </div>
-                            <div class="type-box service-card" onclick="setType('service', this)">
-                                <i class="fas fa-tools"></i>
-                                <div class="type-txt"><b>SERVICE / REPAIR</b><span>طلب خدمة أو صيانة</span></div>
-                            </div>
-                            <div class="type-box" onclick="setType('other', this)">
-                                <i class="fas fa-info-circle"></i>
-                                <div class="type-txt"><b>OTHER</b><span>ملاحظات أخرى</span></div>
-                            </div>
-                        </div>
-                        <button class="btn-p" onclick="goToPane(1)" style="background: white; color: var(--primary); border: 1.5px solid #e2e8f0; margin-top: 30px; box-shadow: none;">BACK / رجوع</button>
+                    <div style="margin: 40px 0 120px;">
+                        <button class="btn-smart" id="submit-btn" onclick="submitReport()"></button>
+                        <button class="btn-secondary" onclick="goToPane(3)" id="t-back3">BACK</button>
                     </div>
-
-                    <div id="pane-3" class="creation-pane" style="display: none;">
-                        <span class="lbl-prime">3. SELECT AREA / اختر القسم</span>
-                        <div id="branch-selection"></div>
-                        <button class="btn-p" onclick="goToPane(2)" style="background: white; color: var(--primary); border: 1.5px solid #e2e8f0; margin-top: 30px; box-shadow: none;">BACK / رجوع</button>
-                    </div>
-
-                    <div id="pane-4" class="creation-pane" style="display: none;">
-                        <span class="lbl-prime">4. SPECIFIC PROBLEM / المشكلة بالتحديد</span>
-                        <div id="sub-types"></div>
-                        
-                        <div style="margin-top: 30px;">
-                            <span class="lbl-prime">DESCRIPTION / شرح المشكلة</span>
-                            <div class="glass-card" style="padding: 20px;">
-                                <textarea id="case-desc" placeholder="Write here... اكتب هنا"></textarea>
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 20px;">
-                            <span class="lbl-prime">PHOTO / صورة</span>
-                            <div class="image-upload-area" onclick="document.getElementById('case-img-input').click()" style="background: white; border: 3.5px dashed var(--accent); border-radius: 30px; padding: 40px; text-align: center;">
-                                <input type="file" id="case-img-input" accept="image/*" style="display:none" onchange="handleFile(this)">
-                                <div id="image-preview-cont">
-                                    <i class="fas fa-camera" style="font-size: 48px; color: var(--accent);"></i>
-                                    <p style="margin-top: 15px; font-weight: 900; color: var(--primary); font-size:18px">TAP TO TAKE PHOTO / صور</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="margin: 30px 0 120px;">
-                            <button class="btn-p" id="submit-btn" onclick="submitReport()" style="height:80px; font-size:18px">SUBMIT / إرسال البلاغ</button>
-                            <button class="btn-p" onclick="goToPane(3)" style="background: white; color: var(--primary); border: 1.5px solid #e2e8f0; margin-top: 15px; box-shadow: none;">BACK / رجوع</button>
-                        </div>
-                    </div>
-
+                </div>
             </div>
 
             <!-- Stats -->
@@ -413,43 +431,133 @@
         let currentUser = null, reports = [], lastScreen = 'home', imgB64 = null, activeRoom = null;
         let isHubStarted = false, isRenderingHub = false, unsubSync = null, unsubChat = null;
         let currentType = 'safety', currentSubType = '';
+        let appLang = 'en';
 
-        const problemTree = {
-            housing: {
-                label: "Housing",
-                types: {
-                    safety: { branches: { hazard: { label: "Housing Danger / خطر في السكن", items: ['Fire Hazard - حريق', 'Exposed Wires - أسلاك', 'Hygiene - نظافة'] }, env: { label: "Living Issues / مشاكل معيشة", items: ['Overcrowded - زحمة', 'Pest Control - حشرات'] } } },
-                    service: { 
-                        branches: { 
-                            trans: { label: "Transport / النقل", items: ['Bus Late - تأخر الباص', 'Bus Dirty - نظافة الباص', 'Bad Driving - سواقة خطرة'] },
-                            util: { label: "Utilities / المرافق", items: ['No Water - لا يوجد ماء', 'No Power - لا يوجد كهرباء', 'AC Failure - عطل مكيف'] }
-                        } 
-                    },
-                    other: { branches: { gen: { label: "General / عام", items: ['Medical - طبي', 'Personal - شخصي'] } } }
-                }
+        const i18n = {
+            en: {
+                wizard: "SUBMIT REPORT", step1: "WHERE IS THE ISSUE?", step2: "PROBLEM CATEGORY", step3: "SELECT AREA", step4: "SPECIFIC ISSUE",
+                site: "Construction Site", siteD: "Field projects & safety",
+                housing: "Employee Housing", housingD: "Living & utilities",
+                safety: "Safety / Danger", safetyD: "Hazards & incidents",
+                service: "Service Request", serviceD: "Transport & repairs",
+                back: "BACK", submit: "SUBMIT REPORT", details: "DETAILS", photo: "PHOTOGRAPH", tap: "TAP TO ATTACH"
             },
-            site: {
-                label: "Site",
-                types: {
-                    safety: { branches: { hazard: { label: "Site Hazard / خطر في الموقع", items: ['Fall Risk - خطر سقوط', 'Scaffolding - سقالات', 'Open Hole - حفرة'] }, ppe: { label: "PPE / السلامة الشخصية", items: ['No Helmet - لا يوجد خوذة', 'No Vest - لا يوجد سترة'] } } },
-                    service: { 
-                        branches: { 
-                            trans: { label: "Logistics / نقل الموقع", items: ['Truck Delay - تأخر شاحنة', 'Water Tank - صهريج ماء', 'Equipment Break - عطل معدة'] },
-                            resources: { label: "Supplies / مواد", items: ['Low Fuel - نقص ديزل', 'Low Material - نقص مواد'] }
-                        } 
-                    },
-                    other: { branches: { flow: { label: "Work Progress / سير العمل", items: ['Delay - تأخير', 'Inspection - تفتيش'] } } }
-                }
-            },
-
+            ar: {
+                wizard: "إرسال بلاغ", step1: "أين تقع المشكلة؟", step2: "تصنيف المشكلة", step3: "اختر القسم", step4: "تحديد المشكلة",
+                site: "موقع المشروع", siteD: "المواقع الإنشائية والسلامة",
+                housing: "سكن الموظفين", housingD: "المرافق والمعيشة",
+                safety: "بلاغ سلامة / خطر", safetyD: "المخاطر والحوادث",
+                service: "طلب خدمة", serviceD: "النقل والإصلاحات",
+                back: "رجوع", submit: "إرسال البلاغ", details: "التفاصيل", photo: "الصورة", tap: "اضغط للإرفاق"
+            }
         };
 
-        // UI state for tree
-        let currentEnv = null;
-        let currentBranch = null;
+        const treeLocalized = {
+            en: {
+                housing: { safety: { branches: { h: { label: "Danger", items: ['Fire', 'Electric', 'Cleanliness'] } } }, service: { branches: { t: { label: "Transport", items: ['Bus Delay', 'Dirty Bus', 'Bad Driving'] }, u: { label: "Utilities", items: ['Water', 'Power', 'AC Issue'] } } } },
+                site: { safety: { branches: { h: { label: "Hazard", items: ['Fall Risk', 'Scaffold', 'Hole'] }, p: { label: "PPE", items: ['No Helmet', 'No Vest'] } } }, service: { branches: { l: { label: "Logistics", items: ['Truck Delay', 'Water Tank', 'Fix Machine'] } } } }
+            },
+            ar: {
+                housing: { safety: { branches: { h: { label: "خطر", items: ['حريق', 'كهرباء مكشوفة', 'نظافة'] } } }, service: { branches: { t: { label: "النقل", items: ['تأخر الباص', 'باص غير نظيف', 'سواقة خطرة'] }, u: { label: "المرافق", items: ['المياه', 'الكهرباء', 'عطل مكيف'] } } } },
+                site: { safety: { branches: { h: { label: "مخاطر", items: ['خطر سقوط', 'سقالات', 'حفرة مكشوفة'] }, p: { label: "السلامة", items: ['لا يوجد خوذة', 'لا يوجد سترة'] } } }, service: { branches: { l: { label: "لوجستيات", items: ['تأخر الشاحنة', 'صهريج الماء', 'تعطل معدة'] } } } }
+            }
+        };
 
+        function selectLanguage(l) {
+            appLang = l;
+            document.body.dir = l === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('lang-screen').style.opacity = '0';
+            setTimeout(() => document.getElementById('lang-screen').style.display='none', 500);
+            applyLocalization();
+        }
 
+        function applyLocalization() {
+            const t = i18n[appLang];
+            document.getElementById('wizard-title').innerText = t.wizard;
+            document.getElementById('t-step-1').innerText = t.step1;
+            document.getElementById('t-step-2').innerText = t.step2;
+            document.getElementById('t-step-3').innerText = t.step3;
+            document.getElementById('t-step-4').innerText = t.step4;
+            document.getElementById('t-site').innerText = t.site;
+            document.getElementById('t-site-desc').innerText = t.siteD;
+            document.getElementById('t-housing').innerText = t.housing;
+            document.getElementById('t-housing-desc').innerText = t.housingD;
+            document.getElementById('t-safety').innerText = t.safety;
+            document.getElementById('t-safety-desc').innerText = t.safetyD;
+            document.getElementById('t-service').innerText = t.service;
+            document.getElementById('t-service-desc').innerText = t.serviceD;
+            document.getElementById('t-back').innerText = t.back;
+            document.getElementById('t-back2').innerText = t.back;
+            document.getElementById('t-back3').innerText = t.back;
+            document.getElementById('submit-btn').innerText = t.submit;
+            document.getElementById('t-details').innerText = t.details;
+            document.getElementById('t-photo').innerText = t.photo;
+            document.getElementById('t-tap').innerText = t.tap;
+        }
 
+        function goToPane(n) {
+            document.querySelectorAll('.creation-pane').forEach(p => p.style.display = 'none');
+            document.getElementById('pane-' + n).style.display = 'block';
+            document.getElementById('smart-progress-bar').style.width = (n / 4 * 100) + '%';
+        }
+
+        function setEnv(e, el) {
+            currentEnv = e;
+            document.querySelectorAll('#env-list .smart-tile').forEach(x=>x.classList.remove('selected'));
+            el.classList.add('selected');
+            setTimeout(() => goToPane(2), 200);
+        }
+
+        function setType(t, el) {
+            currentType = t;
+            document.querySelectorAll('#type-list .smart-tile').forEach(x=>x.classList.remove('selected'));
+            el.classList.add('selected');
+            renderBranches();
+            setTimeout(() => goToPane(3), 200);
+        }
+
+        function renderBranches() {
+            const container = document.getElementById('branch-list');
+            const data = treeLocalized[appLang][currentEnv][currentType];
+            container.innerHTML = Object.keys(data.branches).map(b => `
+                <div class="smart-tile" onclick="setBranch('${b}', this)">
+                    <div style="width:50px; height:50px; background: rgba(46,49,146,0.05); border-radius:15px; display:flex; align-items:center; justify-content:center">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="info"><b>${data.branches[b].label}</b><span>Select area</span></div>
+                </div>
+            `).join('');
+        }
+
+        function setBranch(b, el) {
+            currentBranch = b;
+            document.querySelectorAll('#branch-list .smart-tile').forEach(x=>x.classList.remove('selected'));
+            el.classList.add('selected');
+            renderSubTypes();
+            setTimeout(() => goToPane(4), 200);
+        }
+
+        function renderSubTypes() {
+            const container = document.getElementById('sub-list');
+            const items = treeLocalized[appLang][currentEnv][currentType].branches[currentBranch].items;
+            container.innerHTML = items.map(s => `
+                <div class="smart-tile" onclick="currentSubType='${s}'; document.querySelectorAll('#sub-list .smart-tile').forEach(x=>x.classList.remove('selected')); this.classList.add('selected');">
+                    <div style="width:40px; height:40px; background: rgba(46,49,146,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center">
+                        <i class="fas fa-check" style="font-size:16px"></i>
+                    </div>
+                    <div class="info"><b>${s}</b></div>
+                </div>
+            `).join('');
+        }
+
+        function resetCreationFlow() {
+            currentEnv = null; currentType = null; currentBranch = null; currentSubType = '';
+            document.querySelectorAll('.smart-tile').forEach(b=>b.classList.remove('selected'));
+            document.getElementById('case-desc').value = '';
+            activeImgB64 = null;
+            document.getElementById('image-preview-cont').innerHTML = `<i class="fas fa-camera" style="font-size:30px; color:var(--s)"></i><p style="font-weight:900; color:var(--p); margin-top:10px" id="t-tap">${i18n[appLang].tap}</p>`;
+            goToPane(1);
+        }
 
         function switchScreen(id) {
             const screens = document.querySelectorAll('.screen');
@@ -475,7 +583,6 @@
             const isPop = ['chat', 'detail'].includes(id);
             document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
             document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
-            document.getElementById('wa-float').style.display = isPop ? 'none' : 'flex';
 
             if(id === 'create') resetCreationFlow();
             if(id === 'reports') sync();
@@ -891,72 +998,6 @@
             ov.classList.add('active');
         }
 
-
-        function goToPane(idx) {
-            document.querySelectorAll('.creation-pane').forEach(p => p.style.display = 'none');
-            document.getElementById('pane-' + idx).style.display = 'block';
-            document.querySelectorAll('.step-node').forEach(n => {
-                const step = parseInt(n.id.split('-')[1]);
-                n.classList.remove('active', 'done');
-                if (step === idx) n.classList.add('active');
-                if (step < idx) n.classList.add('done');
-            });
-        }
-
-        function setEnv(env, el) {
-            currentEnv = env;
-            currentType = null;
-            document.querySelectorAll('#env-grid .type-box').forEach(b=>b.classList.remove('active'));
-            el.classList.add('active');
-            setTimeout(() => goToPane(2), 200);
-        }
-
-        function setType(t, el) { 
-            currentType = t; 
-            currentBranch = null; 
-            document.querySelectorAll('#type-grid-main .type-box').forEach(b=>b.classList.remove('active')); 
-            el.classList.add('active'); 
-            renderBranches();
-            setTimeout(() => goToPane(3), 200);
-        }
-
-        function renderBranches() {
-            const container = document.getElementById('branch-selection');
-            const data = problemTree[currentEnv].types[currentType];
-            container.innerHTML = Object.keys(data.branches).map(b => `
-                <div class="sub-type-item" style="margin-bottom: 5px;" onclick="setBranch('${b}', this)">
-                    <span style="font-size: 16px;">${data.branches[b].label}</span>
-                    <i class="fas fa-chevron-right" style="font-size: 16px; color: var(--accent);"></i>
-                </div>
-            `).join('');
-        }
-
-        function setBranch(b, el) {
-            currentBranch = b;
-            currentSubType = '';
-            document.querySelectorAll('#branch-selection .sub-type-item').forEach(x=>x.classList.remove('active'));
-            el.classList.add('active');
-            renderSubTypes();
-            setTimeout(() => goToPane(4), 200);
-        }
-
-        function renderSubTypes() { 
-            const subArea = document.getElementById('sub-types');
-            const items = problemTree[currentEnv].types[currentType].branches[currentBranch].items;
-            subArea.innerHTML = items.map(s => `
-                <div class="sub-type-item" style="margin-bottom:5px" onclick="currentSubType='${s}'; this.parentElement.querySelectorAll('.sub-type-item').forEach(x=>x.classList.remove('active')); this.classList.add('active');">
-                    <span>${s}</span>
-                </div>
-            `).join(''); 
-        }
-
-        function resetCreationFlow() {
-            currentEnv = null; currentType = null; currentBranch = null; currentSubType = '';
-            document.querySelectorAll('.type-box').forEach(b=>b.classList.remove('active'));
-            document.getElementById('case-desc').value = '';
-            activeImgB64 = null;
-            document.getElementById('image-preview-cont').innerHTML = `<i class="fas fa-camera" style="font-size: 48px; color: var(--accent);"></i><p style="margin-top: 15px; font-weight: 900; color: var(--primary); font-size:18px">TAP TO TAKE PHOTO / صور</p>`;
-            goToPane(1);
         }
 
         function initApp() {
