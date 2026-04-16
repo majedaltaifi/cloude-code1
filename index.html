@@ -331,14 +331,17 @@
 
         function renderReports() {
             const f = document.getElementById('full-l'), m = document.getElementById('mini-l'); if(!f) return;
-            const open = reports.filter(r => r.status !== 'done').length;
+            const sorted = [...reports].sort((a,b) => b.case_num - a.case_num);
+            const open = reports.filter(r => (r.status||'').toLowerCase() !== 'done').length;
+            
             document.getElementById('s-total').innerText = reports.length;
             document.getElementById('s-open').innerText = open;
             document.getElementById('s-done').innerText = reports.length - open;
-            let html = reports.map(r => {
+
+            const makeHtml = (list) => list.map(r => {
                 const cNo = r.case_num || (r.id ? r.id.substring(0,5).toUpperCase() : '---');
                 const st = (r.status || 'open').toLowerCase();
-                const isDone = st === 'done' || st === 'resolved' || st === 'تم الإنجاز';
+                const isDone = st === 'done' || st === 'resolved';
                 return `
                 <div class="case-main-card" onclick="openDetail('${r.id}')">
                     <div style="display:flex; justify-content:space-between; align-items:center">
@@ -348,16 +351,18 @@
                             </div>
                             <div>
                                 <b style="font-size:13px; color:var(--p)">CASE #${cNo}</b>
-                                <p style="font-size:10px; opacity:0.6">${r.type || 'Standard'}</p>
+                                <p style="font-size:10px; opacity:0.6">${r.type || 'Report'}</p>
                             </div>
                         </div>
                         <span class="status-pill" style="background:${isDone?'#dcfce7':'#fef3c7'}; color:${isDone?'#16a34a':'#d97706'}">
-                            ${isDone ? i18n[appLang].resolved : i18n[appLang].pending}
+                             ${isDone ? (i18n[appLang].resolved) : (i18n[appLang].pending)}
                         </span>
                     </div>
                 </div>`;
             }).join('');
-            f.innerHTML = html || 'No Reports'; m.innerHTML = html;
+
+            f.innerHTML = makeHtml(sorted) || '<p style="text-align:center; opacity:0.3; padding:40px">No reports</p>';
+            if(m) m.innerHTML = makeHtml(sorted.slice(0, 5));
         }
 
         async function submitReport() {
