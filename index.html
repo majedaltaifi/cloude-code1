@@ -145,7 +145,7 @@
 <body>
     <div id="lang-screen">
         <div class="lang-card">
-            <img src="https://nesma-it.com/wp-content/uploads/2023/10/NIT-Logo-White.png" style="width:120px; margin-bottom:30px">
+            <img src="https://nesma.com/wp-content/themes/nesma/images/logo.png" style="width:140px; margin-bottom:30px; filter: brightness(0) invert(1);">
             <h2 style="font-weight:950; margin-bottom:10px; font-size:24px">SELECT LANGUAGE</h2>
             <p style="opacity:0.6; font-size:12px; margin-bottom:30px; letter-spacing:1px; font-weight:700">CHOOSE YOUR PREFERRED TONGUE</p>
             
@@ -167,7 +167,7 @@
             <!-- LOGIN SCREEN -->
             <div class="screen active login-bg" id="s-login">
                 <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:35px; background: linear-gradient(135deg, #1e293b, #0f172a); border-radius:50px">
-                    <img src="https://nesma-it.com/wp-content/uploads/2023/10/NIT-Logo-White.png" style="width:160px; margin-bottom:40px">
+                    <img src="https://nesma.com/wp-content/themes/nesma/images/logo.png" style="width:160px; margin-bottom:40px; filter: brightness(0) invert(1);">
                     
                     <div class="glass-login">
                         <div style="text-align: center; margin-bottom: 30px;">
@@ -526,16 +526,21 @@
 
 
         function selectLanguage(l) {
+            console.log("Language Selected:", l);
             appLang = l;
             localStorage.setItem('app_lang', l);
             document.body.dir = (l === 'ar' || l === 'ur') ? 'rtl' : 'ltr';
-            document.getElementById('lang-screen').style.opacity = '0';
-            document.getElementById('lang-screen').style.pointerEvents = 'none';
-            setTimeout(() => {
-                document.getElementById('lang-screen').style.display='none';
-            }, 800);
+            
+            const ls = document.getElementById('lang-screen');
+            if(ls) {
+                ls.style.opacity = '0';
+                ls.style.pointerEvents = 'none';
+                setTimeout(() => { ls.style.display='none'; }, 600);
+            }
+            
             applyLocalization();
-            initApp(); 
+            if (typeof initApp === "function") initApp();
+            else switchScreen('login');
         }
 
         function applyLocalization() {
