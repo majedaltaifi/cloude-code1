@@ -149,7 +149,30 @@
         .drawer-menu-item:hover { background: #f1f5f9; color: var(--neon); }
         .drawer-menu-item i { font-size: 18px; width: 25px; }
 
-    </style>
+        /* MISSING UI ELEMENTS STYLING */
+        .notif-hud { position: absolute; top: 120px; left: 50%; transform: translateX(-50%) translateY(-100px); width: 90%; background: white; padding: 15px; border-radius: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); z-index: 5000; opacity: 0; transition: 0.5s; pointer-events: none; border-left: 5px solid var(--p); }
+        .notif-hud.active { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
+        .hud-icon { width: 40px; height: 40px; background: rgba(46,49,146,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--p); font-size: 18px; }
+        .hud-content h4 { font-size: 12px; font-weight: 900; color: var(--p); }
+        .hud-content p { font-size: 10px; font-weight: 700; color: #64748b; }
+
+        .status-modal { position: absolute; inset: 0; background: rgba(15,23,42,0.8); backdrop-filter: blur(8px); z-index: 6000; display: none; align-items: center; justify-content: center; padding: 30px; }
+        .status-modal.active { display: flex; animation: fadeIn 0.3s forwards; }
+        .status-card { background: white; width: 100%; border-radius: 40px; padding: 40px 30px; text-align: center; transform: scale(0.8); animation: popIn 0.4s 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
+        @keyframes popIn { to { transform: scale(1); opacity: 1; } }
+
+        .case-main-card { background: white; padding: 25px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1.5px solid #f1f5f9; }
+        .status-tag { padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 950; text-transform: uppercase; }
+        
+        .case-log-list { margin-top: 15px; border-left: 2px dashed #e2e8f0; margin-left: 10px; padding-left: 20px; }
+        .log-item { position: relative; padding-bottom: 20px; }
+        .log-dot { position: absolute; left: -27px; top: 0; width: 12px; height: 12px; border-radius: 50%; border: 3px solid white; }
+        .log-txt { font-size: 12px; font-weight: 800; color: var(--p); }
+        .log-meta { font-size: 9px; font-weight: 600; color: #94a3b8; margin-top: 2px; }
+
+        .lbl-prime { font-size: 10px; font-weight: 950; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </head>
 
 <body>
@@ -991,8 +1014,6 @@
             switchScreen(backMap[current] || 'home');
         }
 
-        function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
-        function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
 
         function showForgotModal() { document.getElementById('forgot-modal').classList.add('active'); }
         function closeForgotModal() { document.getElementById('forgot-modal').classList.remove('active'); }
@@ -1060,7 +1081,6 @@
             if(btn) { btn.innerText = oldTxt; btn.disabled = false; }
         }
 
-        function doLogout() { localStorage.removeItem('nit_user'); location.reload(); }
 
         let unreadChats = {};
         function updateChatBadges() {
@@ -1324,30 +1344,31 @@
         }
 
         async function initApp() {
-            if (!currentUser) {
-                switchScreen('login');
-                return;
-            }
+            if (!currentUser) { switchScreen('login'); return; }
+            
+            // UI Binding
+            const empName = currentUser.name_en || currentUser.name || "Officer";
+            const empID = currentUser.emp_no || "0000";
+            
+            document.getElementById('dr-name').innerText = empName;
+            document.getElementById('dr-id').innerText = "EMP ID: " + empID;
+            document.getElementById('hm-name').innerText = empName;
+            document.getElementById('hm-full-id').innerText = "EMP ID: " + empID;
+            
+            // Form Binding
+            document.getElementById('supp-name').value = empName;
+            document.getElementById('supp-id').value = empID;
             
             document.getElementById('main-header').style.display = 'flex';
             document.getElementById('main-nav').style.display = 'flex';
             document.getElementById('main-plus').style.display = 'flex';
             
-            document.getElementById('hm-name').innerText = currentUser.name_en || currentUser.name || "Officer";
-            document.getElementById('hm-full-id').innerText = "EMP #" + (currentUser.emp_no || "0000");
-
-            // Populate support form
-            document.getElementById('supp-name').value = currentUser.name_en || currentUser.name;
-            document.getElementById('supp-id').value = currentUser.emp_no;
-            
             switchScreen('home');
             sync();
             setupFCM();
-            startNotifListener();
         }
 
         window.onload = () => {
-             // For consistency across version changes, we show language selection on every "clean" start
              const lastLang = localStorage.getItem('app_lang');
              const savedUser = localStorage.getItem('nit_user');
 
