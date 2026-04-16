@@ -687,12 +687,16 @@
             reader.onload = async (e) => {
                 const b64 = e.target.result;
                 try {
+                    // Use the internal doc ID set during login
+                    if(!currentUser.id) throw new Error("User session ID missing. Please log out and back in.");
                     await db.collection('employees').doc(currentUser.id).update({ photo: b64 });
                     currentUser.photo = b64;
                     localStorage.setItem('nit_user', JSON.stringify(currentUser));
                     document.getElementById('hm-avatar').src = b64;
-                    alert("Profile photo updated!");
-                } catch(err) { alert("Update failed: " + err.message); }
+                } catch(err) { 
+                    console.error(err);
+                    alert("Update failed: " + err.message); 
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -701,7 +705,11 @@
             const id = document.getElementById('login-id').value.trim();
             if(document.getElementById('login-pass').value === '12') {
                 let snap = await db.collection('employees').where('emp_no', 'in', [id, Number(id), String(id)]).get();
-                if(!snap.empty) { currentUser = snap.docs[0].data(); localStorage.setItem('nit_user', JSON.stringify(currentUser)); initApp(); }
+                if(!snap.empty) { 
+                    currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; 
+                    localStorage.setItem('nit_user', JSON.stringify(currentUser)); 
+                    initApp(); 
+                }
                 else { document.getElementById('login-err').style.display='block'; }
             }
         }
