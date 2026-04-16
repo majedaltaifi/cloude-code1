@@ -13,663 +13,304 @@
     <style>
 
         :root {
-            --primary: #0f172a;
-            --accent: #38bdf8;
-            --bg: #f8fafc;
+            --primary: #2e3192;
+            --secondary: #203366;
+            --accent: #80d1e9;
+            --grey: #b3b3b3;
+            --bg: #f1f5f9;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); height:100vh; overflow:hidden; display:flex; justify-content:center; align-items:center; touch-action: manipulation; }
-        .phone-frame { width:390px; height:830px; background:#000; border-radius:65px; position:relative; padding:15px; border:15px solid #000; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.4), 0 30px 60px -30px rgba(0,0,0,0.5), inset 0 0 2px rgba(255,255,255,0.2); }
-        .phone-frame::before { content:''; position:absolute; top:35px; left:50%; transform:translateX(-50%); width:110px; height:32px; background:#000; border-radius:20px; z-index:10000; border: 1px solid rgba(255,255,255,0.05); }
-        .app-container { width:100%; height:100%; background:#f8fafc; border-radius:50px; overflow:hidden; display:flex; flex-direction:column; position:relative; }
-        .screen { display:none; flex:1; flex-direction:column; padding:0 20px; overflow-y:auto; padding-bottom:140px; opacity:0; transform: translateY(10px); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-        .screen.active { display:flex; opacity:1; transform: translateY(0); }
-
-        /* Tactile Feedback */
-        .nav-item, .btn-p, .stat-box, .type-box, .stat-card-main, .broadcast-item, .chat-row, .profile-card, .btn-login { cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .nav-item:active, .btn-p:active, .stat-box:active, .type-box:active, .stat-card-main:active, .broadcast-item:active, .chat-row:active, .profile-card:active, .btn-login:active { transform: scale(0.94); }
-
-        .header { background:var(--primary); padding:55px 25px 25px; display:flex; justify-content:space-between; align-items:center; color:white; margin:0 -20px 20px -20px; transition: 0.3s; }
-        .header h1 { font-size:18px; font-weight:900; letter-spacing:2px; }
-        .lbl-prime { font-size:10px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px; display:block; }
-
-        .profile-card { background:white; padding:22px 25px; border-radius:35px; display:flex; align-items:center; box-shadow:0 8px 30px rgba(0,0,0,0.02); border-left:6px solid var(--accent); margin-bottom:25px; }
-        .profile-card h2 { font-size:20px; font-weight:900; color:#1e293b; }
-        .profile-card p { font-size:11px; font-weight:700; color:var(--accent); margin-top:3px; }
-
-        .broadcast-card { background:#1e293b; padding:25px 30px; border-radius:40px; color:white; margin-bottom:30px; }
-        .broadcast-item { display:flex; align-items:center; gap:18px; margin-bottom:20px; }
-        .broadcast-icon { width:42px; height:42px; background:rgba(255,255,255,0.05); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--accent); border:1px solid rgba(255,255,255,0.1); }
-        .broadcast-item p { font-size:14px; font-weight:700; color:var(--accent); margin-top:1px; }
-        .broadcast-item span { font-size:9px; font-weight:900; opacity:0.5; text-transform:uppercase; display:block; margin-bottom:2px; }
-
-        /* RECENT CASES SECTION */
-        .recent-section { margin-bottom:30px; }
-        .recent-section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-        .recent-section-header h3 { font-size:12px; font-weight:900; color:#94a3b8; letter-spacing:1px; }
-        .recent-section-header a { font-size:12px; font-weight:900; color:var(--accent); text-decoration:none; display:flex; align-items:center; gap:4px; }
-
-        .case-group { margin-bottom:40px; }
-        .stat-card-main { background: var(--primary); color: white; padding: 30px; border-radius: 35px; box-shadow: 0 15px 45px rgba(13,17,69,0.25); margin-bottom: 20px; text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
-        .stat-card-main:active { transform: scale(0.95); }
-        .stat-card-main.active { border-color: var(--accent); box-shadow: 0 0 25px rgba(56,189,248,0.3); }
-
-        .stat-box { background: white; padding: 25px; border-radius: 28px; border: 1.5px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.02); cursor: pointer; transition: 0.3s; text-align: center; }
-        .stat-box:active { transform: scale(0.95); background: #f8fafc; }
-        .stat-box.active { border-color: var(--accent); background: #f0fbff; box-shadow: 0 8px 25px rgba(56,189,248,0.1); }
-        .stat-box .num { font-size: 32px; font-weight: 950; margin-top: 5px; }
-
-        .case-main-card { background:white; padding:25px; border-radius:35px; box-shadow:0 8px 25px rgba(0,0,0,0.02); margin-bottom:20px; position:relative; }
-        .case-main-card .type { font-size:18px; font-weight:900; color:var(--accent); text-transform:uppercase; margin-bottom:5px; }
-        .case-main-card .desc { font-size:14px; font-weight:900; color:#1e293b; opacity:0.8; }
-        .case-main-card .id { font-size:11px; font-weight:900; color:#cbd5e1; margin-top:10px; }
-        .case-main-card .status-tag { position:absolute; right:25px; top:40%; transform:translateY(-50%); font-size:10px; font-weight:900; color:#94a3b8; }
-
-        .case-log-list { padding-left:20px; margin-left:15px; border-left:1.5px solid #f1f5f9; }
-        .log-item { position:relative; padding-bottom:25px; padding-left:20px; }
-        .log-dot { position:absolute; left:-26.5px; top:4px; width:11px; height:11px; border-radius:50%; border:2px solid white; box-shadow:0 0 10px rgba(0,0,0,0.1); }
-        .log-txt { font-size:14px; font-weight:900; color:#1e293b; }
-        .log-meta { font-size:10px; font-weight:900; color:#cbd5e1; margin-top:3px; }
-
-
-        .navbar { position:absolute; bottom:0; left:0; width:100%; height:100px; background:white; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-around; padding-bottom:20px; z-index:200; }
-        .nav-item { display:flex; flex-direction:column; align-items:center; color:#cbd5e1; flex:1; cursor:pointer; gap:4px; }
-        .nav-item.active { color:var(--primary); }
-        .nav-item i { font-size:22px; }
-        .nav-item span { font-size:9px; font-weight:900; text-transform:uppercase; }
+        body { background: #0f172a; height:100vh; overflow:hidden; display:flex; justify-content:center; align-items:center; touch-action: manipulation; }
         
-        /* New Nav Badge */
-        .nav-item { position: relative; }
-        .nav-badge { position: absolute; top: -5px; right: 10px; background: #f87171; color: white; font-size: 8px; font-weight: 950; min-width: 16px; height: 16px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .nav-badge.active { display: flex; animation: popBadge 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-        @keyframes popBadge { from { transform: scale(0); } to { transform: scale(1); } }
-
-        .plus-btn { position:absolute; bottom:55px; left:50%; transform:translateX(-50%); width:74px; height:74px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:32px; border:6px solid white; box-shadow:0 15px 35px rgba(56,189,248,0.4); cursor:pointer; z-index:400; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .plus-btn:active { transform: translateX(-50%) scale(0.9); }
-
-        .wa-btn { position:absolute; bottom:120px; right:25px; width:52px; height:52px; background:#22c55e; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:26px; box-shadow:0 10px 25px rgba(34, 197, 94, 0.3); border:4px solid white; cursor:pointer; z-index:1000; animation: pulse-wa 2s infinite; }
-        @keyframes pulse-wa { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
-
-        .drawer { position:absolute; top:0; left:0; width:280px; height:100%; background:var(--primary); z-index:5000; padding:60px 25px; transition:0.4s ease; color:white; transform:translateX(-100%); box-shadow: 20px 0 50px rgba(0,0,0,0.3); }
-        .drawer.active { transform:translateX(0); }
-        .drawer-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); opacity:0; visibility:hidden; transition:0.3s; z-index:4000; backdrop-filter:blur(3px); }
-        .drawer-overlay.active { opacity:1; visibility:visible; }
-        .drawer-item { display:flex; align-items:center; justify-content:space-between; padding:20px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; }
-        .drawer-icon { width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--accent); }
-
-
-        .type-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px; }
-        .type-box { background:white; padding:25px; border-radius:30px; display:flex; flex-direction:column; align-items:center; gap:12px; box-shadow:0 8px 30px rgba(0,0,0,0.02); transition:0.3s; border:2.5px solid transparent; cursor:pointer; }
-        .type-box.active { border-color:var(--accent); color:var(--accent); }
-        .type-box i { font-size:32px; color:#cbd5e1; transition:0.3s; }
-        .type-box.active i { color:var(--accent); }
-        .type-box span { font-weight:900; font-size:14px; }
-
-        .sub-type-grid { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:25px; }
-        .sub-type-item { background:white; padding:12px 20px; border-radius:15px; font-size:13px; font-weight:900; color:#1e293b; box-shadow:0 5px 15px rgba(0,0,0,0.02); cursor:pointer; transition:0.3s; }
-        .sub-type-item.active { background:var(--accent); color:white; }
-
-        .write-box { background:white; padding:25px; border-radius:35px; box-shadow:0 8px 30px rgba(0,0,0,0.02); margin-bottom:25px; }
-        .write-box textarea { width:100%; border:none; outline:none; font-weight:700; font-size:16px; min-height:100px; resize:none; color:var(--primary); }
-        .write-box textarea::placeholder { color:#cbd5e1; }
-
-        .site-box { background:white; padding:18px 25px; border-radius:25px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 8px 30px rgba(0,0,0,0.02); margin-bottom:30px; }
-        .site-box select { border:none; outline:none; font-weight:900; font-size:15px; color:var(--primary); background:transparent; appearance:none; width:100%; }
-
-
-        /* CHAT SCREEN */
-        .chat-container { flex:1; overflow-y:auto; padding:30px 20px; display:flex; flex-direction:column; gap:25px; background:#f8fafc; }
-        .chat-msg-row { display: flex; align-items: flex-end; gap: 12px; max-width: 85%; }
-        .chat-msg-row.me { align-self: flex-end; flex-direction: row-reverse; }
-        .chat-msg-row.them { align-self: flex-start; }
-
-        .chat-avatar-mini { width: 35px; height: 35px; border-radius: 12px; background: white; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: #94a3b8; border: 1px solid #f1f5f9; flex-shrink: 0; }
-        .chat-avatar-mini.admin { background: var(--primary); color: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
-
-        .chat-bubble { position:relative; padding:15px 20px; border-radius:22px; font-size:14px; font-weight:700; line-height:1.5; box-shadow:0 8px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
-        .chat-bubble.me { background:white; color:var(--primary); border-bottom-right-radius:2px; }
-        .chat-bubble.them { background:white; color:var(--primary); border-bottom-left-radius:2px; }
-        .chat-bubble.admin { background: #2563eb; color: white; border: none; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3); }
-
-        .chat-bubble::before { content:attr(data-author); position:absolute; top:-18px; font-size:9px; font-weight:950; color:#94a3b8; letter-spacing:1px; white-space: nowrap; }
-        .chat-bubble.me::before { right:5px; }
-        .chat-bubble.them::before { left:5px; }
-        .chat-bubble.admin::before { color: var(--accent); font-weight: 950; }
-
-        .chat-input-hub { background:white; padding:15px 25px 40px; border-top:1px solid #f1f5f9; display:flex; align-items:center; gap:12px; }
-        .chat-input-pill { flex:1; background:#f8fafc; border-radius:30px; padding:18px 25px; border:1px solid #f1f5f9; outline:none; font-weight:700; font-size:15px; }
-        .chat-input-pill::placeholder { color:#cbd5e1; }
-        .send-dot { width:56px; height:56px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:20px; cursor:pointer; box-shadow:0 8px 20px rgba(15,23,42,0.2); flex-shrink: 0; }
-
-        .btn-p { width:100%; background:var(--primary); color:white; padding:24px; border-radius:28px; border:none; font-weight:900; letter-spacing:1px; cursor:pointer; transition:0.3s; }
-        .btn-p:active { transform:scale(0.96); }
-
-
-        .header i { cursor:pointer; transition:0.2s; }
-        .header i:active { transform:scale(0.85); opacity:0.6; }
-        .bell-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
-        .bell-badge { position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #f87171; border: 2px solid #0f172a; border-radius: 50%; display: none; }
-        .bell-badge.active { display: block; animation: pulse-red 2s infinite; }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(248, 113, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); } }
-
-
-        /* CHAT HUB */
-        .search-box { background:rgba(148,163,184,0.05); padding:16px 22px; border-radius:30px; display:flex; align-items:center; gap:12px; margin-bottom:25px; border:1px solid #f1f5f9; transition: 0.3s; }
-        .search-box:focus-within { border-color: var(--primary); background: white; box-shadow: 0 10px 25px rgba(15,23,42,0.05); }
-        .search-box i { color: #94a3b8; }
-        .search-box input { border:none; outline:none; background:transparent; font-weight:700; font-size:14px; width:100%; color:var(--primary); }
-        .search-box input::placeholder { color:#cbd5e1; }
-
-        .horizontal-picker { display:flex; gap:18px; overflow-x:auto; padding:10px 5px 25px; margin-bottom:10px; scrollbar-width:none; }
-        .horizontal-picker::-webkit-scrollbar { display:none; }
-        .picker-item { display:flex; flex-direction:column; align-items:center; gap:8px; min-width:75px; cursor: pointer; transition: 0.2s; }
-        .picker-item:active { transform: scale(0.9); }
-        .picker-avatar { width:60px; height:60px; background:white; border-radius:22px; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 15px rgba(0,0,0,0.03); border:1px solid #f1f5f9; color:var(--primary); font-size:22px; }
-        .picker-avatar.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .picker-item span { font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing: 0.5px; }
-
-        .chat-row { background:white; padding:18px 22px; border-radius:30px; display:flex; align-items:center; gap:15px; margin-bottom:12px; box-shadow:0 10px 30px rgba(0,0,0,0.03); cursor:pointer; transition: 0.3s; border: 1.5px solid #f1f5f9; }
-        .chat-row.active { border-color: var(--primary); }
-        .chat-row.admin-row { background: #2563eb !important; border-color: transparent !important; box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3); }
-        .chat-row.admin-row h4, .chat-row.admin-row .chat-msg-prev, .chat-row.admin-row span { color: white !important; }
-        .chat-row.found-match { border-color: #22c55e; }
-        .chat-avatar { width:52px; height:52px; background:#f1f5f9; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:20px; flex-shrink: 0; }
-        .chat-avatar.admin { background: #0f172a; color: var(--accent); }
-        .chat-info { flex:1; min-width:0; }
-        .chat-name-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
-        .chat-name-meta h4 { font-size:15px; font-weight:900; color:var(--primary); margin:0; }
-        .chat-name-meta span { font-size:10px; font-weight:700; color:#cbd5e1; }
-        .chat-msg-prev { font-size:12px; color:#64748b; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .badge-new { background: #22c55e; color: white; padding: 2px 8px; border-radius: 10px; font-size: 8px; font-weight: 950; text-transform: uppercase; margin-left: 8px; }
-        /* LOGIN PREMIUM DESIGN */
-        .login-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); position: relative; overflow: hidden; }
-        .login-bg::after { content: ''; position: absolute; width: 350px; height: 350px; background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(56,189,248,0) 70%); top: -100px; right: -100px; border-radius: 50%; }
-        .login-bg::before { content: ''; position: absolute; width: 250px; height: 250px; background: radial-gradient(circle, rgba(56,189,248,0.08) 0%, rgba(56,189,248,0) 70%); bottom: -50px; left: -50px; border-radius: 50%; }
-
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            backdrop-filter: blur(15px); 
-            -webkit-backdrop-filter: blur(15px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 40px; 
-            padding: 40px 30px; 
-            width: 100%; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
-        }
-
-        .login-input-wrap {
-            position: relative;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 25px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            border: 1.5px solid rgba(255, 255, 255, 0.05);
-            transition: 0.3s;
-        }
-        .login-input-wrap:focus-within {
-            border-color: var(--accent);
-            background: rgba(56, 189, 248, 0.05);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
-        }
-
-        .login-logo-glow {
-            width: 100px;
-            height: 100px;
-            border: 4px solid var(--accent);
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 42px;
-            font-weight: 950;
-            color: var(--accent);
-            text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(56, 189, 248, 0.2);
-            margin-bottom: 20px;
-            animation: breathe 3s infinite ease-in-out;
-        }
-        @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); } 50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(56, 189, 248, 0.5); } }
-
-        .btn-login {
-            background: var(--accent);
-            color: #0f172a;
-            padding: 22px;
-            border-radius: 25px;
-            border: none;
-            font-weight: 950;
-            font-size: 16px;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 12px 30px rgba(56, 189, 248, 0.3);
-            width: 100%;
-            display: block;
-        }
-        .btn-login:active { transform: scale(0.96); opacity: 0.9; }
-
-        /* Full Screen Login Override */
-        #s-login.login-bg { 
+        /* Momentum Background Effect */
+        .momentum-bg {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            padding-bottom: 0;
-            z-index: 10000;
-            border-radius: 45px; /* Matches app-container */
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            z-index: 0;
         }
-        #s-login ~ #wa-float { display: none !important; }
+        .momentum-bg::before {
+            content: ''; position: absolute; top: -100px; right: -50px; width: 300px; height: 600px;
+            background: var(--accent); opacity: 0.1; transform: skewX(-20deg);
+        }
+        .momentum-bg::after {
+            content: ''; position: absolute; bottom: -50px; left: -20px; width: 200px; height: 400px;
+            background: white; opacity: 0.05; transform: skewX(-20deg);
+        }
 
-        .notif-hud { position: fixed; top: -100px; left: 20px; right: 20px; height: 75px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 20px; z-index: 10001; display: flex; align-items: center; padding: 0 20px; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .notif-hud.active { top: 25px; }
-        .hud-icon { width: 45px; height: 45px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px; margin-right: 15px; flex-shrink: 0; box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3); }
-        .hud-content { flex: 1; overflow: hidden; }
-        .hud-content h4 { font-size: 14px; font-weight: 900; color: white; margin: 0; }
-        .hud-content p { font-size: 11px; color: rgba(255,255,255,0.7); margin: 2px 0 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .hud-close { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); font-size: 14px; cursor: pointer; }
+        .phone-frame { width:390px; height:830px; background:#000; border-radius:65px; position:relative; padding:15px; border:12px solid #1e293b; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.6); z-index: 10; }
+        .phone-frame::before { content:''; position:absolute; top:30px; left:50%; transform:translateX(-50%); width:110px; height:32px; background:#000; border-radius:20px; z-index:10000; }
+        
+        .app-container { width:100%; height:100%; background:var(--bg); border-radius:50px; overflow:hidden; display:flex; flex-direction:column; position:relative; }
+        
+        .screen { display:none; flex:1; flex-direction:column; padding:0 20px; overflow-y:auto; padding-bottom:140px; }
+        .screen.active { display:flex; animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* NIT BRANDED HEADER */
+        .header { background:white; padding:55px 25px 30px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--accent); position: relative; }
+        .header h1 { font-size:16px; font-weight:900; color: var(--primary); letter-spacing:1px; text-transform: uppercase; }
+        .brand-logo-mini { height: 24px; }
+
+        /* GLASS CARD THEME */
+        .glass-card { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 35px; border: 1px solid white; box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
+
+        .type-box { background:white; padding:20px; border-radius:25px; display:flex; flex-direction:column; align-items:center; gap:10px; box-shadow:0 4px 15px rgba(0,0,0,0.03); transition:0.3s; border:2px solid transparent; cursor:pointer; }
+        .type-box.active { border-color:var(--primary); background: #f0f4ff; }
+        .type-box.active i { color:var(--primary); }
+        .type-box i { font-size:28px; color:var(--grey); }
+        .type-box span { font-weight:850; font-size:12px; color: var(--secondary); }
+
+        .sub-type-item { background:white; padding:12px 18px; border-radius:18px; font-size:12px; font-weight:900; color:var(--primary); border: 1.5px solid #e2e8f0; cursor:pointer; transition:0.2s; }
+        .sub-type-item.active { background:var(--primary); color:white; border-color: var(--primary); transform: scale(1.05); shadow: 0 5px 15px rgba(46,49,146,0.2); }
+
+        /* PROGRESS TRACKER */
+        .progress-stepper { display: flex; justify-content: space-between; padding: 15px 10px; margin-bottom: 10px; position: relative; }
+        .progress-stepper::after { content:''; position:absolute; top:25px; left:15px; right:15px; height:2px; background:#e2e8f0; z-index:1; }
+        .step-node { width: 22px; height: 22px; background: white; border: 2px solid #e2e8f0; border-radius: 50%; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 950; color: #94a3b8; transition: 0.3s; }
+        .step-node.active { background: var(--accent); border-color: var(--primary); color: var(--primary); box-shadow: 0 0 10px rgba(128, 209, 233, 0.5); }
+        .step-node.done { background: var(--primary); border-color: var(--primary); color: white; }
+
+        /* NAV BAR PREMIUM */
+        .navbar { position:absolute; bottom:0; left:0; width:100%; height:95px; background:white; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-around; padding-bottom:15px; z-index:200; border-radius: 40px 40px 0 0; }
+        .nav-item { display:flex; flex-direction:column; align-items:center; color: #94a3b8; flex:1; gap:4px; font-size: 8px; font-weight: 950; letter-spacing: 0.5px; }
+        .nav-item.active { color:var(--primary); }
+        .nav-item i { font-size:20px; }
+
+        .plus-btn { position:absolute; bottom:45px; left:50%; transform:translateX(-50%); width:68px; height:68px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:28px; border:5px solid white; box-shadow:0 10px 25px rgba(46,49,146,0.3); z-index:400; }
+
+        .btn-p { width:100%; background:var(--primary); color:white; padding:20px; border-radius:22px; border:none; font-weight:950; letter-spacing:1px; font-size:14px; box-shadow: 0 8px 20px rgba(46,49,146,0.2); }
+        .btn-p:disabled { opacity: 0.5; filter: grayscale(1); }
+
+        .login-bg { background: var(--secondary); overflow: hidden; position: relative; }
+        .brand-logo-main { width: 140px; margin-bottom: 30px; animation: fadeInDown 0.8s ease; }
+        @keyframes fadeInDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+
+        .glass-login { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 40px; padding: 40px 30px; width: 100%; }
+        .login-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 18px; width: 100%; color: white; font-weight: 700; margin-bottom: 20px; }
+        .login-input::placeholder { color: rgba(255,255,255,0.3); }
 
         /* NOTIFICATIONS */
-        #notif-list { padding: 10px 5px; }
-        .notif-card { background: white; padding: 22px; border-radius: 30px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 18px; border: 1.5px solid #f8fafc; transition: 0.3s; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .notif-card:active { transform: scale(0.96); background: #f8fafc; }
-        .notif-card.unread { border-left: 5px solid var(--primary); background: #f0f9ff; }
+        .bell-wrap { position: relative; width: 42px; height: 42px; background: #f8fafc; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--primary); }
+        .bell-badge { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; border: 2px solid #f8fafc; display: none; }
+        .bell-badge.active { display: block; }
 
-        /* FLUID BUTTONS */
-        .btn-p, .btn-s, .nav-item, .fab-plus, .case-group, .case-main-card {
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, opacity 0.2s !important;
-        }
-        .btn-p:active, .btn-s:active, .nav-item:active, .fab-plus:active, .case-group:active {
-            transform: scale(0.92) !important;
-            opacity: 0.8;
-        }
-
-        /* IMAGE UPLOAD UI */
-        .image-upload-area { margin-top:15px; background:white; border-radius:30px; border:2px dashed #e2e8f0; padding:25px; text-align:center; cursor:pointer; transition:0.3s; }
-        .image-upload-area:active { transform:scale(0.98); background:#f8fafc; }
-        .image-preview-slot { width:100%; height:180px; border-radius:20px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(241,245,249,0.5); }
-        .image-preview-slot img { width:100%; height:100%; object-fit:cover; }
-        .notif-icon { width: 50px; height: 50px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: 0 8px 15px rgba(0,0,0,0.03); }
-        .ni-success { background: #dcfce7; color: #16a34a; }
-        .ni-info { background: #f1f5f9; color: #64748b; }
-        .ni-alert { background: #fee2e2; color: #dc2626; }
-        .notif-content { flex: 1; min-width: 0; }
-        .notif-content b { font-size: 15px; color: var(--primary); display: block; margin-bottom: 5px; font-weight: 900; }
-        .notif-content p { font-size: 12px; color: #64748b; font-weight: 700; margin: 0; line-height: 1.5; }
-        .notif-time { font-size: 10px; color: #cbd5e1; font-weight: 900; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        .zoom-overlay.active img { transform:scale(1); }
-
-        /* STATUS MODAL */
-        .status-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 30px; }
-        .status-modal.active { display: flex; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .status-card { background: white; width: 100%; max-width: 350px; border-radius: 40px; padding: 40px 30px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
-        .status-icon { width: 90px; height: 90px; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 42px; margin: 0 auto 25px; }
-        .s-icon-success { background: #dcfce7; color: #22c55e; }
-        .s-icon-fail { background: #fee2e2; color: #f87171; }
-        .status-card h2 { font-size: 24px; font-weight: 950; color: var(--primary); margin-bottom: 10px; }
-        .status-card p { font-size: 15px; color: #64748b; font-weight: 700; line-height: 1.6; margin-bottom: 30px; }
-        .case-num-badge { background: #0f172a; color: var(--accent); padding: 12px 25px; border-radius: 20px; font-size: 18px; font-weight: 950; display: inline-block; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .btn-status-close { background: var(--primary); color: white; border: none; padding: 18px; width: 100%; border-radius: 25px; font-weight: 950; font-size: 15px; cursor: pointer; }
-
-        @media (max-width: 500px) {
-            .phone-frame { width: 100%; height: 100vh; border-radius: 0; border: none; padding: 0; }
-            .phone-frame::before { display: none; }
-            .app-container { border-radius: 0; }
-        }
 
     </style>
 </head>
 
 <body>
+    <div class="momentum-bg"></div>
     <div class="phone-frame">
         <div class="app-container">
+            <!-- LOGIN SCREEN -->
             <div class="screen active login-bg" id="s-login">
                 <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:35px">
+                    <img src="icon.png" class="brand-logo-main" alt="NIT Logo">
                     
-                    <div class="login-logo-glow">NIT</div>
-                <h2 style="color:white; font-size:24px; font-weight:900; letter-spacing:1px; margin-bottom:5px">Hello, Officer</h2>
-                <p style="color:#94a3b8; font-weight:700; font-size:12px; margin-bottom:45px; letter-spacing:2px">AUTHORIZED ACCESS ONLY</p>
-
-                <div class="glass-card">
-                    <div class="login-input-wrap">
-                        <i class="fas fa-fingerprint" style="color:var(--accent); font-size:24px"></i>
-                        <div style="flex:1">
-                            <span style="display:block; font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; margin-bottom:4px; letter-spacing:1px">Identification ID</span>
-                            <input id="login-id" type="tel" maxlength="4" placeholder="Enter ID (e.g. 3734)" style="width:100%; border:none; outline:none; font-weight:900; background:transparent; font-size:18px; color:white">
+                    <div class="glass-login">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h2 style="color:white; font-size:20px; font-weight:900; letter-spacing:1px;">NIT INTEL HUB</h2>
+                            <p style="color:var(--accent); font-weight:700; font-size:10px; letter-spacing:2px">AUTHORIZED ACCESS ONLY</p>
                         </div>
+
+                        <input id="login-id" class="login-input" type="tel" maxlength="4" placeholder="Identification ID">
+                        <input id="login-pass" class="login-input" type="password" placeholder="Access Password">
+
+                        <p id="login-err" style="color:#f87171; font-size:11px; font-weight:900; margin-bottom:20px; text-align:center; display:none">ACCESS DENIED: REDIRECTING...</p>
+
+                        <button class="btn-login" onclick="doLogin()" style="background:var(--accent); color:var(--primary); font-weight:950; padding:20px; border-radius:20px; border:none; width:100%; cursor:pointer;">SIGN IN</button>
                     </div>
-                    <div class="login-input-wrap">
-                        <i class="fas fa-lock" style="color:var(--accent); font-size:24px"></i>
-                        <div style="flex:1">
-                            <span style="display:block; font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; margin-bottom:4px; letter-spacing:1px">Access Password</span>
-                            <input id="login-pass" type="password" placeholder="••••" style="width:100%; border:none; outline:none; font-weight:900; background:transparent; font-size:18px; color:white">
-                        </div>
-                    </div>
-
-                    <div style="text-align:right; margin-top:-15px; margin-bottom:25px">
-                        <a href="#" onclick="showForgotModal()" style="color:#94a3b8; font-size:11px; font-weight:900; text-decoration:none; letter-spacing:0.5px">FORGOT PASSWORD?</a>
-                    </div>
-
-                    <p id="login-err" style="color:#f87171; font-size:11px; font-weight:900; margin-bottom:20px; margin-top:-10px; text-align:center; display:none">ID OR PASSWORD INCORRECT</p>
-
-                    <button class="btn-login" onclick="doLogin()">SIGN IN</button>
                 </div>
-
-                <div style="margin-top:50px; text-align:center">
-                    <p style="font-size:10px; color:#475569; font-weight:900; letter-spacing:1px">NIT INTEL HUB • FIELD VERSION 4.2.0</p>
-                    <div style="width:30px; height:3px; background:var(--accent); margin:15px auto; border-radius:10px; opacity:0.3"></div>
-                </div>
-
-            </div> <!-- End of flex column -->
-            
-            <div id="notif-hud" class="notif-hud">
-                <div class="hud-icon"><i class="fas fa-bell"></i></div>
-                <div class="hud-content">
-                    <h4 id="hud-title">Notification</h4>
-                    <p id="hud-msg">New update received.</p>
-                </div>
-                <div class="hud-close" onclick="closeHUD()"><i class="fas fa-times"></i></div>
             </div>
 
-            </div> <!-- End of s-login -->
-
-
-                <div id="forgot-modal" class="status-modal">
-            <div class="status-card">
-                <div class="status-icon s-icon-info" style="background:#f1f5f9; color:var(--primary)">
-                    <i class="fas fa-envelope-open-text"></i>
+            <!-- MAIN NAVIGATION HEADER -->
+            <header class="header" id="main-header" style="display:none">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-bars" style="color:var(--primary); font-size:20px;" onclick="openDrawer()"></i>
+                    <h1>FIELD OPERATIONS</h1>
                 </div>
-                <h2>RESET ACCESS</h2>
-                <p>Enter your Identification ID to receive a secure password reset link to your registered email.</p>
-                <div class="login-input-wrap" style="background:#f8fafc; border-color:#e2e8f0; margin-bottom:20px">
-                    <input id="forgot-id" type="tel" maxlength="4" placeholder="Your ID (e.g. 3734)" style="width:100%; border:none; outline:none; font-weight:900; background:transparent; font-size:18px; color:var(--primary)">
+                <div class="bell-wrap" onclick="switchScreen('notifs'); clearNotifBadge();">
+                    <i class="fas fa-bell"></i>
+                    <div id="bell-badge" class="bell-badge"></div>
                 </div>
-                <button id="forgot-btn" class="btn-login" style="margin-bottom:15px" onclick="doReset()">SEND LINK</button>
-                <button class="btn-status-close" style="background:transparent; color:#94a3b8" onclick="closeForgotModal()">CANCEL</button>
-            </div>
-        </div>
-            <!-- Drawer -->
-            <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
-            <div id="drawer" class="drawer">
-                <div style="margin-bottom:50px">
-                    <h2 id="dr-name" style="font-size:24px; font-weight:900">Employee</h2>
-                    <p id="dr-id" style="color:var(--accent); font-weight:900; font-size:14px">ID: 0000</p>
-                </div>
-                <div class="drawer-item" onclick="switchScreen('stats'); closeDrawer();">
-                    <span>My Dashboard</span>
-                    <div class="drawer-icon"><i class="fas fa-th-large"></i></div>
-                </div>
-                <div class="drawer-item" onclick="switchScreen('reports'); closeDrawer();">
-                    <span>My Incidents</span>
-                    <div class="drawer-icon"><i class="fas fa-file-alt"></i></div>
-                </div>
-                <div class="drawer-item" onclick="openAdminChat(); closeDrawer();">
-                    <span>Support</span>
-                    <div class="drawer-icon"><i class="fas fa-headset"></i></div>
-                </div>
-                <div class="drawer-item" onclick="doLogout()" style="margin-top:40px; border:none">
-                    <span style="color:#f87171">Sign Out</span>
-                    <div class="drawer-icon" style="background:rgba(239,68,68,0.1); color:#f87171"><i class="fas fa-sign-out-alt"></i></div>
-                </div>
-            </div>
+            </header>
 
             <!-- Home Screen -->
             <div class="screen" id="s-home">
-                <header class="header">
-                    <i class="fas fa-bars" style="font-size:24px" onclick="openDrawer()"></i>
-                    <h1>NIT FIELD</h1>
-                    <div class="bell-wrap" onclick="switchScreen('notifs'); clearNotifBadge();">
-                        <i class="fas fa-bell" style="font-size:24px"></i>
-                        <div id="bell-badge" class="bell-badge"></div>
+                <div class="profile-card" style="background: white; padding: 25px; border-radius: 30px; margin-top: 20px; display: flex; align-items: center; gap: 15px; border-left: 6px solid var(--primary);">
+                    <div style="width: 50px; height: 50px; border-radius: 15px; background: var(--secondary); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                        <i class="fas fa-user-shield"></i>
                     </div>
-                </header>
-
-                <div class="profile-card">
-                    <div class="user-info">
-                        <h2 id="hm-name">Employee</h2>
-                        <p id="hm-full-id">EMP ID: 3734 • Riyadh HQ</p>
+                    <div>
+                        <h2 id="hm-name" style="font-size: 18px; font-weight: 900; color: var(--primary);">Loading...</h2>
+                        <p id="hm-full-id" style="font-size: 11px; font-weight: 700; color: var(--grey);">NIT OFFICER</p>
                     </div>
                 </div>
 
-                <div class="broadcast-card">
-                    <span class="lbl-prime" style="color:white; opacity:0.5; margin-bottom:20px">HR & MANAGEMENT BROADCAST</span>
-                    <div class="broadcast-item">
-                        <div class="broadcast-icon"><i class="fas fa-bullhorn"></i></div>
-                        <div class="broadcast-txt"><span>HR REMINDER</span><p>Update your bank details</p></div>
-                    </div>
-                    <div class="broadcast-item">
-                        <div class="broadcast-icon"><i class="fas fa-calendar-check"></i></div>
-                        <div class="broadcast-txt"><span>ZERO ABSENCES</span><p>Abdullah Salem (Mar)</p></div>
-                    </div>
-                    <div class="broadcast-item">
-                        <div class="broadcast-icon"><i class="fas fa-trophy"></i></div>
-                        <div class="broadcast-txt"><span>TOP SITE (SAFETY)</span><p>Randa Tower</p></div>
+                <div style="margin: 25px 0;">
+                    <span class="lbl-prime" style="color: var(--primary); font-size: 10px; letter-spacing: 1px; font-weight: 900;">ACTIVE BROADCASTS</span>
+                    <div class="glass-card" style="padding: 20px; margin-top: 10px; background: var(--secondary); border: none;">
+                        <div style="display: flex; align-items: center; gap: 15px; color: white;">
+                            <i class="fas fa-bullhorn" style="color: var(--accent); font-size: 20px;"></i>
+                            <p style="font-size: 13px; font-weight: 700;">Zero Absences: Abdullah Salem (Mar)</p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="recent-section">
-                    <div class="recent-section-header">
-                        <h3>MY RECENT CASES</h3>
-                        <a href="#" onclick="switchScreen('reports')">VIEW ALL <i class="fas fa-chevron-right" style="font-size:10px"></i></a>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span class="lbl-prime" style="margin:0;">RECENT INCIDENTS</span>
+                        <a href="#" onclick="switchScreen('reports')" style="font-size: 10px; font-weight: 900; color: var(--primary); text-decoration: none;">VIEW ALL</a>
                     </div>
                     <div id="mini-l"></div>
                 </div>
             </div>
 
-            <!-- Create -->
+            <!-- Create Case (Advanced 4-Step Flow) -->
             <div class="screen" id="s-create">
-                <header class="header">
-                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
-                    <h1>ADD CASE</h1>
-                    <div style="width:24px"></div>
-                </header>
-                
-                <div style="margin-top:20px">
-                    <span class="lbl-prime">1. SELECT ENVIRONMENT / اختر الموقع</span>
-                    <div class="type-grid" id="env-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                        <div class="type-box" onclick="setEnv('office', this)" style="padding: 15px;"><i class="fas fa-building" style="font-size: 24px;"></i><span style="font-size: 11px;">Office</span></div>
-                        <div class="type-box" onclick="setEnv('site', this)" style="padding: 15px;"><i class="fas fa-hard-hat" style="font-size: 24px;"></i><span style="font-size: 11px;">Site</span></div>
-                        <div class="type-box" onclick="setEnv('housing', this)" style="padding: 15px;"><i class="fas fa-home" style="font-size: 24px;"></i><span style="font-size: 11px;">Housing</span></div>
-                    </div>
+                <div class="progress-stepper">
+                    <div class="step-node active" id="step-1">1</div>
+                    <div class="step-node" id="step-2">2</div>
+                    <div class="step-node" id="step-3">3</div>
+                    <div class="step-node" id="step-4">4</div>
+                </div>
 
-                    <div id="step-type" style="display: none; margin-top: 20px;">
-                        <span class="lbl-prime">2. PROBLEM TYPE / نوع المشكلة</span>
-                        <div class="type-grid" id="type-grid-main">
-                            <div class="type-box" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><span>Safety</span></div>
-                            <div class="type-box" onclick="setType('service', this)"><i class="fas fa-tools"></i><span>Service</span></div>
-                            <div class="type-box" onclick="setType('other', this)"><i class="fas fa-info-circle"></i><span>Other</span></div>
+                <div id="pane-1" class="creation-pane">
+                    <span class="lbl-prime">1. SELECT ENVIRONMENT</span>
+                    <div class="type-grid" id="env-grid" style="grid-template-columns: 1fr; gap: 12px;">
+                        <div class="type-box" onclick="setEnv('office', this)" style="flex-direction: row; justify-content: flex-start; padding: 25px; gap: 20px;">
+                            <i class="fas fa-building"></i>
+                            <div style="text-align: left;"><span style="font-size: 14px; font-weight: 900;">Office</span><p style="font-size: 10px; color: var(--grey); font-weight: 700;">HQ & Administrative Areas</p></div>
+                        </div>
+                        <div class="type-box" onclick="setEnv('site', this)" style="flex-direction: row; justify-content: flex-start; padding: 25px; gap: 20px;">
+                            <i class="fas fa-hard-hat"></i>
+                            <div style="text-align: left;"><span style="font-size: 14px; font-weight: 900;">Site / Project</span><p style="font-size: 10px; color: var(--grey); font-weight: 700;">Field Operations & Construction</p></div>
+                        </div>
+                        <div class="type-box" onclick="setEnv('housing', this)" style="flex-direction: row; justify-content: flex-start; padding: 25px; gap: 20px;">
+                            <i class="fas fa-home"></i>
+                            <div style="text-align: left;"><span style="font-size: 14px; font-weight: 900;">Housing</span><p style="font-size: 10px; color: var(--grey); font-weight: 700;">Employee Accommodations</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pane-2" class="creation-pane" style="display: none;">
+                    <span class="lbl-prime">2. PROBLEM TYPE</span>
+                    <div class="type-grid" id="type-grid-main" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <div class="type-box" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><span>Safety</span></div>
+                        <div class="type-box" onclick="setType('service', this)"><i class="fas fa-tools"></i><span>Service</span></div>
+                        <div class="type-box" onclick="setType('other', this)"><i class="fas fa-info-circle"></i><span>Other</span></div>
+                    </div>
+                    <button class="btn-p" onclick="goToPane(1)" style="background: white; color: var(--primary); border: 1.5px solid #e2e8f0; margin-top: 30px; box-shadow: none;">GO BACK</button>
+                </div>
+
+                <div id="pane-3" class="creation-pane" style="display: none;">
+                    <span class="lbl-prime">3. FIELD CATEGORY</span>
+                    <div id="branch-selection" class="sub-type-grid" style="flex-direction: column; gap: 10px;"></div>
+                    <button class="btn-p" onclick="goToPane(2)" style="background: white; color: var(--primary); border: 1.5px solid #e2e8f0; margin-top: 30px; box-shadow: none;">GO BACK</button>
+                </div>
+
+                <div id="pane-4" class="creation-pane" style="display: none;">
+                    <span class="lbl-prime">4. SPECIFIC INCIDENT</span>
+                    <div id="sub-types" class="sub-type-grid" style="gap: 10px;"></div>
+                    
+                    <div style="margin-top: 30px;">
+                        <span class="lbl-prime">REPORT SYNOPSIS</span>
+                        <div class="glass-card" style="padding: 20px;">
+                            <textarea id="case-desc" placeholder="Describe the findings in detail..." style="width: 100%; border: none; background: transparent; outline: none; font-weight: 700; font-size: 15px; color: var(--primary); min-height: 80px; resize: none;"></textarea>
                         </div>
                     </div>
 
-                    <div id="step-branch" style="display: none; margin-top: 10px;">
-                        <span class="lbl-prime">3. AREA / مجال المشكلة</span>
-                        <div id="branch-selection" class="sub-type-grid" style="margin-top: 5px; margin-bottom: 20px;"></div>
-                    </div>
-
-                    <div id="step-sub" style="display: none; margin-top: 10px;">
-                        <span class="lbl-prime">4. SPECIFIC PROBLEM / المشكلة المحددة</span>
-                        <div id="sub-types" class="sub-type-grid"></div>
-                    </div>
-
-
-                    <span class="lbl-prime">WRITE PROBLEM</span>
-                    <div class="write-box">
-                        <textarea id="case-desc" placeholder="Tell us what happened..."></textarea>
-                    </div>
-
-                    <span class="lbl-prime">ADD PHOTO</span>
-                    <div class="image-upload-area" onclick="document.getElementById('case-img-input').click()" style="border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 20px;">
-                        <input type="file" id="case-img-input" accept="image/*" style="display:none" onchange="handleFile(this)">
-                        <div id="image-preview-cont" class="image-preview-slot" style="background:transparent; height:140px">
-                            <i class="fas fa-camera" style="font-size:32px; color:#94a3b8"></i>
-                            <p style="margin:12px 0 0 0; font-size:16px; font-weight:950; color:#94a3b8; letter-spacing:1px">PHOTOGRAPH</p>
+                    <div style="margin-top: 20px;">
+                        <span class="lbl-prime">VISUAL EVIDENCE</span>
+                        <div class="image-upload-area" onclick="document.getElementById('case-img-input').click()" style="background: white; border: 2px dashed var(--accent); border-radius: 25px; padding: 30px; text-align: center;">
+                            <input type="file" id="case-img-input" accept="image/*" style="display:none" onchange="handleFile(this)">
+                            <div id="image-preview-cont">
+                                <i class="fas fa-camera" style="font-size: 32px; color: var(--accent);"></i>
+                                <p style="margin-top: 10px; font-weight: 900; color: var(--primary);">TAP TO PHOTOGRAPH</p>
+                            </div>
                         </div>
                     </div>
 
-                    <span class="lbl-prime">SELECT SITE</span>
-                    <div class="site-box">
-                        <select id="case-site">
-                            <option value="Randa Tower">Randa Tower</option>
-                            <option value="Riyadh HQ">Riyadh HQ</option>
-                            <option value="Jeddah Office">Jeddah Office</option>
-                        </select>
-                        <i class="fas fa-chevron-down" style="color:#cbd5e1"></i>
+                    <div style="margin: 30px 0 100px;">
+                        <button class="btn-p" id="submit-btn" onclick="submitReport()">TRANSMIT REPORT</button>
+                        <button class="btn-p" onclick="goToPane(3)" style="background: white; color: var(--primary); border: 1.5px solid #e2e8f0; margin-top: 15px; box-shadow: none;">GO BACK</button>
                     </div>
-
-                    <button class="btn-p" onclick="submitReport()" style="margin:30px 0 80px 0">SUBMIT CASE</button>
                 </div>
             </div>
 
             <!-- Stats -->
             <div class="screen" id="s-stats">
-                <header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>DASHBOARD</h1><div style="width:20px"></div></header>
-                <div class="stat-card-main active" id="stat-card-all" onclick="updateStats('all')">
-                    <span class="lbl" style="color:white; opacity:0.6">TOTAL INCIDENTS</span>
-                    <h1 id="stat-total" style="font-size:62px; font-weight:900">0</h1>
+                <div class="glass-card" style="background: var(--primary); color: white; padding: 35px; text-align: center; border-radius: 40px; margin-top: 20px;">
+                    <span style="font-size: 10px; font-weight: 900; opacity: 0.6; letter-spacing: 1px;">TOTAL LOGGED INCIDENTS</span>
+                    <h1 id="stat-total" style="font-size: 64px; font-weight: 900;">0</h1>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:30px">
-                    <div class="stat-box" id="stat-card-pend" onclick="updateStats('pending')">
-                        <span class="lbl">PENDING</span>
-                        <div class="num" id="stat-pend" style="color:var(--accent)">0</div>
+                <!-- Mini Stats -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
+                    <div class="glass-card" style="padding: 20px; border-left: 4px solid var(--accent);" onclick="updateStats('pending')">
+                        <span style="font-size: 9px; font-weight: 900; color: var(--grey);">PENDING</span>
+                        <div id="stat-pend" style="font-size: 24px; font-weight: 900; color: var(--primary);">0</div>
                     </div>
-                    <div class="stat-box" id="stat-card-done" onclick="updateStats('done')">
-                        <span class="lbl">DONE</span>
-                        <div class="num" id="stat-done" style="color:#22c55e">0</div>
+                    <div class="glass-card" style="padding: 20px; border-left: 4px solid #10b981;" onclick="updateStats('done')">
+                        <span style="font-size: 9px; font-weight: 900; color: var(--grey);">RESOLVED</span>
+                        <div id="stat-done" style="font-size: 24px; font-weight: 900; color: #10b981;">0</div>
                     </div>
                 </div>
-                <span class="lbl" id="activity-lbl">ALL ACTIVITY LOG</span>
-                <div id="stat-activity"></div>
+                <div id="stat-activity" style="margin-top: 25px;"></div>
             </div>
 
             <!-- Reports -->
-            <div class="screen" id="s-reports"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>INCIDENTS</h1><div style="width:20px"></div></header><div id="full-l"></div></div>
-            <!-- Detail -->
-            <div class="screen" id="s-detail">
-                <header class="header">
-                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
-                    <h1>CASE INFO</h1>
-                    <div style="width:24px"></div>
-                </header>
-                <div id="det-cont" style="padding-top:10px"></div>
+            <div class="screen" id="s-reports" style="padding-top: 20px;">
+                <div id="full-l"></div>
             </div>
-            <!-- Notifications -->
-            <div class="screen" id="s-notifs"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>ALERTS</h1><div style="width:20px"></div></header><div id="notif-list"></div></div>
-            <!-- Support -->
-            <div class="screen" id="s-support">
-                <header class="header">
-                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
-                    <h1>HELP CENTER</h1>
-                    <div style="width:24px"></div>
-                </header>
-                
-                <div style="margin-top:20px">
-                    <span class="lbl-prime">OFFICER IDENTITY</span>
-                    <div class="write-box" style="background:rgba(148,163,184,0.05); border:1px solid #f1f5f9; padding:20px">
-                        <div style="font-size:16px; font-weight:900; color:var(--primary)" id="supp-name-val">---</div>
-                        <div style="font-size:12px; font-weight:700; color:var(--accent); margin-top:5px" id="supp-id-val">ID: ---</div>
-                    </div>
 
-                    <span class="lbl-prime" style="margin-top:25px">CONTACT INFO</span>
-                    <div class="write-box" style="padding:15px">
-                        <div style="display:flex; align-items:center; border-bottom:1px solid #f8fafc; padding-bottom:10px">
-                            <span style="font-weight:900; font-size:16px; color:var(--primary); margin-right:8px">+966</span>
-                            <input id="supp-mobile" type="tel" placeholder="5X XXX XXXX" style="flex:1; border:none; outline:none; font-weight:900; font-size:16px; color:var(--primary); background:transparent">
-                        </div>
-                        <input id="supp-email" type="email" placeholder="example@nit.com" style="width:100%; border:none; outline:none; font-weight:900; font-size:16px; padding:15px 0 10px 0; color:var(--primary)">
-                    </div>
+            <!-- Inbox -->
+            <div class="screen" id="s-chat-list" style="padding-top: 20px;">
+                <div id="chat-report-list"></div>
+            </div>
 
-                    <span class="lbl-prime" style="margin-top:25px">REPORT DETAILS</span>
-                    <div class="write-box" style="padding:15px">
-                        <input id="supp-subj" placeholder="Subject" style="width:100%; border:none; outline:none; font-weight:700; font-size:16px; padding:10px 0; border-bottom:1px solid #f8fafc">
-                        <textarea id="supp-msg" placeholder="Tell us more about your issue..." style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; min-height:120px; padding:15px 0; resize:none"></textarea>
-                    </div>
-
-                    <button class="btn-p" onclick="submitHelp()" style="margin-bottom:80px">SEND REQUEST</button>
+            <!-- Chat Room -->
+            <div class="screen" id="s-chat" style="padding:0;">
+                <div style="background: white; padding: 50px 25px 20px; border-bottom: 1.5px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+                    <i class="fas fa-chevron-left" style="color: var(--primary);" onclick="switchScreen('chat-list')"></i>
+                    <h2 id="chat-title" style="font-size: 16px; font-weight: 900; color: var(--primary);">ADMIN HUB</h2>
+                    <div style="width: 20px;"></div>
                 </div>
-            </div>
-            <!-- Chat Hub -->
-            <div class="screen" id="s-chat-list">
-                <header class="header">
-                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
-                    <h1>CHAT HUB</h1>
-                    <div style="width:24px"></div>
-                </header>
-                
-                <div style="margin-top:20px">
-                    <div class="search-box">
-                        <i class="fas fa-search" style="color:#cbd5e1"></i>
-                        <input type="text" id="chat-search" placeholder="Search by name or ID..." oninput="filterChats()">
-                    </div>
-
-                    <div class="horizontal-picker">
-                        <div class="picker-item" onclick="openAdminChat()">
-                            <div class="picker-avatar"><i class="fas fa-headset"></i></div>
-                            <span>Support</span>
-                        </div>
-                    </div>
-
-                    <span class="lbl-prime">Recent Messages</span>
-                    <div id="chat-report-list" style="margin-top:20px"></div>
-                </div>
-            </div>
-            <!-- Chat -->
-            <div class="screen" id="s-chat" style="padding:0">
-                <header class="header" style="margin:0; padding:55px 25px 25px">
-                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="switchScreen('chat-list')"></i>
-                    <h1 id="chat-title">Admin</h1>
-                    <div style="width:24px"></div>
-                </header>
-                
                 <div id="chat-msgs" class="chat-container"></div>
-                
                 <div class="chat-input-hub">
-                    <input id="chat-input" class="chat-input-pill" placeholder="Type here..." onkeydown="if(event.key==='Enter') sendReportMsg()">
-                    <div class="send-dot" onclick="sendReportMsg()">
-                        <i class="fas fa-paper-plane"></i>
-                    </div>
+                    <input id="chat-input" class="chat-input-pill" placeholder="Secure transmit...">
+                    <div class="send-dot" onclick="sendReportMsg()"><i class="fas fa-paper-plane"></i></div>
                 </div>
             </div>
 
-            <!-- Navbar -->
-            <nav class="navbar" id="main-nav">
-                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-home"></i><span>Home</span></div>
-                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-file-invoice"></i><span>Reports</span></div>
-                <div style="width:70px"></div>
+            <!-- Bottom Navbar -->
+            <nav class="navbar" id="main-nav" style="display: none;">
+                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-th-large"></i><span>HOME</span></div>
+                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-list-ul"></i><span>REPORTS</span></div>
+                <div style="width: 70px;"></div>
                 <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')">
-                    <i class="fas fa-comment-dots"></i>
-                    <span>Inbox</span>
+                    <i class="fas fa-comment-alt"></i><span>INBOX</span>
                     <div id="chat-count-badge" class="nav-badge">0</div>
                 </div>
-                <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>Help Center</span></div>
+                <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>SUPPORT</span></div>
             </nav>
 
-            <div class="plus-btn" id="main-plus" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
-            <div class="wa-btn" id="wa-float" onclick="window.open('https://wa.me/966500000000')"><i class="fab fa-whatsapp"></i></div>
-            
-            <!-- Status Modal -->
-            <div id="status-modal" class="status-modal">
-                <div class="status-card">
-                    <div id="status-icon" class="status-icon"></div>
-                    <h2 id="status-title">Success</h2>
-                    <p id="status-msg">Your report has been received.</p>
-                    <div id="status-case-wrap" style="display:none">
-                        <div id="status-case-num" class="case-num-badge">#CASE 000</div>
-                    </div>
-                    <button class="btn-status-close" onclick="closeStatusModal()">CONTINUE</button>
+            <div class="plus-btn" id="main-plus" style="display: none;" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
+
+            <!-- NOTIF HUD -->
+            <div id="notif-hud" class="notif-hud">
+                <div class="hud-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="hud-content">
+                    <h4 id="hud-title">NIT SECURE</h4>
+                    <p id="hud-msg">System initialized.</p>
                 </div>
             </div>
-        </div>
-    </div>
+
+        </div> <!-- End App Container -->
+    </div> <!-- End Phone Frame -->
+
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -1196,67 +837,56 @@
         }
 
 
+        function goToPane(idx) {
+            document.querySelectorAll('.creation-pane').forEach(p => p.style.display = 'none');
+            document.getElementById('pane-' + idx).style.display = 'block';
+            document.querySelectorAll('.step-node').forEach(n => {
+                const step = parseInt(n.id.split('-')[1]);
+                n.classList.remove('active', 'done');
+                if (step === idx) n.classList.add('active');
+                if (step < idx) n.classList.add('done');
+            });
+        }
+
         function setEnv(env, el) {
             currentEnv = env;
             currentType = null;
-            currentBranch = null;
-            currentSubType = '';
             document.querySelectorAll('#env-grid .type-box').forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
-            
-            document.getElementById('step-type').style.display = 'block';
-            document.getElementById('step-branch').style.display = 'none';
-            document.getElementById('step-sub').style.display = 'none';
-            document.querySelectorAll('#type-grid-main .type-box').forEach(b=>b.classList.remove('active'));
+            setTimeout(() => goToPane(2), 200);
         }
 
         function setType(t, el) { 
             currentType = t; 
             currentBranch = null; 
-            currentSubType = '';
             document.querySelectorAll('#type-grid-main .type-box').forEach(b=>b.classList.remove('active')); 
             el.classList.add('active'); 
-            
-            document.getElementById('step-branch').style.display = 'block';
-            document.getElementById('step-sub').style.display = 'none';
-            renderBranches(); 
+            renderBranches();
+            setTimeout(() => goToPane(3), 200);
         }
 
         function renderBranches() {
             const container = document.getElementById('branch-selection');
             const data = problemTree[currentEnv].types[currentType];
-            if(!data || !data.branches) {
-                container.parentElement.style.display = 'none';
-                renderSubTypes();
-                return;
-            }
-            
             container.innerHTML = Object.keys(data.branches).map(b => `
-                <div class="sub-type-item" style="border:1.5px solid #e2e8f0; background:white" onclick="setBranch('${b}', this)">
-                    ${data.branches[b].label}
+                <div class="type-box" style="flex-direction: row; justify-content: space-between; padding: 18px 25px; width: 100%; margin-bottom: 5px;" onclick="setBranch('${b}', this)">
+                    <span style="font-size: 14px; font-weight: 850;">${data.branches[b].label}</span>
+                    <i class="fas fa-chevron-right" style="font-size: 14px; color: var(--accent);"></i>
                 </div>
             `).join('');
-            
-            // Clear items until branch is chosen
-            document.getElementById('sub-types').innerHTML = '';
         }
 
         function setBranch(b, el) {
             currentBranch = b;
             currentSubType = '';
-            document.querySelectorAll('#branch-selection .sub-type-item').forEach(x=>x.classList.remove('active'));
+            document.querySelectorAll('#branch-selection .type-box').forEach(x=>x.classList.remove('active'));
             el.classList.add('active');
-            document.getElementById('step-sub').style.display = 'block';
             renderSubTypes();
+            setTimeout(() => goToPane(4), 200);
         }
 
         function renderSubTypes() { 
             const subArea = document.getElementById('sub-types');
-            if(!currentBranch) {
-                subArea.innerHTML = '';
-                return;
-            }
-            
             const items = problemTree[currentEnv].types[currentType].branches[currentBranch].items;
             subArea.innerHTML = items.map(s => `
                 <div class="sub-type-item" onclick="currentSubType='${s}'; this.parentElement.querySelectorAll('.sub-type-item').forEach(x=>x.classList.remove('active')); this.classList.add('active');">
@@ -1266,17 +896,30 @@
         }
 
         function resetCreationFlow() {
-            currentEnv = null;
-            currentType = null;
-            currentBranch = null;
-            currentSubType = '';
-            document.querySelectorAll('#env-grid .type-box').forEach(b=>b.classList.remove('active'));
-            document.getElementById('step-type').style.display = 'none';
-            document.getElementById('step-branch').style.display = 'none';
-            document.getElementById('step-sub').style.display = 'none';
+            currentEnv = null; currentType = null; currentBranch = null; currentSubType = '';
+            document.querySelectorAll('.type-box').forEach(b=>b.classList.remove('active'));
             document.getElementById('case-desc').value = '';
             activeImgB64 = null;
-            document.getElementById('image-preview-cont').innerHTML = `<i class="fas fa-camera" style="font-size:32px; color:#94a3b8"></i><p style="margin:12px 0 0 0; font-size:16px; font-weight:950; color:#94a3b8; letter-spacing:1px">PHOTOGRAPH</p>`;
+            document.getElementById('image-preview-cont').innerHTML = `<i class="fas fa-camera" style="font-size: 32px; color: var(--accent);"></i><p style="margin-top: 10px; font-weight: 900; color: var(--primary);">TAP TO PHOTOGRAPH</p>`;
+            goToPane(1);
+        }
+
+        function initApp() {
+            const saved = localStorage.getItem('nit_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                document.getElementById('s-login').style.display = 'none';
+                document.getElementById('main-header').style.display = 'flex';
+                document.getElementById('main-nav').style.display = 'flex';
+                document.getElementById('main-plus').style.display = 'flex';
+                
+                document.getElementById('hm-name').innerText = currentUser.name_en || currentUser.name || "OFFICER";
+                document.getElementById('hm-full-id').innerText = "#" + (currentUser.emp_no || "3734") + " • NIT FIELD OPS";
+                
+                switchScreen('home');
+                sync();
+                setupFCM();
+            }
         }
 
 
