@@ -357,39 +357,56 @@
         }
 
         function renderReports() {
-            const f = document.getElementById('full-l'), m = document.getElementById('mini-l'); if(!f) return;
-            const sorted = [...reports].sort((a,b) => b.case_num - a.case_num);
-            const open = reports.filter(r => (r.status||'').toLowerCase() !== 'done').length;
-            
-            document.getElementById('s-total').innerText = reports.length;
-            document.getElementById('s-open').innerText = open;
-            document.getElementById('s-done').innerText = reports.length - open;
+            try {
+                const f = document.getElementById('full-l'), m = document.getElementById('mini-l'); if(!f || !m) return;
+                const sorted = [...reports].sort((a,b) => (b.case_num||0) - (a.case_num||0));
+                const open = reports.filter(r => String(r.status||'open').toLowerCase() !== 'done').length;
+                
+                document.getElementById('s-total').innerText = reports.length;
+                document.getElementById('s-open').innerText = open;
+                document.getElementById('s-done').innerText = reports.length - open;
 
-            const makeHtml = (list) => list.map(r => {
-                const cNo = r.case_num || (r.id ? r.id.substring(0,5).toUpperCase() : '---');
-                const st = (r.status || 'open').toLowerCase();
-                const isDone = st === 'done' || st === 'resolved';
-                return `
-                <div class="case-main-card" onclick="openDetail('${r.id}')">
-                    <div style="display:flex; justify-content:space-between; align-items:center">
-                        <div style="display:flex; align-items:center; gap:12px">
-                            <div style="width:35px; height:35px; border-radius:10px; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; color:var(--p)">
-                                <i class="fas ${r.type && r.type.toLowerCase().includes('safety') ? 'fa-shield-alt' : 'fa-tools'}"></i>
-                            </div>
-                            <div>
-                                <b style="font-size:13px; color:var(--p)">CASE #${cNo}</b>
-                                <p style="font-size:10px; opacity:0.6">${r.type || 'Report'}</p>
-                            </div>
-                        </div>
-                        <span class="status-pill" style="background:${isDone?'#dcfce7':'#fef3c7'}; color:${isDone?'#16a34a':'#d97706'}">
-                             ${isDone ? (i18n[appLang].resolved) : (i18n[appLang].pending)}
-                        </span>
-                    </div>
-                </div>`;
-            }).join('');
+                const makeHtml = (list) => {
+                    let htmlList = [];
+                    for(let i=0; i<list.length; i++) {
+                        try {
+                            const r = list[i];
+                            const cNo = r.case_num || (r.id ? String(r.id).substring(0,5).toUpperCase() : '---');
+                            const st = String(r.status || 'open').toLowerCase();
+                            const isDone = st === 'done' || st === 'resolved' || st === 'تم الإنجاز';
+                            const typeStr = String(r.type || 'Report');
+                            const safeType = typeStr.toLowerCase();
+                            
+                            htmlList.push(`
+                            <div class="case-main-card" onclick="openDetail('${r.id}')">
+                                <div style="display:flex; justify-content:space-between; align-items:center">
+                                    <div style="display:flex; align-items:center; gap:12px">
+                                        <div style="width:35px; height:35px; border-radius:10px; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; color:var(--p)">
+                                            <i class="fas ${safeType.includes('safety') ? 'fa-shield-alt' : 'fa-tools'}"></i>
+                                        </div>
+                                        <div>
+                                            <b style="font-size:13px; color:var(--p)">CASE #${cNo}</b>
+                                            <p style="font-size:10px; opacity:0.6">${typeStr}</p>
+                                        </div>
+                                    </div>
+                                    <span class="status-pill" style="background:${isDone?'#dcfce7':'#fef3c7'}; color:${isDone?'#16a34a':'#d97706'}">
+                                         ${isDone ? (i18n[appLang]?.resolved || 'DONE') : (i18n[appLang]?.pending || 'PENDING')}
+                                    </span>
+                                </div>
+                            </div>`);
+                        } catch(err) { console.error("Card skip:", err); }
+                    }
+                    return htmlList.join('');
+                };
 
-            f.innerHTML = makeHtml(sorted) || '<p style="text-align:center; opacity:0.3; padding:40px">No reports</p>';
-            if(m) m.innerHTML = makeHtml(sorted.slice(0, 5));
+                const fullHtml = makeHtml(sorted);
+                f.innerHTML = fullHtml || '<p style="text-align:center; opacity:0.3; padding:40px">No reports found.</p>';
+                m.innerHTML = makeHtml(sorted.slice(0, 5));
+            } catch(e) {
+                console.error("renderReports fatal:", e);
+                const f = document.getElementById('full-l');
+                if(f) f.innerHTML = '<p style="color:red; padding:20px; text-align:center">Display Error: ' + e.message + '</p>';
+            }
         }
 
         async function submitReport() {
