@@ -146,6 +146,7 @@
         </div>
         <div style="flex: 1;">
             <div class="drawer-menu-item" onclick="switchScreen('home')"><i class="fas fa-home"></i> <span id="dr-home">HOME</span></div>
+            <div class="drawer-menu-item" onclick="switchScreen('dashboard')"><i class="fas fa-chart-line"></i> <span id="dr-dash">MY DASHBOARD</span></div>
             <div class="drawer-menu-item" onclick="switchScreen('reports')"><i class="fas fa-file-alt"></i> <span id="dr-reports">MY REPORTS</span></div>
             <div class="drawer-menu-item" onclick="switchScreen('chat-list')"><i class="fas fa-comments"></i> <span id="dr-messages">MESSAGES</span></div>
             <div class="drawer-menu-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i> <span id="dr-support">SUPPORT</span></div>
@@ -227,9 +228,46 @@
                 </div>
             </div>
             
-            <div class="screen" id="s-detail">
-                <div id="det-cont" style="padding-top:20px; padding-bottom:30px;"></div>
+            <div class="screen" id="s-dashboard">
+                <div style="padding-top:20px">
+                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:25px">
+                        <i class="fas fa-arrow-left" onclick="switchScreen('home')" style="font-size:20px; color:var(--p); cursor:pointer"></i>
+                        <span class="lbl-prime" id="t-dash-title" style="margin:0">MY DASHBOARD</span>
+                    </div>
+                    
+                    <div style="background:white; border-radius:30px; padding:30px 20px; box-shadow:0 10px 30px rgba(0,0,0,0.02); margin-bottom:20px; text-align:center">
+                        <i class="fas fa-chart-pie" style="font-size:50px; color:var(--p); opacity:0.1; margin-bottom:15px"></i>
+                        <h2 style="font-size:24px; font-weight:950; color:#0f172a; margin:0">Performance Overview</h2>
+                        <p style="font-size:12px; font-weight:700; color:#94a3b8; margin-top:5px">Real-time operational statistics</p>
+                    </div>
+
+                    <div class="stats-grid" style="display:grid; grid-template-columns:1fr; gap:15px">
+                        <div class="stat-card" onclick="gotoReportsFilter('all')" style="padding:25px; display:flex; flex-direction:row; align-items:center; justify-content:space-between">
+                            <div style="display:flex; align-items:center; gap:15px">
+                                <div style="width:45px; height:45px; border-radius:15px; background:rgba(59,130,246,0.1); display:flex; align-items:center; justify-content:center; color:#3b82f6"><i class="fas fa-folder-open"></i></div>
+                                <span class="stat-lbl" style="font-size:14px">TOTAL REPORTS</span>
+                            </div>
+                            <span class="stat-num" id="sd-total" style="font-size:24px">0</span>
+                        </div>
+                        <div class="stat-card" onclick="gotoReportsFilter('pending')" style="padding:25px; display:flex; flex-direction:row; align-items:center; justify-content:space-between">
+                            <div style="display:flex; align-items:center; gap:15px">
+                                <div style="width:45px; height:45px; border-radius:15px; background:rgba(245,158,11,0.1); display:flex; align-items:center; justify-content:center; color:#f59e0b"><i class="fas fa-clock"></i></div>
+                                <span class="stat-lbl" style="font-size:14px">PENDING CASES</span>
+                            </div>
+                            <span class="stat-num" id="sd-open" style="font-size:24px">0</span>
+                        </div>
+                        <div class="stat-card" onclick="gotoReportsFilter('resolved')" style="padding:25px; display:flex; flex-direction:row; align-items:center; justify-content:space-between">
+                            <div style="display:flex; align-items:center; gap:15px">
+                                <div style="width:45px; height:45px; border-radius:15px; background:rgba(16,185,129,0.1); display:flex; align-items:center; justify-content:center; color:#10b981"><i class="fas fa-check-double"></i></div>
+                                <span class="stat-lbl" style="font-size:14px">RESOLVED CASES</span>
+                            </div>
+                            <span class="stat-num" id="sd-done" style="font-size:24px">0</span>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <div class="screen" id="s-detail">
 
             <div class="screen" id="s-create">
                 <div style="padding: 25px 0; display: flex; align-items: center; justify-content: space-between;">
@@ -373,7 +411,8 @@
                 nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP", 
                 drHome: "HOME", drReports: "MY REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "SIGN OUT", drLang: "CHANGE LANGUAGE",
                 recent: "RECENT INCIDENTS", inboxTitle: "INBOX", helpTitle: "TECH SUPPORT",
-                allReports: "ALL REPORTS", send: "SEND REQUEST", welcome: "WELCOME BACK,", total: "TOTAL", pending: "PENDING", resolved: "RESOLVED"
+                allReports: "ALL REPORTS", send: "SEND REQUEST", welcome: "WELCOME BACK,", total: "TOTAL", pending: "PENDING", resolved: "RESOLVED",
+                dash: "MY DASHBOARD"
             },
             ar: { 
                 wizard: "إرسال بلاغ", step1: "أين المشكلة؟", step2: "التصنيف", step3: "المنطقة", step4: "التفاصيل", 
@@ -383,7 +422,8 @@
                 nbHome: "الرئيسية", nbReports: "بلاغاتي", nbInbox: "الرسائل", nbHelp: "دعم", 
                 drHome: "الرئيسية", drReports: "قائمة بلاغاتي", drMessages: "رسائلي", drSupport: "فني", drLogout: "خروج", drLang: "تغيير اللغة",
                 recent: "آخر البلاغات", inboxTitle: "بريد الرسائل", helpTitle: "الدعم الفني",
-                allReports: "كل البلاغات", send: "إرسال الطلب", welcome: "مرحباً بك،", total: "الإجمالي", pending: "قيد الانتظار", resolved: "تم الإنجاز"
+                allReports: "كل البلاغات", send: "إرسال الطلب", welcome: "مرحباً بك،", total: "الإجمالي", pending: "قيد الانتظار", resolved: "تم الإنجاز",
+                dash: "لوحة التحكم"
             },
             ur: { 
                 wizard: "رپورٹ جمع کریں", step1: "کہاں؟", step2: "قسم", step3: "علاقہ", step4: "تفصیل", 
@@ -393,7 +433,8 @@
                 nbHome: "ہوم", nbReports: "رپورٹس", nbInbox: "پیغامات", nbHelp: "مدد", 
                 drHome: "ہوم", drReports: "میری رپورٹس", drMessages: "پیغامات", drSupport: "مدد", drLogout: "لاگ آؤٹ", drLang: "زبان تبدیل کریں",
                 recent: "حالیہ واقعات", inboxTitle: "ان باکس", helpTitle: "ٹیکنیکل سپورٹ",
-                allReports: "تمام رپورٹس", send: "درخواست بھیجیں", welcome: "خوش آمدید،", total: "کل", pending: "زیر التواء", resolved: "حل شدہ"
+                allReports: "تمام رپورٹس", send: "درخواست بھیجیں", welcome: "خوش آمدید،", total: "کل", pending: "زیر التواء", resolved: "حل شدہ",
+                dash: "میرا ڈیش بورڈ"
             }
         };
 
@@ -414,12 +455,13 @@
             set('wizard-title', t.wizard); set('t-login-title', t.loginTitle); set('t-login-sub', t.loginSub); set('login-err', t.loginErr); set('t-signin-btn', t.submit);
             set('nb-home', t.nbHome); set('nb-reports', t.nbReports); set('nb-inbox', t.nbInbox); set('nb-help', t.nbHelp);
             set('dr-home', t.drHome); set('dr-reports', t.drReports); set('dr-messages', t.drMessages); set('dr-support', t.drSupport); set('dr-lang', t.drLang); set('dr-logout', t.drLogout);
+            set('dr-dash', t.dash); set('t-dash-title', t.dash);
             set('t-step-1', t.step1); set('t-step-2', t.step2); set('t-step-3', t.step3); set('t-step-4', t.step4);
             set('t-site', t.site); set('t-site-desc', t.siteD); set('t-housing', t.housing); set('t-housing-desc', t.housingD);
             set('t-safety', t.safety); set('t-service', t.service); set('t-recent', t.recent);
             set('t-all-reports', t.allReports); set('t-inbox', t.inboxTitle); set('t-help-title', t.helpTitle);
             set('t-send-ticket', t.send); set('submit-btn', t.submit); set('t-welcome', t.welcome);
-            document.querySelectorAll('.stat-lbl').forEach((el, idx) => { if(el) el.innerText = [t.total, t.pending, t.resolved][idx]; });
+            document.querySelectorAll('.stat-lbl').forEach((el, idx) => { if(el) el.innerText = [t.total, t.pending, t.resolved][idx % 3]; });
             document.querySelectorAll('.btn-back-text').forEach(el => el.innerText = t.back);
         }
 
@@ -648,10 +690,13 @@
                 const f = document.getElementById('full-l'), m = document.getElementById('mini-l'); if(!f || !m) return;
                 const sorted = [...reports].sort((a,b) => (b.case_num||0) - (a.case_num||0));
                 const open = reports.filter(r => String(r.status||'open').toLowerCase() !== 'done').length;
+                const totalVal = reports.length;
+                const openVal = open;
+                const doneVal = totalVal - openVal;
                 
-                document.getElementById('s-total').innerText = reports.length;
-                document.getElementById('s-open').innerText = open;
-                document.getElementById('s-done').innerText = reports.length - open;
+                ['s-total', 'sd-total'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = totalVal; });
+                ['s-open', 'sd-open'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = openVal; });
+                ['s-done', 'sd-done'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = doneVal; });
 
                 const makeHtml = (list) => {
                     let htmlList = [];
