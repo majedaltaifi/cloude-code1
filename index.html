@@ -137,6 +137,10 @@
         .unread-dot { width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid white; position: absolute; top: -2px; right: -2px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
         .nav-item .unread-dot { top: 2px; right: 25%; }
 
+        /* Profile Avatar Edit */
+        .avatar-container { position:relative; display:inline-block; margin-bottom:15px; cursor:pointer; }
+        .avatar-edit-badge { position:absolute; bottom:2px; right:2px; width:28px; height:28px; background:var(--p); border:3px solid white; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; box-shadow:0 4px 10px rgba(0,0,0,0.2); }
+
         /* Broadcast Styles */
         .broadcast-card { 
             background: linear-gradient(135deg, rgba(46, 49, 146, 0.95), rgba(30, 41, 59, 1)); 
@@ -213,12 +217,13 @@
                 <!-- User Profile Info Box -->
                 <div style="background:white; border-radius:30px; margin-top:10px; margin-bottom:20px; box-shadow:0 10px 30px rgba(15,23,42,0.04); padding:25px 20px 20px; display:flex; flex-direction:column; align-items:center; text-align:center">
                     
-                    <div style="position:relative; margin-bottom:15px; display:inline-block">
+                    <div class="avatar-container" onclick="document.getElementById('avatar-input').click()">
                         <img src="https://ui-avatars.com/api/?name=Officer&background=f8fafc&color=0f172a&font-size=0.33&bold=true" id="hm-avatar" style="width:85px; height:85px; border-radius:50%; object-fit:cover; border:3px solid #f1f5f9; box-shadow:0 8px 20px rgba(0,0,0,0.05); display:block">
-                        <div style="position:absolute; bottom:2px; right:2px; width:18px; height:18px; background:#10b981; border:3px solid white; border-radius:50%"></div>
+                        <div class="avatar-edit-badge"><i class="fas fa-camera"></i></div>
                     </div>
+                    <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="updateProfilePhoto(this)">
                     
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:12px">
+                    <div style="display:flex; justify-content:center; gap:8px; margin-bottom:12px">
                         <span style="background:#f1f5f9; padding:6px 14px; border-radius:10px; font-size:11px; font-weight:800; color:#64748b">Grade: <b style="color:#0f172a">B3</b></span>
                         <span style="background:#f1f5f9; padding:6px 14px; border-radius:10px; font-size:11px; font-weight:800; color:#64748b">Office</span>
                     </div>
@@ -675,6 +680,23 @@
             }
         }
 
+        async function updateProfilePhoto(input) {
+            if(!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const b64 = e.target.result;
+                try {
+                    await db.collection('employees').doc(currentUser.id).update({ photo: b64 });
+                    currentUser.photo = b64;
+                    localStorage.setItem('nit_user', JSON.stringify(currentUser));
+                    document.getElementById('hm-avatar').src = b64;
+                    alert("Profile photo updated!");
+                } catch(err) { alert("Update failed: " + err.message); }
+            };
+            reader.readAsDataURL(file);
+        }
+
         async function doLogin() {
             const id = document.getElementById('login-id').value.trim();
             if(document.getElementById('login-pass').value === '12') {
@@ -695,7 +717,9 @@
             const jobCard = document.getElementById('hm-job-card');
             if(jobCard) jobCard.innerText = currentUser.job_title || 'Application Manager';
             const avImg = document.getElementById('hm-avatar');
-            if(avImg) avImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=f8fafc&color=0f172a&font-size=0.33&bold=true`;
+            if(avImg) {
+                avImg.src = currentUser.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=f8fafc&color=0f172a&font-size=0.33&bold=true`;
+            }
             
             // Set current time for map widget
             const now = new Date();
