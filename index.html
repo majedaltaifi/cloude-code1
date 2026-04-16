@@ -207,7 +207,22 @@
                 <div id="pane-1" class="creation-pane"><span class="lbl-prime" id="t-step-1">WHERE?</span><div class="smart-tile" onclick="setEnv('site')"><i class="fas fa-hard-hat"></i><div class="info"><b id="t-site">Site</b><span id="t-site-desc">Field</span></div></div><div class="smart-tile" onclick="setEnv('housing')"><i class="fas fa-home"></i><div class="info"><b id="t-housing">Housing</b><span id="t-housing-desc">Living</span></div></div></div>
                 <div id="pane-2" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-2">CATEGORY</span><div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div><div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div><button class="btn-secondary" onclick="goToPane(1)"><span class="btn-back-text">BACK</span></button></div>
                 <div id="pane-3" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-3">AREA</span><div id="branch-list"></div><button class="btn-secondary" onclick="goToPane(2)"><span class="btn-back-text">BACK</span></button></div>
-                <div id="pane-4" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-4">DETAILS</span><textarea id="case-desc" style="width:100%; border-radius:20px; border:1px solid #ddd; padding:15px; min-height:100px; margin-bottom:20px;"></textarea><button class="btn-smart" id="submit-btn" onclick="submitReport()">SUBMIT</button><button class="btn-secondary" onclick="goToPane(3)"><span class="btn-back-text">BACK</span></button></div>
+                <div id="pane-4" class="creation-pane" style="display:none">
+                    <span class="lbl-prime" id="t-step-4">DETAILS</span>
+                    <textarea id="case-desc" style="width:100%; border-radius:20px; border:1px solid #ddd; padding:15px; min-height:100px; margin-bottom:15px;" placeholder="Describe the issue..."></textarea>
+                    
+                    <div style="margin-bottom:20px; display:flex; align-items:center; gap:15px">
+                        <label for="case-photo" class="smart-tile" style="flex:1; justify-content:center; cursor:pointer; background:rgba(46,49,146,0.05); border:1.5px dashed var(--p)">
+                            <i class="fas fa-camera" style="font-size:24px; color:var(--p)"></i>
+                            <span style="font-size:12px; font-weight:800; color:var(--p)">ATTACH PHOTO</span>
+                            <input type="file" id="case-photo" accept="image/*" capture="environment" style="display:none" onchange="document.getElementById('photo-status').innerText = 'Photo Attached ✓'">
+                        </label>
+                        <span id="photo-status" style="font-size:10px; font-weight:800; color:#10b981;"></span>
+                    </div>
+
+                    <button class="btn-smart" id="submit-btn" onclick="submitReport()">SUBMIT</button>
+                    <button class="btn-secondary" onclick="goToPane(3)"><span class="btn-back-text">BACK</span></button>
+                </div>
             </div>
 
             <div class="screen" id="s-chat-list"><div style="padding-top:20px"><span class="lbl-prime" id="t-inbox">INBOX</span><div id="chat-report-list"></div></div></div>
@@ -332,9 +347,12 @@
         function sync() {
             if(!currentUser) return;
             if(unsubSync) unsubSync();
-            unsubSync = db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).onSnapshot(snap => {
-                reports = snap.docs.map(d => ({id: d.id, ...d.data()})); 
+            unsubSync = db.collection('reports').onSnapshot(snap => {
+                const all = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                reports = all.filter(r => String(r.emp_no) === String(currentUser.emp_no));
                 renderReports();
+            }, err => {
+                console.error("Sync Error:", err);
             });
         }
 
@@ -375,11 +393,61 @@
         }
 
         async function submitReport() {
-            const desc = document.getElementById('case-desc').value; if(!desc) return;
-            const cRef = db.collection('settings').doc('counters'); await cRef.set({ report_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
-            const snap = await cRef.get(); const num = snap.data().report_count;
-            await db.collection('reports').doc(String(num)).set({ emp_no: currentUser.emp_no, case_num: num, type: currentType, status: 'open', description: desc });
-            document.getElementById('status-modal').classList.add('active'); switchScreen('home');
+            try {
+                const desc = document.getElementById('case-desc').value; if(!desc) return;
+                
+                const btn = document.getElementById('submit-btn');
+                const origText = btn.innerText;
+                btn.innerText = "SENDING..."; btn.disabled = true;
+
+                let num = Math.floor(Date.now() / 1000).toString().substring(3); // Fallback ID
+                try {
+                    const cRef = db.collection('settings').doc('counters'); 
+                    await cRef.set({ report_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+                    const snap = await cRef.get(); 
+                    if(snap.exists && snap.data().report_count) num = snap.data().report_count;
+                } catch(e) { console.warn("Counter fallback activated"); }
+
+                const fileInput = document.getElementById('case-photo');
+                let photoData = '';
+                if(fileInput && fileInput.files && fileInput.files[0]) {
+                    photoData = await new Promise((res) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => res(reader.result);
+                        reader.readAsDataURL(fileInput.files[0]);
+                    });
+                }
+
+                await db.collection('reports').doc(String(num)).set({ 
+                    emp_no: String(currentUser.emp_no), 
+                    case_num: num, 
+                    type: currentType || 'General', 
+                    status: 'open', 
+                    description: desc,
+                    photo: photoData,
+                    timestamp: new Date().toISOString()
+                });
+                
+                btn.innerText = origText; btn.disabled = false;
+                document.getElementById('case-desc').value = '';
+                if(fileInput) fileInput.value = '';
+                document.getElementById('photo-status').innerText = '';
+
+                const modal = document.getElementById('status-modal');
+                modal.innerHTML = `
+                    <div class="status-card" style="padding:40px 20px; text-align:center">
+                        <i class="fas fa-check-circle" style="font-size:65px; color:#10b981; margin-bottom:20px; display:block"></i>
+                        <h2 style="font-size:24px; font-weight:950; color:var(--p); margin:0">SUBMITTED</h2>
+                        <p style="font-size:14px; font-weight:800; color:#64748b; margin:15px 0 25px 0">CASE #${num}</p>
+                        <button class="btn-smart" onclick="closeStatusModal(); switchScreen('home')" style="width:100%">DONE</button>
+                    </div>
+                `;
+                modal.classList.add('active');
+            } catch(error) {
+                alert("Submission failed: " + error.message);
+                document.getElementById('submit-btn').innerText = "SUBMIT";
+                document.getElementById('submit-btn').disabled = false;
+            }
         }
 
         function setEnv(e) { currentEnv = e; goToPane(2); }
