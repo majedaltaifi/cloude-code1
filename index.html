@@ -710,6 +710,9 @@
         }
 
         async function openDetail(id) {
+            const activeScreenNode = document.querySelector('.screen.active');
+            const originId = (activeScreenNode && activeScreenNode.id !== 's-detail') ? activeScreenNode.id.replace('s-', '') : 'home';
+
             const r = reports.find(x => x.id === id); if(!r) return;
             const t = i18n[appLang];
             const st = String(r.status || 'open').toLowerCase();
@@ -769,8 +772,8 @@
                 </div>
 
                 <div style="margin-top:25px;">
-                    <button class="btn-secondary" onclick="switchScreen('home')" style="width:100%; margin:0; border:2px solid #e2e8f0; color:var(--p)">
-                        <i class="fas fa-arrow-left"></i> <span class="btn-back-text">BACK TO DASHBOARD</span>
+                    <button class="btn-secondary" onclick="switchScreen('${originId}')" style="width:100%; margin:0; border:2px solid #e2e8f0; color:var(--p)">
+                        <i class="fas fa-arrow-left"></i> <span>${t.back || 'BACK'}</span>
                     </button>
                 </div>
             `;
