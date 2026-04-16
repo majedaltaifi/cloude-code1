@@ -23,6 +23,14 @@
             --neon: #80d1e9;
             --glass: rgba(255,255,255,0.7);
         }
+        @media (max-width: 480px) {
+            body { display: block; height: 100vh; background: var(--bg); }
+            .phone-frame { width: 100%; height: 100vh; padding: 0; box-shadow: none; border-radius: 0; border: none; transform: none !important; margin: 0; }
+            .phone-frame::before { display: none; }
+            .app-container { border-radius: 0; }
+            #lang-screen { border-radius: 0; }
+        }
+
 
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0f172a; height:100vh; overflow:hidden; display:flex; justify-content:center; align-items:center; touch-action: manipulation; }
@@ -184,12 +192,12 @@
             <div class="screen" id="s-home">
                 <div style="padding-top: 25px;"><span class="lbl-prime" id="t-welcome">WELCOME BACK,</span><h2 id="hm-name" style="font-size: 24px; font-weight: 950; color: var(--p);">Officer</h2></div>
                 <div class="stats-grid">
-                    <div class="stat-card" onclick="switchScreen('reports')"><i class="fas fa-folder-open" style="color: #3b82f6;"></i><span class="stat-num" id="s-total">0</span><span class="stat-lbl">TOTAL</span></div>
-                    <div class="stat-card" onclick="switchScreen('reports')"><i class="fas fa-clock" style="color: #f59e0b;"></i><span class="stat-num" id="s-open">0</span><span class="stat-lbl">PENDING</span></div>
-                    <div class="stat-card" onclick="switchScreen('reports')"><i class="fas fa-check-double" style="color: #10b981;"></i><span class="stat-num" id="s-done">0</span><span class="stat-lbl">RESOLVED</span></div>
+                    <div class="stat-card" onclick="gotoReportsFilter('all')"><i class="fas fa-folder-open" style="color: #3b82f6;"></i><span class="stat-num" id="s-total">0</span><span class="stat-lbl">TOTAL</span></div>
+                    <div class="stat-card" onclick="gotoReportsFilter('pending')"><i class="fas fa-clock" style="color: #f59e0b;"></i><span class="stat-num" id="s-open">0</span><span class="stat-lbl">PENDING</span></div>
+                    <div class="stat-card" onclick="gotoReportsFilter('resolved')"><i class="fas fa-check-double" style="color: #10b981;"></i><span class="stat-num" id="s-done">0</span><span class="stat-lbl">RESOLVED</span></div>
                 </div>
-                <span class="lbl-prime" id="t-recent">RECENT INCIDENTS</span>
-                <div id="mini-l"></div>
+                <span class="lbl-prime" id="t-recent" style="display:none">RECENT INCIDENTS</span>
+                <div id="mini-l" style="margin-top:5px"></div>
             </div>
 
             <div class="screen" id="s-reports"><div style="padding-top:20px"><span class="lbl-prime" id="t-all-reports">ALL REPORTS</span><div id="full-l"></div></div></div>
@@ -240,7 +248,16 @@
                 </div>
             </div>
 
-            <div class="screen" id="s-chat-list"><div style="padding-top:20px"><span class="lbl-prime" id="t-inbox">INBOX</span><div id="inbox-l"></div></div></div>
+            <div class="screen" id="s-chat-list">
+                <div style="padding-top:25px; padding-bottom:15px; position:sticky; top:0; background:var(--bg); z-index:10">
+                    <span class="lbl-prime" id="t-inbox">INBOX MESSAGES</span>
+                    <div style="margin-top:15px; position:relative">
+                        <i class="fas fa-search" style="position:absolute; left:20px; top:18px; color:#94a3b8"></i>
+                        <input type="text" id="inbox-search" placeholder="Search case or employee..." style="width:100%; border-radius:25px; border:none; background:white; padding:17px 20px 17px 50px; box-shadow:0 4px 15px rgba(0,0,0,0.02); font-family:inherit; color:var(--p); outline:none; font-weight:700" onkeyup="filterInbox()">
+                    </div>
+                </div>
+                <div id="inbox-l"></div>
+            </div>
             
             <div class="screen" id="s-support">
                 <div style="padding-top:20px">
@@ -271,6 +288,10 @@
             </nav>
             <div class="plus-btn" id="main-plus" style="display: none;" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
             
+            <div id="podcast-btn" style="position:absolute; bottom:105px; right:20px; width:65px; height:65px; border-radius:50%; background:white; display:none; justify-content:center; align-items:center; box-shadow:0 8px 30px rgba(46,49,146,0.25); z-index:100; cursor:pointer; color:var(--p)" onclick="alert('AI Voice / Podcast Module Activated')">
+                <i class="fas fa-robot" style="font-size:28px"></i>
+                <div style="position:absolute; top:-2px; right:-2px; background:#ef4444; width:18px; height:18px; border-radius:50%; border:3px solid white"></div>
+            </div>
             <div id="status-modal" class="status-modal"><div class="status-card"><i class="fas fa-check-circle" style="font-size:50px; color:#22c55e;"></i><h2>DONE</h2><button class="btn-smart" onclick="closeStatusModal()">OK</button></div></div>
         </div>
     </div>
@@ -348,12 +369,28 @@
             document.getElementById('lang-screen').style.display='none'; applyLocalization(); initApp();
         }
 
+        function gotoReportsFilter(f) {
+            currentFilter = f;
+            renderReports();
+            switchScreen('reports');
+        }
+
+        function filterInbox() {
+            const v = document.getElementById('inbox-search').value.toLowerCase();
+            document.querySelectorAll('.inbox-item').forEach(el => {
+                el.style.display = el.getAttribute('data-search').includes(v) ? 'flex' : 'none';
+            });
+        }
+
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const target = document.getElementById('s-' + id); if(target) target.classList.add('active');
             const isPop = ['create', 'login', 'lang-screen', 'detail', 'success'].includes(id);
             document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
             document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
+            
+            const podBtn = document.getElementById('podcast-btn');
+            if(podBtn) podBtn.style.display = isPop ? 'none' : 'flex';
             
             document.querySelectorAll('.nav-item').forEach(n => {
                 n.classList.remove('active');
@@ -402,7 +439,7 @@
                 document.getElementById('s-open').innerText = open;
                 document.getElementById('s-done').innerText = reports.length - open;
 
-                const makeHtml = (list, isHome = false) => {
+                const makeHtml = (list) => {
                     let htmlList = [];
                     for(let i=0; i<list.length; i++) {
                         try {
@@ -429,35 +466,73 @@
                                          ${isDone ? (i18n[appLang]?.resolved || 'DONE') : (i18n[appLang]?.pending || 'PENDING')}
                                     </span>
                                 </div>
-                                ${isHome ? `
-                                <div style="margin-top:15px; padding-top:15px; border-top:1px dashed #e2e8f0; display:flex; justify-content:space-between; align-items:center">
-                                    <div style="height:4px; flex:1; background:#10b981; border-radius:2px; margin-right:5px"></div>
-                                    <div style="height:4px; flex:1; background:${isDone?'#10b981':'#10b981'}; border-radius:2px; margin-right:5px; opacity:${isDone?1:0.3}"></div>
-                                    <div style="height:4px; flex:1; background:${isDone?'#10b981':'#e2e8f0'}; border-radius:2px"></div>
-                                </div>` : ''}
                             </div>`);
                         } catch(err) { console.error("Card skip:", err); }
                     }
                     return htmlList.join('');
                 };
 
-                const fullHtml = makeHtml(sorted, false);
-                f.innerHTML = fullHtml || '<p style="text-align:center; opacity:0.3; padding:40px">No reports found.</p>';
-                m.innerHTML = makeHtml(sorted.slice(0, 3), true);
+                const filteredReports = sorted.filter(r => {
+                    const st = window.String(r.status || 'open').toLowerCase();
+                    const isDone = st === 'done' || st === 'resolved' || st === 'تم الإنجاز';
+                    if(currentFilter === 'pending') return !isDone;
+                    if(currentFilter === 'resolved') return isDone;
+                    return true;
+                });
+
+                const fullHtml = makeHtml(filteredReports);
+                f.innerHTML = fullHtml || '<p style="text-align:center; opacity:0.3; padding:40px; font-weight:800">No reports found.</p>';
+                
+                const homeItems = sorted.slice(0, 3);
+                if(m) {
+                    m.innerHTML = homeItems.length ? `
+                        <div style="background:white; border-radius:25px; padding:25px 20px 15px; border:2px solid transparent; box-shadow:0 4px 30px rgba(46,49,146,0.03)">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px">
+                                <b style="color:var(--p); font-size:15px; font-weight:950"><i class="fas fa-exchange-alt" style="margin-right:10px; color:#3b82f6; background:rgba(59,130,246,0.1); padding:8px; border-radius:8px"></i>My Recent Transactions</b>
+                            </div>
+                            <div style="position:relative; margin-left:14px">
+                                <div style="position:absolute; top:8px; bottom:25px; left:4px; width:2px; background:#e2e8f0; z-index:0"></div>
+                                ` + homeItems.map(r => {
+                                    const st = window.String(r.status || 'open').toLowerCase();
+                                    const isDone = st === 'done' || st === 'resolved' || st === 'تم الإنجاز';
+                                    const cNo = r.case_num || (r.id ? window.String(r.id).substring(0,5).toUpperCase() : '---');
+                                    const typeStr = window.String(r.type || 'Report');
+                                    return `
+                                    <div style="position:relative; padding-left:30px; margin-bottom:30px; z-index:1; cursor:pointer" onclick="openDetail('${r.id}')">
+                                        <div style="position:absolute; left:0; top:4px; width:10px; height:10px; border-radius:50%; background:${isDone?'#94a3b8':'#f59e0b'}; border:2px solid ${isDone?'#e2e8f0':'#fef3c7'}; box-shadow:0 0 0 1px ${isDone?'#cbd5e1':'#f59e0b'}"></div>
+                                        <div style="display:flex; justify-content:space-between; align-items:flex-start">
+                                            <div>
+                                                <b style="font-size:14px; color:var(--p); display:block; font-weight:900">${typeStr} Request</b>
+                                                <span style="font-size:10px; font-weight:700; color:#64748b; display:block; margin-top:4px; opacity:0.8">${new Date(r.timestamp||Date.now()).toLocaleDateString([],{day:'2-digit',month:'2-digit',year:'numeric'})} &bull; CASE #${cNo}</span>
+                                            </div>
+                                            <span style="padding:5px 12px; background:${isDone?'#f1f5f9':'#fef3c7'}; color:${isDone?'#64748b':'#d97706'}; font-size:10px; font-weight:900; border-radius:8px">
+                                                ${isDone ? (i18n[appLang]?.resolved || 'DONE') : (i18n[appLang]?.pending || 'PENDING')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    `;
+                                }).join('') + `
+                            </div>
+                        </div>
+                    ` : '<p style="text-align:center; opacity:0.3; font-weight:800; font-size:12px; margin-top:30px">No recent Activity</p>';
+                }
 
                 const inboxL = document.getElementById('inbox-l');
                 if(inboxL) {
                     const activeChats = sorted.filter(r => window.String(r.status||'open').toLowerCase() !== 'done' && window.String(r.status||'open').toLowerCase() !== 'resolved' && window.String(r.status||'open').toLowerCase() !== 'تم الإنجاز');
                     inboxL.innerHTML = activeChats.length ? activeChats.map(r => `
-                        <div style="display:flex; align-items:center; padding:15px; background:white; border-radius:20px; margin-bottom:12px; border:1px solid #f1f5f9; box-shadow:0 2px 10px rgba(0,0,0,0.01)" onclick="openDetail('${r.id}')">
-                            <div style="width:45px; height:45px; border-radius:50%; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; margin-right:15px">
-                                <i class="fas fa-headset" style="font-size:18px; color:var(--p)"></i>
+                        <div class="inbox-item" data-search="${window.String(r.case_num||'').toLowerCase()} ${window.String(r.type||'').toLowerCase()} ${window.String(r.emp_no||'').toLowerCase()}" style="display:flex; align-items:center; padding:15px; background:white; border-radius:20px; margin-bottom:12px; border:1px solid #f1f5f9; box-shadow:0 2px 10px rgba(0,0,0,0.01); cursor:pointer" onclick="openDetail('${r.id}')">
+                            <div style="position:relative; margin-right:15px">
+                                <img src="https://ui-avatars.com/api/?name=${r.emp_no||'Emp'}&background=e2e8f0&color=2e3192&font-size=0.33" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid transparent">
+                                <div style="position:absolute; bottom:0; right:0; width:12px; height:12px; border-radius:50%; background:#10b981; border:2px solid white"></div>
                             </div>
-                            <div style="flex:1">
-                                <b style="font-size:14px; font-weight:900; color:var(--p); display:block; margin-bottom:3px">IT Support - Case #${r.case_num || window.String(r.id).substring(0,5).toUpperCase()}</b>
-                                <span style="font-size:11px; font-weight:700; color:#64748b;">${window.String(r.type||'Report')} Active Request</span>
+                            <div style="flex:1; overflow:hidden">
+                                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px">
+                                    <b style="font-size:14px; font-weight:950; color:var(--p)">Emp. ${r.emp_no || 'Unknown'}</b>
+                                    <span style="font-size:10px; font-weight:800; color:#94a3b8">${new Date(r.timestamp||Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                </div>
+                                <span style="font-size:12px; font-weight:700; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block">Appealing Case #${r.case_num || '---'} (${window.String(r.type||'Issue')})</span>
                             </div>
-                            <div style="width:10px; height:10px; border-radius:50%; background:#10b981; border:2px solid white"></div>
                         </div>
                     `).join('') : '<div style="text-align:center; padding:50px; color:#94a3b8"><i class="fas fa-inbox" style="font-size:45px; margin-bottom:15px; opacity:0.5"></i><p style="font-weight:800; font-size:14px">NO ACTIVE MESSAGES</p></div>';
                 }
