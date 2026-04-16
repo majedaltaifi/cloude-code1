@@ -91,7 +91,14 @@
 
         .plus-btn { position:absolute; bottom:45px; left:50%; transform:translateX(-50%); width:68px; height:68px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:28px; border:5px solid white; box-shadow:0 10px 25px rgba(46,49,146,0.3); z-index:400; }
 
-        .glass-login { background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 40px; padding: 40px 30px; width: 100%; box-shadow: 0 40px 100px rgba(0,0,0,0.3); }
+        /* Interactive Card Overrides */
+        .case-main-card { cursor: pointer !important; position: relative; z-index: 10; overflow: hidden; background: white; border-radius: 32px; padding: 22px; margin-bottom: 15px; border: 1px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: transform 0.2s; }
+        .case-main-card:active { transform: scale(0.96); background: #f1f5f9; }
+        .case-main-card * { pointer-events: none; } /* Force click to bubble to parent */
+        
+        .stat-card { cursor: pointer !important; transition: transform 0.2s; }
+        .stat-card:active { transform: scale(0.9); background: #f1f5f9; }
+        .stat-card * { pointer-events: none; }
         .login-input { background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 22px; padding: 20px; width: 100%; color: white; font-weight: 700; margin-bottom: 20px; outline: none; transition: 0.3s; }
         .login-input::placeholder { color: rgba(255,255,255,0.6); }
 
@@ -329,17 +336,24 @@
             document.getElementById('s-open').innerText = open;
             document.getElementById('s-done').innerText = reports.length - open;
             let html = reports.map(r => {
-                const cNo = r.case_num || r.id || '---';
+                const cNo = r.case_num || (r.id ? r.id.substring(0,5).toUpperCase() : '---');
                 const st = (r.status || 'open').toLowerCase();
                 const isDone = st === 'done' || st === 'resolved' || st === 'تم الإنجاز';
                 return `
                 <div class="case-main-card" onclick="openDetail('${r.id}')">
-                    <div style="display:flex; justify-content:space-between; align-items:center; pointer-events:none">
+                    <div style="display:flex; justify-content:space-between; align-items:center">
                         <div style="display:flex; align-items:center; gap:12px">
-                            <i class="fas ${r.type && r.type.toLowerCase().includes('safety')?'fa-shield-alt':'fa-tools'}" style="color:var(--p)"></i>
-                            <div><b>CASE #${cNo}</b><p style="font-size:10px; opacity:0.6">${r.type || 'Field Report'}</p></div>
+                            <div style="width:35px; height:35px; border-radius:10px; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; color:var(--p)">
+                                <i class="fas ${r.type && r.type.toLowerCase().includes('safety') ? 'fa-shield-alt' : 'fa-tools'}"></i>
+                            </div>
+                            <div>
+                                <b style="font-size:13px; color:var(--p)">CASE #${cNo}</b>
+                                <p style="font-size:10px; opacity:0.6">${r.type || 'Standard'}</p>
+                            </div>
                         </div>
-                        <span class="status-pill" style="background:${isDone?'#dcfce7':'#fef3c7'}; color:${isDone?'#16a34a':'#d97706'}">${isDone?i18n[appLang].resolved:i18n[appLang].pending}</span>
+                        <span class="status-pill" style="background:${isDone?'#dcfce7':'#fef3c7'}; color:${isDone?'#16a34a':'#d97706'}">
+                            ${isDone ? i18n[appLang].resolved : i18n[appLang].pending}
+                        </span>
                     </div>
                 </div>`;
             }).join('');
