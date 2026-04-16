@@ -292,7 +292,7 @@
             </div>
 
             <div class="screen" id="s-reports">
-                <div style="padding-top:20px"><span class="lbl-prime">ALL REPORTS / بلاغاتي</span><div id="full-l"></div></div>
+                <div style="padding-top:20px"><span class="lbl-prime" id="t-all-reports">ALL REPORTS</span><div id="full-l"></div></div>
             </div>
 
             <div class="screen" id="s-create">
@@ -312,23 +312,23 @@
                         <div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div>
                         <div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div>
                     </div>
-                    <button class="btn-secondary" onclick="goToPane(1)">BACK / رجوع</button>
+                    <button class="btn-secondary" onclick="goToPane(1)"><span class="btn-back-text">BACK</span></button>
                 </div>
                 <div id="pane-3" class="creation-pane" style="display:none">
                     <span class="lbl-prime" id="t-step-3">AREA</span>
                     <div id="branch-list" style="margin-bottom:20px"></div>
-                    <button class="btn-secondary" onclick="goToPane(2)">BACK / رجوع</button>
+                    <button class="btn-secondary" onclick="goToPane(2)"><span class="btn-back-text">BACK</span></button>
                 </div>
                 <div id="pane-4" class="creation-pane" style="display:none">
                     <span class="lbl-prime" id="t-step-4">DETAILS</span>
                     <textarea id="case-desc" placeholder="..." style="width: 100%; border-radius:20px; border:1px solid #ddd; padding:15px; min-height:100px; margin-bottom:20px; font-weight:700"></textarea>
-                    <button class="btn-smart" id="submit-btn" onclick="submitReport()">SUBMIT REPORT</button>
-                    <button class="btn-secondary" onclick="goToPane(3)">BACK</button>
+                    <button class="btn-smart" id="submit-btn" onclick="submitReport()">SUBMIT</button>
+                    <button class="btn-secondary" onclick="goToPane(3)"><span class="btn-back-text">BACK</span></button>
                 </div>
             </div>
 
             <div class="screen" id="s-chat-list">
-                <div style="padding-top:20px"><span class="lbl-prime">INBOX / البريد</span><div id="chat-report-list"></div></div>
+                <div style="padding-top:20px"><span class="lbl-prime" id="t-inbox">INBOX</span><div id="chat-report-list"></div></div>
             </div>
 
             <div class="screen" id="s-support">
@@ -361,7 +361,7 @@
             </div>
 
             <div class="screen" id="s-notifs">
-                <div style="padding-top:20px"><span class="lbl-prime">NOTIFICATIONS / التنبيهات</span><div id="notif-list"></div></div>
+                <div style="padding-top:20px"><span class="lbl-prime" id="t-notifs">NOTIFICATIONS</span><div id="notif-list"></div></div>
             </div>
 
             <div class="screen" id="s-detail">
@@ -396,9 +396,36 @@
         let currentEnv = null, currentType = null, currentBranch = null, currentSubType = '';
 
         const i18n = {
-            en: { wizard: "SUBMIT REPORT", step1: "WHERE?", step2: "CATEGORY", step3: "AREA", step4: "DETAILS", site: "Site", housing: "Housing", safety: "Safety", service: "Service", back: "BACK", submit: "SUBMIT", loginTitle: "NIT INTEL", loginSub: "SECURE ACCESS", nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP", drHome: "HOME", drReports: "MY REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "SIGN OUT" },
-            ar: { wizard: "إرسال بلاغ", step1: "أين؟", step2: "التصنيف", step3: "المنطقة", step4: "التفاصيل", site: "الموقع", housing: "السكن", safety: "سلامة", service: "خدمة", back: "رجوع", submit: "إرسال", loginTitle: "NIT الميدانية", loginSub: "دخول آمن", nbHome: "الرئيسية", nbReports: "بلاغاتي", nbInbox: "الرسائل", nbHelp: "دعم", drHome: "الرئيسية", drReports: "بلاغاتي", drMessages: "رسائلي", drSupport: "فني", drLogout: "خروج" },
-            ur: { wizard: "رپورٹ بھیجیں", step1: "کہاں؟", step2: "قسم", step3: "علاقہ", step4: "تفصیل", site: "سائٹ", housing: "رہائش", safety: "حفاظت", service: "سروس", back: "پیچھے", submit: "جمع کریں", loginTitle: "NIT انٹیل", loginSub: "محفوظ رسائی", nbHome: "ہوم", nbReports: "رپورٹس", nbInbox: "پیغامات", nbHelp: "مدد", drHome: "ہوم", drReports: "میری رپورٹس", drMessages: "پیغامات", drSupport: "مدد", drLogout: "لاگ آؤٹ" }
+            en: { 
+                wizard: "SUBMIT REPORT", step1: "WHERE?", step2: "CATEGORY", step3: "AREA", step4: "DETAILS", 
+                site: "Site", siteD: "Field Operations", housing: "Housing", housingD: "Living Area", 
+                safety: "Safety", service: "Service", back: "BACK", submit: "SUBMIT", 
+                loginTitle: "NIT INTEL HUB", loginSub: "SECURE ACCESS AREA", loginErr: "ACCESS DENIED",
+                nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP", 
+                drHome: "HOME", drReports: "MY REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "SIGN OUT",
+                news: "ACTIVE BROADCASTS", recent: "RECENT INCIDENTS", inboxTitle: "INBOX", helpTitle: "TECH SUPPORT",
+                allReports: "ALL REPORTS", notifTitle: "NOTIFICATIONS", send: "SEND REQUEST"
+            },
+            ar: { 
+                wizard: "إرسال بلاغ", step1: "أين المشكلة؟", step2: "التصنيف", step3: "المنطقة", step4: "التفاصيل", 
+                site: "الموقع", siteD: "العمليات الميدانية", housing: "السكن", housingD: "منطقة المعيشة", 
+                safety: "سلامة", service: "خدمة", back: "رجوع", submit: "إرسال", 
+                loginTitle: "NIT الميدانية", loginSub: "دخول آمن للموظف", loginErr: "بيانات الدخول غير صحيحة",
+                nbHome: "الرئيسية", nbReports: "بلاغاتي", nbInbox: "الرسائل", nbHelp: "دعم", 
+                drHome: "الرئيسية", drReports: "قائمة بلاغاتي", drMessages: "رسائلي", drSupport: "فني", drLogout: "خروج",
+                news: "التعميمات النشطة", recent: "آخر البلاغات", inboxTitle: "بريد الرسائل", helpTitle: "الدعم الفني",
+                allReports: "كل البلاغات", notifTitle: "التنبيهات", send: "إرسال الطلب"
+            },
+            ur: { 
+                wizard: "رپورٹ جمع کریں", step1: "کہاں؟", step2: "قسم", step3: "علاقہ", step4: "تفصیل", 
+                site: "سائٹ", siteD: "فیلڈ آپریشنز", housing: "رہائش", housingD: "رہائشی علاقہ", 
+                safety: "حفاظت", service: "سروس", back: "پیچھے", submit: "جمع کریں", 
+                loginTitle: "NIT انٹیل", loginSub: "محفوظ رسائی", loginErr: "رسائی مسترد کر دی گئی",
+                nbHome: "ہوم", nbReports: "رپورٹس", nbInbox: "پیغامات", nbHelp: "مدد", 
+                drHome: "ہوم", drReports: "میری رپورٹس", drMessages: "پیغامات", drSupport: "مدد", drLogout: "لاگ آؤٹ",
+                news: "براہ راست خبریں", recent: "حالیہ واقعات", inboxTitle: "ان باکس", helpTitle: "ٹیکنیکل سپورٹ",
+                allReports: "تمام رپورٹس", notifTitle: "اطلاعات", send: "درخواست بھیجیں"
+            }
         };
 
         const treeLocalized = {
@@ -418,15 +445,31 @@
             
             set('wizard-title', t.wizard);
             set('t-login-title', t.loginTitle);
+            set('t-login-sub', t.loginSub);
+            set('login-err', t.loginErr);
+            set('t-signin-btn', t.submit);
+            
             set('nb-home', t.nbHome);
             set('nb-reports', t.nbReports);
             set('nb-inbox', t.nbInbox);
             set('nb-help', t.nbHelp);
+            
             set('dr-home', t.drHome);
             set('dr-reports', t.drReports);
             set('dr-messages', t.drMessages);
             set('dr-support', t.drSupport);
             set('dr-logout', t.drLogout);
+
+            set('t-step-1', t.step1); set('t-step-2', t.step2); set('t-step-3', t.step3); set('t-step-4', t.step4);
+            set('t-site', t.site); set('t-site-desc', t.siteD);
+            set('t-housing', t.housing); set('t-housing-desc', t.housingD);
+            set('t-safety', t.safety); set('t-service', t.service);
+            set('t-news', t.news); set('t-recent', t.recent);
+            set('t-all-reports', t.allReports); set('t-inbox', t.inboxTitle);
+            set('t-notifs', t.notifTitle); set('t-help-title', t.helpTitle);
+            set('t-send-ticket', t.send); set('submit-btn', t.submit);
+            
+            document.querySelectorAll('.btn-back-text').forEach(el => el.innerText = t.back);
         }
 
         function selectLanguage(l) {
