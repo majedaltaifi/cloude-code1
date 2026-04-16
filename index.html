@@ -102,14 +102,13 @@
         .drawer-menu-item { padding: 18px; border-radius: 18px; display: flex; align-items: center; gap: 15px; font-weight: 850; color: var(--p); cursor: pointer; transition: 0.3s; font-size: 13px; }
 
         .status-modal { position: absolute; inset: 0; background: rgba(15,23,42,0.8); backdrop-filter: blur(8px); z-index: 6000; display: none; align-items: center; justify-content: center; padding: 30px; }
-        .status-modal.active { display: flex; }
-        .status-card { background: white; width: 100%; border-radius: 40px; padding: 40px 30px; text-align: center; }
-
-        .case-main-card { background: white; padding: 22px; border-radius: 32px; margin-bottom: 15px; border: 1px solid #f1f5f9; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 950; text-transform: uppercase; }
+        .case-main-card { background: white; padding: 22px; border-radius: 32px; margin-bottom: 15px; border: 1px solid #f1f5f9; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
+        .case-main-card:active { transform: scale(0.97); background: #f8fafc; }
+        .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 950; text-transform: uppercase; pointer-events: none; }
         
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 25px 0; }
-        .stat-card { background: white; padding: 18px 12px; border-radius: 28px; text-align: center; border: 1.5px solid #f8fafc; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .stat-card { background: white; padding: 18px 12px; border-radius: 28px; text-align: center; border: 1.5px solid #f8fafc; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; transition: 0.3s; }
+        .stat-card:active { transform: scale(0.92); background: #f1f5f9; }
         .stat-num { font-size: 18px; font-weight: 950; color: var(--p); display: block; }
         .stat-lbl { font-size: 8px; font-weight: 850; color: #94a3b8; text-transform: uppercase; margin-top: 4px; display: block; }
         .lbl-prime { font-size: 10px; font-weight: 950; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; display: block; }
@@ -178,9 +177,9 @@
             <div class="screen" id="s-home">
                 <div style="padding-top: 25px;"><span class="lbl-prime" id="t-welcome">WELCOME BACK,</span><h2 id="hm-name" style="font-size: 24px; font-weight: 950; color: var(--p);">Officer</h2></div>
                 <div class="stats-grid">
-                    <div class="stat-card"><i class="fas fa-folder-open" style="color: #3b82f6;"></i><span class="stat-num" id="s-total">0</span><span class="stat-lbl">TOTAL</span></div>
-                    <div class="stat-card"><i class="fas fa-clock" style="color: #f59e0b;"></i><span class="stat-num" id="s-open">0</span><span class="stat-lbl">PENDING</span></div>
-                    <div class="stat-card"><i class="fas fa-check-double" style="color: #10b981;"></i><span class="stat-num" id="s-done">0</span><span class="stat-lbl">RESOLVED</span></div>
+                    <div class="stat-card" onclick="switchScreen('reports')"><i class="fas fa-folder-open" style="color: #3b82f6;"></i><span class="stat-num" id="s-total">0</span><span class="stat-lbl">TOTAL</span></div>
+                    <div class="stat-card" onclick="switchScreen('reports')"><i class="fas fa-clock" style="color: #f59e0b;"></i><span class="stat-num" id="s-open">0</span><span class="stat-lbl">PENDING</span></div>
+                    <div class="stat-card" onclick="switchScreen('reports')"><i class="fas fa-check-double" style="color: #10b981;"></i><span class="stat-num" id="s-done">0</span><span class="stat-lbl">RESOLVED</span></div>
                 </div>
                 <span class="lbl-prime" id="t-recent">RECENT INCIDENTS</span>
                 <div id="mini-l"></div>
@@ -329,16 +328,21 @@
             document.getElementById('s-total').innerText = reports.length;
             document.getElementById('s-open').innerText = open;
             document.getElementById('s-done').innerText = reports.length - open;
-            let html = reports.map(r => `
+            let html = reports.map(r => {
+                const cNo = r.case_num || r.id || '---';
+                const st = (r.status || 'open').toLowerCase();
+                const isDone = st === 'done' || st === 'resolved' || st === 'تم الإنجاز';
+                return `
                 <div class="case-main-card" onclick="openDetail('${r.id}')">
-                    <div style="display:flex; justify-content:space-between; align-items:center">
+                    <div style="display:flex; justify-content:space-between; align-items:center; pointer-events:none">
                         <div style="display:flex; align-items:center; gap:12px">
-                            <i class="fas ${r.type.toLowerCase().includes('safety')?'fa-shield-alt':'fa-tools'}" style="color:var(--p)"></i>
-                            <div><b>CASE #${r.case_num}</b><p style="font-size:10px; opacity:0.6">${r.type}</p></div>
+                            <i class="fas ${r.type && r.type.toLowerCase().includes('safety')?'fa-shield-alt':'fa-tools'}" style="color:var(--p)"></i>
+                            <div><b>CASE #${cNo}</b><p style="font-size:10px; opacity:0.6">${r.type || 'Field Report'}</p></div>
                         </div>
-                        <span class="status-pill" style="background:${r.status==='done'?'#dcfce7':'#fef3c7'}">${r.status==='done'?i18n[appLang].resolved:i18n[appLang].pending}</span>
+                        <span class="status-pill" style="background:${isDone?'#dcfce7':'#fef3c7'}; color:${isDone?'#16a34a':'#d97706'}">${isDone?i18n[appLang].resolved:i18n[appLang].pending}</span>
                     </div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
             f.innerHTML = html || 'No Reports'; m.innerHTML = html;
         }
 
