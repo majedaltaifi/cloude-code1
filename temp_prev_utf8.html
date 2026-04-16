@@ -1,0 +1,1232 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NIT Field App v2 | Prime Edition</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+
+        :root {
+            --primary: #0f172a;
+            --accent: #38bdf8;
+            --bg: #f8fafc;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:#cbd5e1; height:100vh; overflow:hidden; display:flex; justify-content:center; align-items:center; }
+        .phone-frame { width:380px; height:820px; background:#000; border-radius:55px; position:relative; padding:12px; border:8px solid #334155; }
+        .phone-frame::before { content:''; position:absolute; top:25px; left:50%; transform:translateX(-50%); width:120px; height:30px; background:#000; border-radius:20px; z-index:1000; }
+        .app-container { width:100%; height:100%; background:#f8fafc; border-radius:45px; overflow:hidden; display:flex; flex-direction:column; position:relative; }
+        .screen { display:none; flex:1; flex-direction:column; padding:0 20px; overflow-y:auto; padding-bottom:140px; }
+        .screen.active { display:flex; }
+
+        .header { background:var(--primary); padding:55px 25px 25px; display:flex; justify-content:space-between; align-items:center; color:white; margin:0 -20px 20px -20px; }
+        .header h1 { font-size:18px; font-weight:900; letter-spacing:2px; }
+        .lbl-prime { font-size:10px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px; display:block; }
+
+        .profile-card { background:white; padding:22px 25px; border-radius:35px; display:flex; align-items:center; box-shadow:0 8px 30px rgba(0,0,0,0.02); border-left:6px solid var(--accent); margin-bottom:25px; }
+        .profile-card h2 { font-size:20px; font-weight:900; color:#1e293b; }
+        .profile-card p { font-size:11px; font-weight:700; color:var(--accent); margin-top:3px; }
+
+        .broadcast-card { background:#1e293b; padding:25px 30px; border-radius:40px; color:white; margin-bottom:30px; }
+        .broadcast-item { display:flex; align-items:center; gap:18px; margin-bottom:20px; }
+        .broadcast-icon { width:42px; height:42px; background:rgba(255,255,255,0.05); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--accent); border:1px solid rgba(255,255,255,0.1); }
+        .broadcast-item p { font-size:14px; font-weight:700; color:var(--accent); margin-top:1px; }
+        .broadcast-item span { font-size:9px; font-weight:900; opacity:0.5; text-transform:uppercase; display:block; margin-bottom:2px; }
+
+        /* RECENT CASES SECTION */
+        .recent-section { margin-bottom:30px; }
+        .recent-section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .recent-section-header h3 { font-size:12px; font-weight:900; color:#94a3b8; letter-spacing:1px; }
+        .recent-section-header a { font-size:12px; font-weight:900; color:var(--accent); text-decoration:none; display:flex; align-items:center; gap:4px; }
+
+        .case-group { margin-bottom:40px; }
+        .stat-card-main { background: var(--primary); color: white; padding: 30px; border-radius: 35px; box-shadow: 0 15px 45px rgba(13,17,69,0.25); margin-bottom: 20px; text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
+        .stat-card-main:active { transform: scale(0.95); }
+        .stat-card-main.active { border-color: var(--accent); box-shadow: 0 0 25px rgba(56,189,248,0.3); }
+
+        .stat-box { background: white; padding: 25px; border-radius: 28px; border: 1.5px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.02); cursor: pointer; transition: 0.3s; text-align: center; }
+        .stat-box:active { transform: scale(0.95); background: #f8fafc; }
+        .stat-box.active { border-color: var(--accent); background: #f0fbff; box-shadow: 0 8px 25px rgba(56,189,248,0.1); }
+        .stat-box .num { font-size: 32px; font-weight: 950; margin-top: 5px; }
+
+        .case-main-card { background:white; padding:25px; border-radius:35px; box-shadow:0 8px 25px rgba(0,0,0,0.02); margin-bottom:20px; position:relative; }
+        .case-main-card .type { font-size:18px; font-weight:900; color:var(--accent); text-transform:uppercase; margin-bottom:5px; }
+        .case-main-card .desc { font-size:14px; font-weight:900; color:#1e293b; opacity:0.8; }
+        .case-main-card .id { font-size:11px; font-weight:900; color:#cbd5e1; margin-top:10px; }
+        .case-main-card .status-tag { position:absolute; right:25px; top:40%; transform:translateY(-50%); font-size:10px; font-weight:900; color:#94a3b8; }
+
+        .case-log-list { padding-left:20px; margin-left:15px; border-left:1.5px solid #f1f5f9; }
+        .log-item { position:relative; padding-bottom:25px; padding-left:20px; }
+        .log-dot { position:absolute; left:-26.5px; top:4px; width:11px; height:11px; border-radius:50%; border:2px solid white; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+        .log-txt { font-size:14px; font-weight:900; color:#1e293b; }
+        .log-meta { font-size:10px; font-weight:900; color:#cbd5e1; margin-top:3px; }
+
+
+        .navbar { position:absolute; bottom:0; left:0; width:100%; height:100px; background:white; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-around; padding-bottom:20px; z-index:200; }
+        .nav-item { display:flex; flex-direction:column; align-items:center; color:#cbd5e1; flex:1; cursor:pointer; gap:4px; }
+        .nav-item.active { color:var(--primary); }
+        .nav-item i { font-size:22px; }
+        .nav-item span { font-size:9px; font-weight:900; text-transform:uppercase; }
+
+        .plus-btn { position:absolute; bottom:55px; left:50%; transform:translateX(-50%); width:74px; height:74px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:32px; border:6px solid white; box-shadow:0 15px 35px rgba(56,189,248,0.4); cursor:pointer; z-index:400; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .plus-btn:active { transform: translateX(-50%) scale(0.9); }
+
+        .wa-btn { position:absolute; bottom:120px; right:25px; width:52px; height:52px; background:#22c55e; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:26px; box-shadow:0 10px 25px rgba(34, 197, 94, 0.3); border:4px solid white; cursor:pointer; z-index:1000; animation: pulse-wa 2s infinite; }
+        @keyframes pulse-wa { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+
+        .drawer { position:absolute; top:0; left:0; width:280px; height:100%; background:var(--primary); z-index:5000; padding:60px 25px; transition:0.4s ease; color:white; transform:translateX(-100%); box-shadow: 20px 0 50px rgba(0,0,0,0.3); }
+        .drawer.active { transform:translateX(0); }
+        .drawer-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); opacity:0; visibility:hidden; transition:0.3s; z-index:4000; backdrop-filter:blur(3px); }
+        .drawer-overlay.active { opacity:1; visibility:visible; }
+        .drawer-item { display:flex; align-items:center; justify-content:space-between; padding:20px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; }
+        .drawer-icon { width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--accent); }
+
+
+        .type-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px; }
+        .type-box { background:white; padding:25px; border-radius:30px; display:flex; flex-direction:column; align-items:center; gap:12px; box-shadow:0 8px 30px rgba(0,0,0,0.02); transition:0.3s; border:2.5px solid transparent; cursor:pointer; }
+        .type-box.active { border-color:var(--accent); color:var(--accent); }
+        .type-box i { font-size:32px; color:#cbd5e1; transition:0.3s; }
+        .type-box.active i { color:var(--accent); }
+        .type-box span { font-weight:900; font-size:14px; }
+
+        .sub-type-grid { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:25px; }
+        .sub-type-item { background:white; padding:12px 20px; border-radius:15px; font-size:13px; font-weight:900; color:#1e293b; box-shadow:0 5px 15px rgba(0,0,0,0.02); cursor:pointer; transition:0.3s; }
+        .sub-type-item.active { background:var(--accent); color:white; }
+
+        .write-box { background:white; padding:25px; border-radius:35px; box-shadow:0 8px 30px rgba(0,0,0,0.02); margin-bottom:25px; }
+        .write-box textarea { width:100%; border:none; outline:none; font-weight:700; font-size:16px; min-height:100px; resize:none; color:var(--primary); }
+        .write-box textarea::placeholder { color:#cbd5e1; }
+
+        .site-box { background:white; padding:18px 25px; border-radius:25px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 8px 30px rgba(0,0,0,0.02); margin-bottom:30px; }
+        .site-box select { border:none; outline:none; font-weight:900; font-size:15px; color:var(--primary); background:transparent; appearance:none; width:100%; }
+
+
+        /* CHAT SCREEN */
+        .chat-container { flex:1; overflow-y:auto; padding:30px 20px; display:flex; flex-direction:column; gap:25px; background:#f8fafc; }
+        .chat-msg-row { display: flex; align-items: flex-end; gap: 12px; max-width: 85%; }
+        .chat-msg-row.me { align-self: flex-end; flex-direction: row-reverse; }
+        .chat-msg-row.them { align-self: flex-start; }
+
+        .chat-avatar-mini { width: 35px; height: 35px; border-radius: 12px; background: white; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: #94a3b8; border: 1px solid #f1f5f9; flex-shrink: 0; }
+        .chat-avatar-mini.admin { background: var(--primary); color: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
+
+        .chat-bubble { position:relative; padding:15px 20px; border-radius:22px; font-size:14px; font-weight:700; line-height:1.5; box-shadow:0 5px 15px rgba(0,0,0,0.02); }
+        .chat-bubble.me { background:var(--accent); color:white; border-bottom-right-radius:2px; }
+        .chat-bubble.them { background:white; color:var(--primary); border-bottom-left-radius:2px; }
+        .chat-bubble.admin { background: var(--primary); color: white; border: 1.5px solid var(--accent); box-shadow: 0 0 20px rgba(56, 189, 248, 0.25); }
+
+        .chat-bubble::before { content:attr(data-author); position:absolute; top:-18px; font-size:9px; font-weight:950; color:#94a3b8; letter-spacing:1px; white-space: nowrap; }
+        .chat-bubble.me::before { right:5px; }
+        .chat-bubble.them::before { left:5px; }
+        .chat-bubble.admin::before { color: var(--accent); font-weight: 950; }
+
+        .chat-input-hub { background:white; padding:15px 25px 40px; border-top:1px solid #f1f5f9; display:flex; align-items:center; gap:12px; }
+        .chat-input-pill { flex:1; background:#f8fafc; border-radius:30px; padding:18px 25px; border:1px solid #f1f5f9; outline:none; font-weight:700; font-size:15px; }
+        .chat-input-pill::placeholder { color:#cbd5e1; }
+        .send-dot { width:56px; height:56px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:20px; cursor:pointer; box-shadow:0 8px 20px rgba(15,23,42,0.2); flex-shrink: 0; }
+
+        .btn-p { width:100%; background:var(--primary); color:white; padding:24px; border-radius:28px; border:none; font-weight:900; letter-spacing:1px; cursor:pointer; transition:0.3s; }
+        .btn-p:active { transform:scale(0.96); }
+
+
+        .header i { cursor:pointer; transition:0.2s; }
+        .header i:active { transform:scale(0.85); opacity:0.6; }
+
+
+        /* CHAT HUB */
+        .search-box { background:rgba(148,163,184,0.05); padding:16px 22px; border-radius:30px; display:flex; align-items:center; gap:12px; margin-bottom:25px; border:1px solid #f1f5f9; transition: 0.3s; }
+        .search-box:focus-within { border-color: var(--primary); background: white; box-shadow: 0 10px 25px rgba(15,23,42,0.05); }
+        .search-box i { color: #94a3b8; }
+        .search-box input { border:none; outline:none; background:transparent; font-weight:700; font-size:14px; width:100%; color:var(--primary); }
+        .search-box input::placeholder { color:#cbd5e1; }
+
+        .horizontal-picker { display:flex; gap:18px; overflow-x:auto; padding:10px 5px 25px; margin-bottom:10px; scrollbar-width:none; }
+        .horizontal-picker::-webkit-scrollbar { display:none; }
+        .picker-item { display:flex; flex-direction:column; align-items:center; gap:8px; min-width:75px; cursor: pointer; transition: 0.2s; }
+        .picker-item:active { transform: scale(0.9); }
+        .picker-avatar { width:60px; height:60px; background:white; border-radius:22px; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 15px rgba(0,0,0,0.03); border:1px solid #f1f5f9; color:var(--primary); font-size:22px; }
+        .picker-avatar.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .picker-item span { font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing: 0.5px; }
+
+        .chat-row { background:white; padding:18px 22px; border-radius:30px; display:flex; align-items:center; gap:15px; margin-bottom:12px; box-shadow:0 4px 15px rgba(0,0,0,0.02); cursor:pointer; transition: 0.3s; border: 1.5px solid transparent; }
+        .chat-row.active { background:#f0f9ff; border-color: #bae6fd; }
+        .chat-row.found-match { background: #f0fdf4; border-color: #bbf7d0; box-shadow: 0 0 20px rgba(34, 197, 94, 0.1); }
+        .chat-avatar { width:52px; height:52px; background:#f1f5f9; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:20px; flex-shrink: 0; }
+        .chat-avatar.admin { background: #0f172a; color: var(--accent); }
+        .chat-info { flex:1; min-width:0; }
+        .chat-name-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+        .chat-name-meta h4 { font-size:15px; font-weight:900; color:var(--primary); margin:0; }
+        .chat-name-meta span { font-size:10px; font-weight:700; color:#cbd5e1; }
+        .chat-msg-prev { font-size:12px; color:#64748b; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .badge-new { background: #22c55e; color: white; padding: 2px 8px; border-radius: 10px; font-size: 8px; font-weight: 950; text-transform: uppercase; margin-left: 8px; }
+        /* LOGIN PREMIUM DESIGN */
+        .login-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); position: relative; overflow: hidden; }
+        .login-bg::after { content: ''; position: absolute; width: 350px; height: 350px; background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(56,189,248,0) 70%); top: -100px; right: -100px; border-radius: 50%; }
+        .login-bg::before { content: ''; position: absolute; width: 250px; height: 250px; background: radial-gradient(circle, rgba(56,189,248,0.08) 0%, rgba(56,189,248,0) 70%); bottom: -50px; left: -50px; border-radius: 50%; }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 40px; 
+            padding: 40px 30px; 
+            width: 100%; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+        }
+
+        .login-input-wrap {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 25px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            border: 1.5px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s;
+        }
+        .login-input-wrap:focus-within {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.05);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+        }
+
+        .login-logo-glow {
+            width: 100px;
+            height: 100px;
+            border: 4px solid var(--accent);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            font-weight: 950;
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(56, 189, 248, 0.2);
+            margin-bottom: 20px;
+            animation: breathe 3s infinite ease-in-out;
+        }
+        @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); } 50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(56, 189, 248, 0.5); } }
+
+        .btn-login {
+            background: var(--accent);
+            color: #0f172a;
+            padding: 22px;
+            border-radius: 25px;
+            border: none;
+            font-weight: 950;
+            font-size: 16px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 15px 35px rgba(56, 189, 248, 0.4);
+            width: 100%;
+        }
+        .btn-login:active { transform: scale(0.95); filter: brightness(0.9); }
+
+        /* Full Screen Login Override */
+        #s-login.login-bg { 
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            padding-bottom: 0;
+            z-index: 1000;
+            border-radius: 45px; /* Matches app-container */
+            overflow: hidden;
+        }
+
+        /* NOTIFICATIONS */
+        .notif-card { background: white; padding: 20px; border-radius: 25px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 15px; border: 1.5px solid #f1f5f9; transition: 0.3s; }
+        .notif-card.unread { border-left: 4px solid var(--primary); background: #f0f9ff; }
+        .notif-icon { width: 45px; height: 45px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .ni-success { background: #dcfce7; color: #16a34a; }
+        .ni-info { background: #e0f2fe; color: #0284c7; }
+        .ni-alert { background: #fee2e2; color: #dc2626; }
+        .notif-content { flex: 1; }
+        .notif-content b { font-size: 14px; color: var(--primary); display: block; margin-bottom: 4px; }
+        .notif-content p { font-size: 12px; color: #64748b; font-weight: 700; margin: 0; line-height: 1.4; }
+        .notif-time { font-size: 10px; color: #cbd5e1; font-weight: 900; margin-top: 8px; text-transform: uppercase; }
+
+        .chat-row { background:white; padding:20px 25px; border-radius:35px; display:flex; align-items:center; gap:15px; margin-bottom:15px; box-shadow:0 5px 20px rgba(0,0,0,0.01); cursor:pointer; }
+        .chat-row.active { background:#e0f2fe; }
+        .chat-avatar { width:55px; height:55px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:22px; }
+        .chat-info { flex:1; }
+        .chat-name-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+        .chat-name-meta h4 { font-size:16px; font-weight:900; color:#1e293b; }
+        .chat-name-meta span { font-size:10px; font-weight:900; color:var(--accent); }
+        .chat-msg-prev { font-size:13px; font-weight:700; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+
+        .zoom-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:0.3s; }
+        .zoom-overlay.active { opacity:1; visibility:visible; }
+        .zoom-overlay img { max-width:100%; max-height:100%; transform:scale(0.8); transition:0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .zoom-overlay.active img { transform:scale(1); }
+
+        @media (max-width: 500px) {
+            .phone-frame { width: 100%; height: 100vh; border-radius: 0; border: none; padding: 0; }
+            .phone-frame::before { display: none; }
+            .app-container { border-radius: 0; }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="phone-frame">
+        <div class="screen active login-bg" id="s-login">
+            <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:35px">
+                
+                <div class="login-logo-glow">NIT</div>
+                <h2 style="color:white; font-size:24px; font-weight:900; letter-spacing:1px; margin-bottom:5px">Hello, Officer</h2>
+                <p style="color:#94a3b8; font-weight:700; font-size:12px; margin-bottom:45px; letter-spacing:2px">AUTHORIZED ACCESS ONLY</p>
+
+                <div class="glass-card">
+                    <div class="login-input-wrap">
+                        <i class="fas fa-fingerprint" style="color:var(--accent); font-size:24px"></i>
+                        <div style="flex:1">
+                            <span style="display:block; font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; margin-bottom:4px; letter-spacing:1px">Identification ID</span>
+                            <input id="login-id" type="tel" placeholder="Enter ID (e.g. 3734)" style="width:100%; border:none; outline:none; font-weight:900; background:transparent; font-size:18px; color:white">
+                        </div>
+                    </div>
+
+                    <p id="login-err" style="color:#f87171; font-size:11px; font-weight:900; margin-bottom:20px; margin-top:-10px; text-align:center; display:none">ID NOT RECOGNIZED IN SYSTEM</p>
+
+                    <button class="btn-login" onclick="doLogin()">SIGN IN</button>
+                </div>
+
+                <div style="margin-top:50px; text-align:center">
+                    <p style="font-size:10px; color:#475569; font-weight:900; letter-spacing:1px">NIT INTEL HUB • FIELD VERSION 4.2.0</p>
+                    <div style="width:30px; height:3px; background:var(--accent); margin:15px auto; border-radius:10px; opacity:0.3"></div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="app-container">
+            <!-- Drawer -->
+            <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
+            <div id="drawer" class="drawer">
+                <div style="margin-bottom:50px">
+                    <h2 id="dr-name" style="font-size:24px; font-weight:900">Officer</h2>
+                    <p id="dr-id" style="color:var(--accent); font-weight:900; font-size:14px">ID: 0000</p>
+                </div>
+                <div class="drawer-item" onclick="switchScreen('stats'); closeDrawer();">
+                    <span>My Dashboard</span>
+                    <div class="drawer-icon"><i class="fas fa-th-large"></i></div>
+                </div>
+                <div class="drawer-item" onclick="switchScreen('reports'); closeDrawer();">
+                    <span>My Incidents</span>
+                    <div class="drawer-icon"><i class="fas fa-file-alt"></i></div>
+                </div>
+                <div class="drawer-item" onclick="switchScreen('support'); closeDrawer();">
+                    <span>Help Center</span>
+                    <div class="drawer-icon"><i class="fas fa-headset"></i></div>
+                </div>
+                <div class="drawer-item" onclick="doLogout()" style="margin-top:40px; border:none">
+                    <span style="color:#f87171">Sign Out</span>
+                    <div class="drawer-icon" style="background:rgba(239,68,68,0.1); color:#f87171"><i class="fas fa-sign-out-alt"></i></div>
+                </div>
+            </div>
+
+            <!-- Home Screen -->
+            <div class="screen" id="s-home">
+                <header class="header">
+                    <i class="fas fa-bars" style="font-size:24px" onclick="openDrawer()"></i>
+                    <h1>NIT FIELD</h1>
+                    <i class="fas fa-bell" style="font-size:24px" onclick="switchScreen('notifs')"></i>
+                </header>
+
+                <div class="profile-card">
+                    <div class="user-info">
+                        <h2 id="hm-name">Officer</h2>
+                        <p id="hm-full-id">EMP ID: 3734 • Riyadh HQ</p>
+                    </div>
+                </div>
+
+                <div class="broadcast-card">
+                    <span class="lbl-prime" style="color:white; opacity:0.5; margin-bottom:20px">HR & MANAGEMENT BROADCAST</span>
+                    <div class="broadcast-item">
+                        <div class="broadcast-icon"><i class="fas fa-bullhorn"></i></div>
+                        <div class="broadcast-txt"><span>HR REMINDER</span><p>Update your bank details</p></div>
+                    </div>
+                    <div class="broadcast-item">
+                        <div class="broadcast-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="broadcast-txt"><span>ZERO ABSENCES</span><p>Abdullah Salem (Mar)</p></div>
+                    </div>
+                    <div class="broadcast-item">
+                        <div class="broadcast-icon"><i class="fas fa-trophy"></i></div>
+                        <div class="broadcast-txt"><span>TOP SITE (SAFETY)</span><p>Randa Tower</p></div>
+                    </div>
+                </div>
+
+                <div class="recent-section">
+                    <div class="recent-section-header">
+                        <h3>MY RECENT CASES</h3>
+                        <a href="#" onclick="switchScreen('reports')">VIEW ALL <i class="fas fa-chevron-right" style="font-size:10px"></i></a>
+                    </div>
+                    <div id="mini-l"></div>
+                </div>
+            </div>
+
+            <!-- Create -->
+            <div class="screen" id="s-create">
+                <header class="header">
+                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
+                    <h1>ADD CASE</h1>
+                    <div style="width:24px"></div>
+                </header>
+                
+                <div style="margin-top:20px">
+                    <span class="lbl-prime">PROBLEM TYPE</span>
+                    <div class="type-grid">
+                        <div class="type-box active" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><span>Safety</span></div>
+                        <div class="type-box" onclick="setType('materials', this)"><i class="fas fa-box"></i><span>Materials</span></div>
+                        <div class="type-box" onclick="setType('mechanical', this)"><i class="fas fa-tools"></i><span>Mech.</span></div>
+                        <div class="type-box" onclick="setType('other', this)"><i class="fas fa-info-circle"></i><span>Other</span></div>
+                    </div>
+
+                    <div id="sub-types" class="sub-type-grid"></div>
+
+                    <span class="lbl-prime">WRITE PROBLEM</span>
+                    <div class="write-box">
+                        <textarea id="case-desc" placeholder="Tell us what happened..."></textarea>
+                    </div>
+
+                    <span class="lbl-prime">SELECT SITE</span>
+                    <div class="site-box">
+                        <select id="case-site">
+                            <option value="Randa Tower">Randa Tower</option>
+                            <option value="Riyadh HQ">Riyadh HQ</option>
+                            <option value="Jeddah Office">Jeddah Office</option>
+                        </select>
+                        <i class="fas fa-chevron-down" style="color:#cbd5e1"></i>
+                    </div>
+
+                    <span class="lbl-prime">ATTACHMENT (OPTIONAL)</span>
+                    <div class="write-box" onclick="document.getElementById('img-i').click()" style="display:flex; flex-direction:column; align-items:center; cursor:pointer; gap:10px">
+                        <img id="prevImg" style="display:none; width:100%; border-radius:15px">
+                        <div id="phold" style="text-align:center; color:#cbd5e1">
+                            <i class="fas fa-camera" style="font-size:30px"></i>
+                            <p style="font-size:12px; font-weight:900; margin-top:8px">TAP TO CAPTURE</p>
+                        </div>
+                    </div>
+                    <input type="file" id="img-i" accept="image/*" capture="environment" hidden onchange="handleImg(this)">
+
+                    <button class="btn-p" onclick="submitReport()" style="margin-bottom:80px">SUBMIT REPORT</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="screen" id="s-stats">
+                <header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>DASHBOARD</h1><div style="width:20px"></div></header>
+                <div class="stat-card-main active" id="stat-card-all" onclick="updateStats('all')">
+                    <span class="lbl" style="color:white; opacity:0.6">TOTAL INCIDENTS</span>
+                    <h1 id="stat-total" style="font-size:62px; font-weight:900">0</h1>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:30px">
+                    <div class="stat-box" id="stat-card-pend" onclick="updateStats('pending')">
+                        <span class="lbl">PENDING</span>
+                        <div class="num" id="stat-pend" style="color:var(--accent)">0</div>
+                    </div>
+                    <div class="stat-box" id="stat-card-done" onclick="updateStats('done')">
+                        <span class="lbl">DONE</span>
+                        <div class="num" id="stat-done" style="color:#22c55e">0</div>
+                    </div>
+                </div>
+                <span class="lbl" id="activity-lbl">ALL ACTIVITY LOG</span>
+                <div id="stat-activity"></div>
+            </div>
+
+            <!-- Reports -->
+            <div class="screen" id="s-reports"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>INCIDENTS</h1><div style="width:20px"></div></header><div id="full-l"></div></div>
+            <!-- Detail -->
+            <div class="screen" id="s-detail">
+                <header class="header">
+                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
+                    <h1>CASE INFO</h1>
+                    <div style="width:24px"></div>
+                </header>
+                <div id="det-cont" style="padding-top:10px"></div>
+            </div>
+            <!-- Notifications -->
+            <div class="screen" id="s-notifs"><header class="header"><i class="fas fa-chevron-left" onclick="goBack()"></i><h1>ALERTS</h1><div style="width:20px"></div></header><div id="notif-list"></div></div>
+            <!-- Support -->
+            <div class="screen" id="s-support">
+                <header class="header">
+                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
+                    <h1>HELP CENTER</h1>
+                    <div style="width:24px"></div>
+                </header>
+                
+                <div style="margin-top:20px">
+                    <span class="lbl-prime">OFFICER IDENTITY</span>
+                    <div class="write-box" style="background:rgba(148,163,184,0.05); border:1px solid #f1f5f9; padding:20px">
+                        <div style="font-size:16px; font-weight:900; color:var(--primary)" id="supp-name-val">---</div>
+                        <div style="font-size:12px; font-weight:700; color:var(--accent); margin-top:5px" id="supp-id-val">ID: ---</div>
+                    </div>
+
+                    <span class="lbl-prime" style="margin-top:25px">CONTACT INFO</span>
+                    <div class="write-box" style="padding:15px">
+                        <input id="supp-mobile" type="tel" placeholder="Mobile Number" style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; padding:10px 0; border-bottom:1px solid #f8fafc">
+                        <input id="supp-email" type="email" placeholder="Email Address" style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; padding:15px 0 10px 0">
+                    </div>
+
+                    <span class="lbl-prime" style="margin-top:25px">REPORT DETAILS</span>
+                    <div class="write-box" style="padding:15px">
+                        <input id="supp-subj" placeholder="Subject" style="width:100%; border:none; outline:none; font-weight:700; font-size:16px; padding:10px 0; border-bottom:1px solid #f8fafc">
+                        <textarea id="supp-msg" placeholder="Tell us more about your issue..." style="width:100%; border:none; outline:none; font-weight:700; font-size:15px; min-height:120px; padding:15px 0; resize:none"></textarea>
+                    </div>
+
+                    <button class="btn-p" onclick="submitHelp()" style="margin-bottom:80px">SEND REQUEST</button>
+                </div>
+            </div>
+            <!-- Chat Hub -->
+            <div class="screen" id="s-chat-list">
+                <header class="header">
+                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="goBack()"></i>
+                    <h1>CHAT HUB</h1>
+                    <div style="width:24px"></div>
+                </header>
+                
+                <div style="margin-top:20px">
+                    <div class="search-box">
+                        <i class="fas fa-search" style="color:#cbd5e1"></i>
+                        <input type="text" id="chat-search" placeholder="Search by name or ID..." oninput="filterChats()">
+                    </div>
+
+                    <div class="horizontal-picker">
+                        <div class="picker-item" onclick="openChat('Management')">
+                            <div class="picker-avatar"><i class="fas fa-headset"></i></div>
+                            <span>Support</span>
+                        </div>
+                    </div>
+
+                    <span class="lbl-prime">Recent Messages</span>
+                    <div id="chat-report-list" style="margin-top:20px"></div>
+                </div>
+            </div>
+            <!-- Chat -->
+            <div class="screen" id="s-chat" style="padding:0">
+                <header class="header" style="margin:0; padding:55px 25px 25px">
+                    <i class="fas fa-chevron-left" style="font-size:24px" onclick="switchScreen('chat-list')"></i>
+                    <h1 id="chat-title">Admin</h1>
+                    <div style="width:24px"></div>
+                </header>
+                
+                <div id="chat-msgs" class="chat-container"></div>
+                
+                <div class="chat-input-hub">
+                    <input id="chat-input" class="chat-input-pill" placeholder="Type here..." onkeydown="if(event.key==='Enter') sendReportMsg()">
+                    <div class="send-dot" onclick="sendReportMsg()">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navbar -->
+            <nav class="navbar" id="main-nav">
+                <div class="nav-item active" id="bn-home" onclick="switchScreen('home')"><i class="fas fa-home"></i><span>Home</span></div>
+                <div class="nav-item" id="bn-reports" onclick="switchScreen('reports')"><i class="fas fa-file-invoice"></i><span>Reports</span></div>
+                <div style="width:70px"></div>
+                <div class="nav-item" id="bn-chat-list" onclick="switchScreen('chat-list')"><i class="fas fa-comment-dots"></i><span>Inbox</span></div>
+                <div class="nav-item" id="bn-support" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span>Help</span></div>
+            </nav>
+
+            <div class="plus-btn" id="main-plus" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
+            <div class="wa-btn" id="wa-float" onclick="window.open('https://wa.me/966500000000')"><i class="fab fa-whatsapp"></i></div>
+            
+            <!-- Zoom Overlay -->
+            <div id="zoom-overlay" class="zoom-overlay" onclick="this.classList.remove('active')">
+                <img id="zoom-img">
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck",
+            authDomain: "cloude-code1.firebaseapp.com",
+            projectId: "cloude-code1",
+            storageBucket: "cloude-code1.firebasestorage.app",
+            messagingSenderId: "553630040386",
+            appId: "1:553630040386:web:361da3353836ac709188db"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentUser = null, reports = [], lastScreen = 'home', imgB64 = null, activeRoom = null;
+        let isHubStarted = false, isRenderingHub = false, unsubSync = null, unsubChat = null;
+        let currentType = 'safety', currentSubType = '';
+
+        const subCats = {
+            safety: ['Fire Hazard', 'Personal Injury', 'Spillage', 'Slip/Trip'],
+            materials: ['Low Stock', 'Damaged Item', 'Wrong Receipt', 'Quality Issue'],
+            mechanical: ['Noisy Engine', 'Fluid Leak', 'Elec. Failure', 'Machine Off'],
+            other: ['General inquiry', 'Personal request', 'Site observation']
+        };
+
+
+        function switchScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+            const target = document.getElementById('s-' + id);
+            if (target) { target.classList.add('active'); target.style.display = 'flex'; }
+            
+            // Intelligence for Back Button
+            const navMap = {'home': 'home', 'reports': 'home', 'chat-list': 'home', 'support': 'home', 'stats': 'home', 'create': 'home', 'notifs': 'home', 'detail': 'reports', 'chat': 'chat-list'};
+            
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            const icons = {'home':'bn-home','reports':'bn-reports','chat-list':'bn-chat-list','support':'bn-support'};
+            if(icons[id]) document.getElementById(icons[id]).classList.add('active');
+            
+            const isPop = ['chat', 'detail'].includes(id);
+            document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
+            document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
+            document.getElementById('wa-float').style.display = isPop ? 'none' : 'flex';
+
+            if(id === 'reports') sync();
+            if(id === 'stats') updateStats();
+            if(id === 'chat-list') renderChatHub();
+            if(id === 'notifs') renderNotifs();
+            if(id === 'support') {
+                document.getElementById('supp-name-val').innerText = currentUser.name_en || currentUser.name || "Officer";
+                document.getElementById('supp-id-val').innerText = "ID: " + (currentUser.emp_no || "0000");
+            }
+            closeDrawer();
+        }
+
+        async function renderNotifs() {
+            const list = document.getElementById('notif-list');
+            if(!list) return;
+            list.innerHTML = '<p style="text-align:center; padding:50px; opacity:0.3; font-weight:900">SYNCING ALERTS...</p>';
+            
+            try {
+                // Aggregating from:
+                // 1. Broadcasts
+                // 2. Personal Report Status Updates
+                const [bcSnap, repSnap] = await Promise.all([
+                    db.collection('broadcasts').orderBy('created_at', 'desc').limit(10).get(),
+                    db.collection('reports').where('user_id', '==', currentUser.id).orderBy('created_at', 'desc').limit(10).get()
+                ]);
+                
+                let combined = [];
+                bcSnap.docs.forEach(d => {
+                    const data = d.data();
+                    combined.push({
+                        title: data.title || 'General Broadcast',
+                        desc: data.content || '',
+                        type: 'info',
+                        time: data.created_at
+                    });
+                });
+                
+                repSnap.docs.forEach(d => {
+                    const data = d.data();
+                    if(data.status === 'done') {
+                        combined.push({
+                            title: 'Report Completed',
+                            desc: `Case #CASE ${data.case_num || '000'} has been resolved.`,
+                            type: 'success',
+                            time: data.updated_at || data.created_at
+                        });
+                    }
+                });
+                
+                combined.sort((a,b) => new Date(b.time) - new Date(a.time));
+                
+                list.innerHTML = combined.map(n => `
+                    <div class="notif-card">
+                        <div class="notif-icon ${n.type === 'success' ? 'ni-success' : 'ni-info'}">
+                            <i class="fas ${n.type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                        </div>
+                        <div class="notif-content">
+                            <b>${n.title}</b>
+                            <p>${n.desc}</p>
+                            <div class="notif-time">${n.time ? n.time.substring(0,16).replace('T',' ') : 'Recent'}</div>
+                        </div>
+                    </div>
+                `).join('') || '<div style="text-align:center; padding:100px 50px; opacity:0.3; font-weight:900">ALL CAUGHT UP</div>';
+                
+            } catch(e) {
+                console.error("Notif Error:", e);
+                list.innerHTML = '<p style="text-align:center; color:red; padding:50px">Error loading alerts.</p>';
+            }
+        }
+            const current = document.querySelector('.screen.active').id.replace('s-', '');
+            const backMap = { 'detail': 'reports', 'chat': 'chat-list', 'create': 'home', 'stats': 'home', 'notifs': 'home', 'support': 'home' };
+            switchScreen(backMap[current] || 'home');
+        }
+
+        function openDrawer() { document.getElementById('drawer').classList.add('active'); document.getElementById('drawer-overlay').classList.add('active'); }
+        function closeDrawer() { document.getElementById('drawer').classList.remove('active'); document.getElementById('drawer-overlay').classList.remove('active'); }
+
+        async function doLogin() {
+            const id = document.getElementById('login-id').value.trim();
+            if (!id) return;
+            const btn = document.querySelector('#s-login .btn-login');
+            if(btn) { btn.innerText = "VERIFYING..."; btn.disabled = true; }
+            
+            try {
+                // Dual-type check for better compatibility
+                let snap = await db.collection('employees').where('emp_no', '==', id).get();
+                if(snap.empty) snap = await db.collection('employees').where('emp_no', '==', Number(id)).get();
+                if(snap.empty) snap = await db.collection('employees').where('emp_no', '==', String(id)).get();
+                
+                if (snap.empty) { 
+                    document.getElementById('login-err').style.display = 'block'; 
+                    if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
+                } else { 
+                    currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; 
+                    localStorage.setItem('nit_user', JSON.stringify(currentUser)); 
+                    initApp(); // Instant redirect
+                }
+            } catch (e) { 
+                alert("Connection error. Please try again."); 
+                if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
+            }
+        }
+
+        function doLogout() { localStorage.removeItem('nit_user'); location.reload(); }
+
+        function sync() {
+            if (!currentUser || unsubSync) return;
+            
+            // Initial UI feedback
+            const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
+            if(f) f.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">SYNCING DATA...</div>';
+            if(m) m.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">LOADING...</div>';
+
+            // Triple query fallback: String ID, Number ID, or Document ID
+            unsubSync = db.collection('reports')
+                .where('user_id', '==', currentUser.id)
+                .onSnapshot(snap => {
+                    reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                    
+                    // Failover: if user_id query yields nothing, try emp_no fallback
+                    if(reports.length === 0) {
+                        db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).get().then(snap2 => {
+                            if(!snap2.empty) {
+                                reports = snap2.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                                renderReports();
+                                if(typeof updateStats === 'function') updateStats();
+                            } else {
+                                renderReports();
+                                if(typeof updateStats === 'function') updateStats();
+                            }
+                        });
+                    } else {
+                        renderReports();
+                        if(typeof updateStats === 'function') updateStats(); 
+                    }
+                }, err => {
+                    console.error("Sync Error:", err);
+                    if(f) f.innerHTML = '<div style="color:red; padding:20px">Sync Failed. Tap to retry.</div>';
+                });
+        }
+    
+
+
+
+        function renderReports() {
+            const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
+            if(!f || !m) return;
+            
+            // Full List Styling
+            f.innerHTML = reports.map(r => `
+                <div class="case-main-card" style="margin-bottom:20px; cursor:pointer;" onclick="openDetail('${r.id}')">
+                    <div class="type" style="color:${r.status==='done'?'#22c55e':'#38bdf8'}">${r.type}</div>
+                    <div class="desc" style="margin-top:5px">${(r.description||'').substring(0,60)}...</div>
+                    <div class="status-tag" style="color:${r.status==='done'?'#22c55e':'#10b981'}; top:30px">
+                        ${(r.status||'OPEN').toUpperCase()}
+                    </div>
+                    <div style="font-size:10px; font-weight:700; color:#cbd5e1; margin-top:12px">#CASE ${r.case_num || r.ticket_num || r.id.substring(0,5)} • ${r.site || 'Main Site'}</div>
+                </div>
+            `).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO INCIDENTS FOUND</div>';
+            
+            // Mini Home List
+            m.innerHTML = reports.slice(0,3).map(r => {
+                const s = (r.status||'').toLowerCase();
+                const isWorking = s === 'inprog';
+                const isDone = s === 'done';
+                
+                return `
+                <div class="case-group" onclick="openDetail('${r.id}')">
+                    <div class="case-main-card">
+                        <div class="type">${r.type}</div>
+                        <div class="desc">${(r.description||'').substring(0,30)}...</div>
+                        <div class="status-tag" style="background:${isDone ? '#DCFCE7' : (isWorking ? '#FEF3C7' : '#E0F2FE')}; color:${isDone ? '#22c55e' : (isWorking ? '#92400E' : '#38bdf8')}">
+                            ${(r.status||'OPEN').toUpperCase()}
+                        </div>
+                        <div class="id">#CASE ${r.case_num || '000'} • ${r.site || 'Site HQ'}</div>
+                    </div>
+                    <div class="case-log-list">
+                        <div class="log-item">
+                            <div class="log-dot" style="background:#38bdf8"></div>
+                            <div class="log-txt">Case Logged</div>
+                            <div class="log-meta">${(r.created_at||'').substring(0,10)} • System</div>
+                        </div>
+                        ${s !== 'open' ? `
+                        <div class="log-item">
+                            <div class="log-dot" style="background:#f59e0b"></div>
+                            <div class="log-txt">Action taken on case</div>
+                            <div class="log-meta">Admin</div>
+                        </div>
+                        ` : ''}
+                        ${isDone ? `
+                        <div class="log-item">
+                            <div class="log-dot" style="background:#22c55e"></div>
+                            <div class="log-txt">Case Successfully Closed</div>
+                            <div class="log-meta">Final Resolution</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                `;
+            }).join('') || '<p style="font-size:11px; opacity:0.3; padding:10px">No recent activity</p>';
+        }
+
+
+        async function openDetail(id) {
+            const r = reports.find(x => String(x.id) === String(id)); if (!r) return;
+            const snap = await db.collection('reports').doc(String(id)).collection('timeline').orderBy('created_at','asc').get();
+            const tl = snap.docs.map(d=>d.data());
+            
+            const cont = document.getElementById('det-cont');
+            cont.innerHTML = `
+                <div class="case-main-card" style="margin-bottom:30px">
+                    <span class="lbl-prime">#CASE ${r.case_num || '000'}</span>
+                    <h2 style="font-size:26px; font-weight:900; color:var(--accent); margin-bottom:20px">${r.type.toUpperCase()}</h2>
+                    <hr style="border:none; border-top:1.5px solid #f8fafc; margin-bottom:20px">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; margin-bottom:25px">
+                        <div>
+                            <span class="lbl-prime">SITE</span>
+                            <div style="font-weight:900; font-size:16px; color:var(--primary)">${r.site || 'Randa Tower'}</div>
+                        </div>
+                        <div>
+                            <span class="lbl-prime">STATUS</span>
+                            <div style="font-weight:900; font-size:16px; color:${r.status==='done'?'#22c55e':'#38bdf8'}">${(r.status||'OPEN').toUpperCase()}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="lbl-prime">CASE DETAILS</span>
+                        <div style="font-weight:700; font-size:14px; color:#1e293b; opacity:0.8; line-height:1.6">${r.description}</div>
+                    </div>
+                </div>
+
+                ${r.photo_b64 ? `
+                <div style="margin-bottom:35px">
+                    <span class="lbl-prime">ATTACHED IMAGE</span>
+                    <div style="width:100%; border-radius:35px; overflow:hidden; box-shadow:0 15px 40px rgba(0,0,0,0.08); margin-top:10px; cursor:zoom-in" onclick="zoomImage('${r.photo_b64}')">
+                        <img src="${r.photo_b64}" style="width:100%; display:block">
+                    </div>
+                </div>
+                ` : ''}
+
+                <div>
+                    <span class="lbl-prime">FULL CASE JOURNEY</span>
+                    <div class="case-log-list" style="margin-top:20px">
+                        ${tl.map((t, idx) => `
+                        <div class="log-item" style="${idx === tl.length-1 ? 'padding-bottom:0' : ''}">
+                            <div class="log-dot" style="background:${idx===0?'#38bdf8':'#22c55e'}"></div>
+                            <div class="log-txt">${t.event_text}</div>
+                            <div class="log-meta">${t.created_at.substring(0,10)} • ${t.author || (idx===0?'System':'Admin')}</div>
+                        </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            switchScreen('detail');
+        }
+
+        function zoomImage(src) {
+            const ov = document.getElementById('zoom-overlay');
+            const img = document.getElementById('zoom-img');
+            img.src = src;
+            ov.classList.add('active');
+        }
+
+
+        function setType(t, el) { currentType = t; document.querySelectorAll('.type-box').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderSubTypes(); }
+        function renderSubTypes() { document.getElementById('sub-types').innerHTML = (subCats[currentType]||[]).map(s=>`<div class="sub-type-item" onclick="currentSubType='${s}'; this.parentElement.querySelectorAll('.sub-type-item').forEach(x=>x.classList.remove('active')); this.classList.add('active');">${s}</div>`).join(''); }
+        function handleImg(input) { const f = input.files[0]; const r = new FileReader(); r.onload = (e) => { imgB64 = e.target.result; document.getElementById('prevImg').src = imgB64; document.getElementById('prevImg').style.display='block'; document.getElementById('phold').style.display='none'; }; r.readAsDataURL(f); }
+
+        async function submitReport() {
+            const desc = document.getElementById('case-desc').value;
+            const site = document.getElementById('case-site').value;
+            if(!desc || !currentType) return alert('Please complete the details');
+            
+            const btn = document.querySelector('#s-create .btn-p');
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SYNCING...';
+            btn.disabled = true;
+
+            try {
+                // Atomic increment is more reliable than manual transaction for high-concurrency
+                const counterRef = db.collection('settings').doc('counters');
+                await counterRef.set({ report_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+                
+                const sfDoc = await counterRef.get();
+                const caseNum = sfDoc.data().report_count || 1;
+
+                const reportDocRef = db.collection('reports').doc(String(caseNum));
+                await reportDocRef.set({
+                    user_id: currentUser.id,
+                    emp_no: currentUser.emp_no,
+                    user_name: currentUser.name_en || currentUser.name,
+                    case_num: caseNum,
+                    type: currentType + (currentSubType ? ' - ' + currentSubType : ''),
+                    description: desc,
+                    site: site,
+                    status: 'open',
+                    photo_b64: imgB64 || null,
+                    created_at: new Date().toISOString()
+                });
+
+                await reportDocRef.collection('timeline').add({
+                    event_text: 'Case Logged (Serial #CASE ' + caseNum + ')',
+                    author: 'System',
+                    created_at: new Date().toISOString()
+                });
+
+                alert('Success! Your Case Number is #CASE ' + caseNum + '. It has been submitted, and will be reviewed shortly.');
+                switchScreen('home');
+                location.reload();
+            } catch(e) { 
+                console.error("Submit Error:", e);
+                alert('Submit Failed. Check connection and try again.'); 
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+            }
+        }
+
+        async function fixLegacyNumbers() {
+            try {
+                const snap = await db.collection('reports').where('case_num', '==', null).limit(100).get();
+                if(snap.empty) return;
+                
+                const all = await db.collection('reports').orderBy('created_at', 'asc').get();
+                const batch = db.batch();
+                let count = 0;
+
+                all.docs.forEach((d, i) => {
+                    if(!d.data().case_num) {
+                        batch.update(d.ref, { case_num: i + 1 });
+                        count = i + 1;
+                    } else {
+                        count = d.data().case_num;
+                    }
+                });
+                
+                await batch.commit();
+                await db.collection('settings').doc('counters').set({ report_count: count }, { merge: true });
+            } catch(e) { console.error("Migration Error:", e); }
+        }
+
+        let currentStatFilter = 'all';
+        function updateStats(filter) {
+            if(filter) currentStatFilter = filter;
+            const total = reports.length;
+            const pendArr = reports.filter(r=> (r.status||'').toLowerCase() !== 'done');
+            const doneArr = reports.filter(r=> (r.status||'').toLowerCase() === 'done');
+            
+            if(document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
+            if(document.getElementById('stat-pend')) document.getElementById('stat-pend').innerText = pendArr.length;
+            if(document.getElementById('stat-done')) document.getElementById('stat-done').innerText = doneArr.length;
+            
+            // Visual active state
+            document.querySelectorAll('.stat-card-main, .stat-box').forEach(el => el.classList.remove('active'));
+            if(currentStatFilter === 'all' && document.getElementById('stat-card-all')) document.getElementById('stat-card-all').classList.add('active');
+            if(currentStatFilter === 'pending' && document.getElementById('stat-card-pend')) document.getElementById('stat-card-pend').classList.add('active');
+            if(currentStatFilter === 'done' && document.getElementById('stat-card-done')) document.getElementById('stat-card-done').classList.add('active');
+            
+            let filtered = [];
+            let lbl = 'ALL ACTIVITY LOG';
+            if(currentStatFilter === 'all') filtered = reports;
+            else if(currentStatFilter === 'pending') { filtered = pendArr; lbl = 'PENDING CASES'; }
+            else if(currentStatFilter === 'done') { filtered = doneArr; lbl = 'COMPLETED CASES'; }
+            
+            const lblEl = document.getElementById('activity-lbl');
+            if(lblEl) lblEl.innerText = lbl;
+
+            const actEl = document.getElementById('stat-activity');
+            if(actEl) {
+                actEl.innerHTML = filtered.map(r=>{
+                    const isDone = (r.status||'').toLowerCase() === 'done';
+                    return `
+                        <div class="ticket-item" onclick="openDetail('${r.id}')" style="background:white; margin-bottom:15px; border-radius:24px; padding:22px; border:1px solid #f1f5f9; box-shadow:0 4px 12px rgba(0,0,0,0.015)">
+                            <div style="display:flex; justify-content:space-between; align-items:center">
+                                <div style="font-weight:950; color:var(--primary); font-size:15px">#CASE ${r.case_num || '---'}</div>
+                                <div style="font-size:10px; padding:5px 12px; border-radius:10px; font-weight:950; background:${isDone ? '#DCFCE7' : '#E0F2FE'}; color:${isDone ? '#22c55e' : '#38bdf8'}">
+                                    ${(r.status||'OPEN').toUpperCase()}
+                                </div>
+                            </div>
+                            <div style="font-size:12px; color:var(--text-muted); font-weight:900; margin-top:10px; text-transform:uppercase; letter-spacing:0.5px">
+                                ${r.type} • Site HQ
+                            </div>
+                        </div>
+                    `;
+                }).join('') || '<div style="text-align:center; padding:30px; opacity:0.5; font-weight:900">NO RECORDS FOUND</div>';
+            }
+        }
+
+        // CHAT HUB
+        async function fetchUnreadChats() {
+            if(!currentUser) return;
+            const snap = await db.collection('chat_messages').where('is_read','==',false).where('participants','array-contains',currentUser.emp_no).get();
+            unreadChats = {}; snap.docs.forEach(d => { const m = d.data(); if(m.sender_no !== currentUser.emp_no) unreadChats[m.session_id] = (unreadChats[m.session_id]||0)+1; });
+            updateChatBadges();
+        }
+        function updateChatBadges() {
+            let t = 0; Object.values(unreadChats).forEach(v=>t+=v);
+            const dot = document.getElementById('chat-global-badge'); if(dot) { dot.innerText = t>9?'9+':t; dot.style.display = t>0?'flex':'none'; }
+        }
+
+        function filterChats() {
+            const q = document.getElementById('chat-search').value.toLowerCase();
+            renderChatHub(q);
+        }
+
+        async function renderChatHub(query = '') {
+            if (isRenderingHub || !currentUser) return; 
+            isRenderingHub = true;
+            try {
+                const myIdStr = String(currentUser.emp_no);
+                
+                // 1. Get existing chat sessions
+                const [snap1, snap2] = await Promise.all([
+                    db.collection('chat_sessions').where('participants','array-contains', myIdStr).get(),
+                    db.collection('chat_sessions').where('participants','array-contains', Number(currentUser.emp_no)).get()
+                ]);
+                
+                let sessionsMap = {};
+                snap1.docs.forEach(d => sessionsMap[d.id] = {id:d.id, ...d.data()});
+                snap2.docs.forEach(d => sessionsMap[d.id] = {id:d.id, ...d.data()});
+                
+                let data = Object.values(sessionsMap).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+                
+                // 2. If searching, also search for matching employees
+                if(query && query.length >= 3) {
+                    const empSnap = await db.collection('employees')
+                        .where('emp_no', '==', String(query))
+                        .limit(1)
+                        .get();
+                    
+                    if(!empSnap.empty) {
+                        const emp = empSnap.docs[0].data();
+                        const otherId = String(emp.emp_no);
+                        if(otherId !== myIdStr) {
+                            const pair = [myIdStr, otherId].sort();
+                            const sessionId = `p2p_${pair[0]}_${pair[1]}`;
+                            
+                            if(!sessionsMap[sessionId]) {
+                                data.push({
+                                    id: sessionId,
+                                    isVirtual: true,
+                                    last_message: 'Start conversation with ' + (emp.name_en || emp.name || otherId),
+                                    updated_at: new Date().toISOString()
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Force strict filtering and Sort: exact ID match comes FIRST
+                if(query) {
+                    data = data.filter(s => {
+                        const low = s.id.toLowerCase();
+                        if(!isNaN(query)) return low.includes('_'+query) || low.includes(query+'_') || low === query;
+                        return low.includes(query) || (s.last_message||'').toLowerCase().includes(query);
+                    });
+                    
+                    // Prioritize exact match in the ID string
+                    data.sort((a,b) => {
+                        const aExact = a.id.includes('_'+query) || a.id.includes(query+'_');
+                        const bExact = b.id.includes('_'+query) || b.id.includes(query+'_');
+                        return bExact - aExact;
+                    });
+                }
+
+                const c = document.getElementById('chat-report-list');
+                if(c) {
+                    c.innerHTML = data.map((s, idx) => {
+                        const isManagement = s.id === 'Management';
+                        const isFoundMatch = query && (s.id.includes('_'+query) || s.id.includes(query+'_'));
+                        
+                        let displayName = isManagement ? 'Management Support' : s.id;
+                        if(s.id.includes('_')) {
+                            const parts = s.id.split('_');
+                            const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
+                            if (other) displayName = 'Officer ' + other;
+                        }
+
+                        return `
+                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''}" onclick="openChat('${s.id}')">
+                            <div class="chat-avatar ${isManagement ? 'admin' : ''}">
+                                <i class="fas ${isManagement ? 'fa-crown' : 'fa-user-shield'}"></i>
+                            </div>
+                            <div class="chat-info">
+                                <div class="chat-name-meta">
+                                    <h4>${displayName}${isFoundMatch ? '<span class="badge-new">FOUND</span>' : ''}</h4>
+                                    <span>${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
+                                </div>
+                                <div class="chat-msg-prev">${s.last_message || 'Start a new conversation'}</div>
+                            </div>
+                        </div>
+                    `}).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO RESULTS FOR "' + query + '"</div>';
+                }
+            } catch(e) { console.error(e); }
+            finally { isRenderingHub = false; }
+        }
+
+        async function openChat(sid) {
+            activeRoom = String(sid);
+            let title = activeRoom === 'Admin' || activeRoom === 'Management' ? 'Management Support' : activeRoom;
+            
+            // Smarter extraction for p2p/b2p formats
+            if(activeRoom.includes('_')) {
+                const parts = activeRoom.split('_');
+                // Exclude common prefixes and current user ID to find the partner
+                const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
+                if (other) title = 'Officer ' + other;
+            }
+            
+            document.getElementById('chat-title').innerText = title;
+            document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:20px; opacity:0.3">Loading conversation...</p>';
+            switchScreen('chat');
+            
+            if(unsubChat) unsubChat();
+            
+            // Fetch without orderBy first (safer against index issues)
+            unsubChat = db.collection('chat_messages')
+                .where('session_id', '==', activeRoom)
+                .onSnapshot(snap => {
+                    if (snap.empty) {
+                        document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO MESSAGES YET</p>';
+                        return;
+                    }
+                    // Sort manually in JS
+                    const msgs = snap.docs.map(d => d.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                    
+                    document.getElementById('chat-msgs').innerHTML = msgs.map(m => {
+                        const isMe = String(m.sender_no) === String(currentUser.emp_no);
+                        // Identify admin by special ID or if in Support room
+                        const isAdmin = String(m.sender_no).toLowerCase() === 'admin' || String(m.sender_no).toLowerCase() === 'management';
+                        const author = isAdmin ? 'THE ADMIN' : (isMe ? 'YOU' : 'OFFICER ' + m.sender_no);
+                        const icon = isAdmin ? 'fa-crown' : 'fa-user-shield';
+                        
+                        return `
+                            <div class="chat-msg-row ${isMe ? 'me' : 'them'}">
+                                ${!isMe ? `<div class="chat-avatar-mini ${isAdmin ? 'admin' : ''}"><i class="fas ${icon}"></i></div>` : ''}
+                                <div class="chat-bubble ${isMe ? 'me' : 'them'} ${isAdmin ? 'admin' : ''}" data-author="${author}">
+                                    ${m.content}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    const mc = document.getElementById('chat-msgs');
+                    mc.scrollTop = mc.scrollHeight;
+                }, err => {
+                    console.error("Chat Error:", err);
+                });
+        }
+
+        async function sendReportMsg() {
+            const i=document.getElementById('chat-input'), val=i.value.trim(); if(!val || !activeRoom) return;
+            const ts=new Date().toISOString(); i.value='';
+            const d={ session_id:activeRoom, sender_no:currentUser.emp_no, content:val, created_at:ts, is_read:false, participants:[currentUser.emp_no,'admin'] };
+            await db.collection('chat_messages').add(d);
+            await db.collection('chat_sessions').doc(activeRoom).set({ participants:[currentUser.emp_no,'admin'], updated_at:ts, last_message:val }, {merge:true});
+        }
+
+
+        async function submitHelp() {
+            const s=document.getElementById('supp-subj').value, 
+                  m=document.getElementById('supp-msg').value,
+                  mob=document.getElementById('supp-mobile').value,
+                  em=document.getElementById('supp-email').value;
+             
+            if(!s||!m) return alert("Subject and Details required");
+            
+            const btn = document.querySelector('#s-support .btn-p');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
+            btn.disabled = true;
+
+            try {
+                // Atomic increment for Support Tickets
+                const counterRef = db.collection('settings').doc('counters');
+                await counterRef.set({ support_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+                
+                const sfDoc = await counterRef.get();
+                const tixNum = sfDoc.data().support_count || 1;
+
+                await db.collection('support_requests').doc(String(tixNum)).set({ 
+                    emp_no: currentUser.emp_no, 
+                    emp_name: currentUser.name_en || currentUser.name,
+                    ticket_num: tixNum,
+                    subject: s, 
+                    message: m, 
+                    mobile: mob,
+                    email: em,
+                    created_at: new Date().toISOString() 
+                });
+                alert("Success! Your Ticket Number is #TICKET " + tixNum + ". We will contact you soon."); 
+                switchScreen('home');
+            } catch(e) { 
+                console.error("Help Submission Error:", e);
+                alert("Error sending request. Please try again."); 
+            } finally {
+                btn.innerHTML = 'SEND REQUEST';
+                btn.disabled = false;
+            }
+        }
+
+        async function initApp() {
+            const saved = localStorage.getItem('nit_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                document.getElementById('s-login').style.display = 'none';
+                
+                // Set UI headers
+                if(document.getElementById('dr-name')) document.getElementById('dr-name').innerText = currentUser.name_en || currentUser.name || "Officer";
+                if(document.getElementById('dr-id')) document.getElementById('dr-id').innerText = "ID: " + (currentUser.emp_no || "0000");
+                if(document.getElementById('hm-name')) document.getElementById('hm-name').innerText = currentUser.name_en || currentUser.name || "Officer";
+                
+                // Instant load
+                switchScreen('home');
+                sync(); 
+                
+                // Background tasks (non-blocking)
+                fixLegacyNumbers().catch(e => console.log("Bg migration:", e));
+                
+                // Real-time news
+                db.collection('broadcasts').onSnapshot(snap => {
+                    const h = document.getElementById('news-list-home');
+                    if (h) h.innerHTML = snap.docs.map(d => `<div style="margin-bottom:10px; font-size:12px"><b>${d.data().title}</b><br>${d.data().content}</div>`).join('') || 'No news';
+                });
+            } else {
+                document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
+                document.getElementById('s-login').style.display = 'flex';
+                document.getElementById('main-nav').style.display = 'none';
+                document.getElementById('main-plus').style.display = 'none';
+                document.getElementById('wa-float').style.display = 'none';
+            }
+        }
+        window.onload = initApp;
+    </script>
+</body>
+</html>

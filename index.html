@@ -132,6 +132,20 @@
         .detail-info-row i { font-size: 18px; color: var(--p); width: 30px; text-align: center; }
         .detail-info-row b { font-size: 12px; color: #64748b; }
         .detail-info-row span { font-size: 14px; font-weight: 850; color: var(--p); }
+
+        /* Broadcast Styles */
+        .broadcast-card { 
+            background: linear-gradient(135deg, rgba(46, 49, 146, 0.95), rgba(30, 41, 59, 1)); 
+            backdrop-filter: blur(10px);
+            padding: 25px; border-radius: 35px; color: white; margin-bottom: 25px; 
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .broadcast-item { display:flex; align-items:center; gap:15px; margin-bottom:20px; }
+        .broadcast-item:last-child { margin-bottom:0; }
+        .broadcast-icon { width:42px; height:42px; background:rgba(255,255,255,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center; color:var(--accent); border:1px solid rgba(255,255,255,0.1); flex-shrink:0; }
+        .broadcast-txt span { font-size:9px; font-weight:950; opacity:0.6; text-transform:uppercase; display:block; margin-bottom:3px; letter-spacing:0.5px; }
+        .broadcast-txt p { font-size:13px; font-weight:700; color:white; margin:0; line-height:1.4; }
     </style>
 </head>
 
@@ -209,6 +223,8 @@
                     <p style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:1px; margin:0" id="hm-job-card">Application Manager</p>
                     
                 </div>
+                
+                <div id="br-l" class="broadcast-card" style="display:none"></div>
 
                 <div id="mini-l" style="margin-top:5px"></div>
             </div>
@@ -637,7 +653,26 @@
             const hrEl = document.getElementById('time-hour'); if(hrEl) hrEl.innerText = hr.toString().padStart(2, '0');
             const amEl = document.getElementById('time-ampm'); if(amEl) amEl.innerText = am;
             
-            switchScreen('home'); sync();
+            switchScreen('home'); sync(); syncBroadcasts();
+        }
+
+        function syncBroadcasts() {
+            db.collection('broadcasts').orderBy('created_at', 'desc').limit(5).onSnapshot(snap => {
+                const el = document.getElementById('br-l');
+                if(!el) return;
+                if(snap.empty) { el.style.display = 'none'; return; }
+                el.style.display = 'block';
+                el.innerHTML = '<span class="lbl-prime" style="color:white; opacity:0.5; margin-bottom:20px">NIT BROADCASTS</span>' + snap.docs.map(d => {
+                    const r = d.data();
+                    const icon = r.type === 'safety' ? 'fa-shield-alt' : (r.type === 'hr' ? 'fa-bullhorn' : 'fa-info-circle');
+                    return `
+                        <div class="broadcast-item">
+                            <div class="broadcast-icon"><i class="fas ${icon}"></i></div>
+                            <div class="broadcast-txt"><span>${r.title || 'Official Announcement'}</span><p>${r.content || ''}</p></div>
+                        </div>
+                    `;
+                }).join('');
+            });
         }
 
         function sync() {
