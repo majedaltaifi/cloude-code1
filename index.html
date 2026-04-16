@@ -713,7 +713,12 @@
                 .where('participants', 'array-contains', String(currentUser.emp_no))
                 .onSnapshot(snap => {
                     const chats = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                    const hasUnread = chats.some(c => c.last_sender_id && String(c.last_sender_id) !== String(currentUser.emp_no));
+                    const myID = String(currentUser.emp_no);
+                    const hasUnread = chats.some(c => {
+                        if(!c.last_sender_id) return false;
+                        return String(c.last_sender_id) !== myID;
+                    });
+                    
                     const dot = document.getElementById('notif-dot-nav');
                     if(dot) dot.style.display = hasUnread ? 'block' : 'none';
                     
@@ -816,12 +821,7 @@
                 
                 let homeItems = sorted.slice(0, 3);
                 if(homeItems.length === 0) {
-                    // Populate with dummy items as requested by user for demonstration
-                    homeItems = [
-                        { id:'d1', type:'Safety', case_num:'19', status:'pending', timestamp: Date.now() },
-                        { id:'d2', type:'Service', case_num:'16', status:'pending', timestamp: Date.now() },
-                        { id:'d3', type:'Safety', case_num:'15', status:'pending', timestamp: Date.now() }
-                    ];
+                    homeItems = [];
                 }
 
                 if(m) {
