@@ -539,37 +539,65 @@
                 }
 
                 if(m) {
-                    m.innerHTML = homeItems.length ? `
-                        <div style="background:white; border-radius:25px; padding:25px 20px 15px; border:2px solid transparent; box-shadow:0 4px 30px rgba(46,49,146,0.03)">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px">
-                                <b style="color:var(--p); font-size:15px; font-weight:950"><i class="fas fa-exchange-alt" style="margin-right:10px; color:#3b82f6; background:rgba(59,130,246,0.1); padding:8px; border-radius:8px"></i>My Recent Transactions</b>
-                                <button onclick="gotoReportsFilter('all')" style="background:none; border:none; color:#3b82f6; font-size:12px; font-weight:800; cursor:pointer; background:rgba(59,130,246,0.1); padding:5px 10px; border-radius:8px">View All</button>
-                            </div>
-                            <div style="position:relative; margin-left:14px">
-                                <div style="position:absolute; top:8px; bottom:25px; left:4px; width:2px; background:#e2e8f0; z-index:0"></div>
-                                ` + homeItems.map(r => {
-                                    const st = window.String(r.status || 'open').toLowerCase();
-                                    const isDone = st === 'done' || st === 'resolved' || st === 'تم الإنجاز';
-                                    const cNo = r.case_num || (r.id ? window.String(r.id).substring(0,5).toUpperCase() : '---');
-                                    const typeStr = window.String(r.type || 'Report');
-                                    return `
-                                    <div style="position:relative; padding-left:30px; margin-bottom:30px; z-index:1; cursor:pointer" onclick="openDetail('${r.id}')">
-                                        <div style="position:absolute; left:0; top:4px; width:10px; height:10px; border-radius:50%; background:${isDone?'#94a3b8':'#f59e0b'}; border:2px solid ${isDone?'#e2e8f0':'#fef3c7'}; box-shadow:0 0 0 1px ${isDone?'#cbd5e1':'#f59e0b'}"></div>
-                                        <div style="display:flex; justify-content:space-between; align-items:flex-start">
-                                            <div>
-                                                <b style="font-size:14px; color:var(--p); display:block; font-weight:900">${typeStr} Request</b>
-                                                <span style="font-size:10px; font-weight:700; color:#64748b; display:block; margin-top:4px; opacity:0.8">${new Date(r.timestamp||Date.now()).toLocaleDateString([],{day:'2-digit',month:'2-digit',year:'numeric'})} &bull; CASE #${cNo}</span>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding:0 5px">
+                            <b style="color:var(--p); font-size:15px; font-weight:950"><i class="fas fa-history" style="margin-right:10px; color:#3b82f6; background:rgba(59,130,246,0.1); padding:8px; border-radius:8px"></i>Recent Activity</b>
+                            <button onclick="gotoReportsFilter('all')" style="background:none; border:none; color:#3b82f6; font-size:12px; font-weight:800; cursor:pointer; background:rgba(59,130,246,0.1); padding:5px 10px; border-radius:8px; transition:all 0.2s">View All</button>
+                        </div>
+                        ` + homeItems.map(r => {
+                            const st = window.String(r.status || 'open').toLowerCase();
+                            const isDone = st === 'done' || st === 'resolved' || st === 'تم الإنجاز';
+                            const cNo = r.case_num || (r.id ? window.String(r.id).substring(0,5).toUpperCase() : '---');
+                            const typeStr = window.String(r.type || 'Report');
+                            
+                            return `
+                            <div style="background:white; border-radius:25px; padding:20px; box-shadow:0 8px 25px rgba(15,23,42,0.03); margin-bottom:15px; cursor:pointer; border:1px solid #f8fafc" onclick="openDetail('${r.id}')">
+                                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px dashed #f1f5f9; padding-bottom:15px; margin-bottom:15px">
+                                    <div style="display:flex; align-items:center; gap:12px">
+                                        <div style="width:40px; height:40px; border-radius:12px; background:${isDone ? 'rgba(16,185,129,0.08)' : 'rgba(59,130,246,0.08)'}; display:flex; align-items:center; justify-content:center; color:${isDone ? '#10b981' : '#3b82f6'}">
+                                            <i class="fas ${typeStr.toLowerCase().includes('safety') ? 'fa-shield-alt' : 'fa-tools'}" style="font-size:16px"></i>
+                                        </div>
+                                        <div>
+                                            <b style="font-size:16px; font-weight:950; color:#0f172a; display:block; margin-bottom:2px">CASE #${cNo}</b>
+                                            <div style="display:flex; align-items:center; gap:5px">
+                                                <span style="font-size:11px; font-weight:800; color:#64748b; text-transform:uppercase">${typeStr}</span>
+                                                <span style="font-size:8px; color:#cbd5e1">&bull;</span>
+                                                <span style="font-size:11px; font-weight:700; color:#94a3b8">${new Date(r.timestamp||Date.now()).toLocaleDateString([],{day:'2-digit',month:'2-digit'})}</span>
                                             </div>
-                                            <span style="padding:5px 12px; background:${isDone?'#f1f5f9':'#fef3c7'}; color:${isDone?'#64748b':'#d97706'}; font-size:10px; font-weight:900; border-radius:8px">
-                                                ${isDone ? (i18n[appLang]?.resolved || 'DONE') : (i18n[appLang]?.pending || 'PENDING')}
-                                            </span>
                                         </div>
                                     </div>
-                                    `;
-                                }).join('') + `
+                                    <span style="padding:6px 12px; background:${isDone?'#f0fdf4':'#fffbeb'}; color:${isDone?'#16a34a':'#d97706'}; font-size:10px; font-weight:900; border-radius:10px; box-shadow:0 4px 10px ${isDone?'rgba(22,163,74,0.1)':'rgba(217,119,6,0.1)'}; text-transform:uppercase; letter-spacing:0.5px">
+                                        ${isDone ? 'Resolved' : 'Pending'}
+                                    </span>
+                                </div>
+                                
+                                <!-- Dynamic Horizontal Timeline Widget -->
+                                <div style="position:relative; margin-top:5px; padding:0 5px">
+                                    <!-- Tracks -->
+                                    <div style="position:absolute; top:8px; left:12%; right:12%; height:3px; background:#f1f5f9; z-index:0; border-radius:2px"></div>
+                                    <div style="position:absolute; top:8px; left:12%; width:${isDone ? '76%' : '38%'}; height:3px; background:#10b981; z-index:1; border-radius:2px; transition:width 0.5s"></div>
+                                    
+                                    <!-- Nodes -->
+                                    <div style="display:flex; justify-content:space-between; position:relative; z-index:2">
+                                        <!-- Step 1: Logged -->
+                                        <div style="display:flex; flex-direction:column; align-items:center; width:33.3%">
+                                            <div style="width:20px; height:20px; border-radius:50%; background:#10b981; color:white; display:flex; justify-content:center; align-items:center; font-size:8px; box-shadow:0 0 0 5px white"><i class="fas fa-check"></i></div>
+                                            <span style="font-size:10px; font-weight:900; color:#0f172a; margin-top:8px">Logged</span>
+                                        </div>
+                                        <!-- Step 2: Assigned -->
+                                        <div style="display:flex; flex-direction:column; align-items:center; width:33.3%">
+                                            <div style="width:20px; height:20px; border-radius:50%; background:${isDone ? '#10b981' : 'white'}; border:3px solid ${isDone ? '#10b981' : '#3b82f6'}; color:white; display:flex; justify-content:center; align-items:center; font-size:8px; box-shadow:0 0 0 5px white; line-height:0">${isDone ? '<i class="fas fa-check"></i>' : '<div style="width:8px; height:8px; background:#3b82f6; border-radius:50%"></div>'}</div>
+                                            <span style="font-size:10px; font-weight:900; color:${isDone ? '#0f172a' : '#3b82f6'}; margin-top:8px">Processing</span>
+                                        </div>
+                                        <!-- Step 3: Resolved -->
+                                        <div style="display:flex; flex-direction:column; align-items:center; width:33.3%">
+                                            <div style="width:20px; height:20px; border-radius:50%; background:${isDone ? '#10b981' : 'white'}; border:3px solid ${isDone ? '#10b981' : '#e2e8f0'}; color:white; display:flex; justify-content:center; align-items:center; font-size:8px; box-shadow:0 0 0 5px white">${isDone ? '<i class="fas fa-check"></i>' : ''}</div>
+                                            <span style="font-size:10px; font-weight:900; color:${isDone ? '#0f172a' : '#94a3b8'}; margin-top:8px">Finished</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    ` : '';
+                            `;
+                        }).join('') : '';
                 }
 
                 const inboxL = document.getElementById('inbox-l');
