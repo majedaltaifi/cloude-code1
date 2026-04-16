@@ -132,6 +132,10 @@
         .detail-info-row i { font-size: 18px; color: var(--p); width: 30px; text-align: center; }
         .detail-info-row b { font-size: 12px; color: #64748b; }
         .detail-info-row span { font-size: 14px; font-weight: 850; color: var(--p); }
+        
+        /* Unread Badge */
+        .unread-dot { width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid white; position: absolute; top: -2px; right: -2px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+        .nav-item .unread-dot { top: 2px; right: 25%; }
 
         /* Broadcast Styles */
         .broadcast-card { 
@@ -408,7 +412,10 @@
                 <div class="nav-item active" onclick="switchScreen('home')"><i class="fas fa-home"></i><span id="nb-home">HOME</span></div>
                 <div class="nav-item" onclick="switchScreen('reports')"><i class="fas fa-list-ul"></i><span id="nb-reports">REPORTS</span></div>
                 <div style="width: 70px;"></div>
-                <div class="nav-item" onclick="switchScreen('chat-list')"><i class="fas fa-comment"></i><span id="nb-inbox">INBOX</span></div>
+                <div class="nav-item" onclick="switchScreen('chat-list')">
+                    <i class="fas fa-comment"></i><span id="nb-inbox">INBOX</span>
+                    <div id="notif-dot-nav" class="unread-dot" style="display:none"></div>
+                </div>
                 <div class="nav-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span id="nb-help">HELP</span></div>
             </nav>
             <div class="plus-btn" id="main-plus" style="display: none;" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
@@ -602,6 +609,7 @@
 
             await db.collection('chat_sessions').doc(activeRoom).update({
                 last_message: text,
+                last_sender_id: String(currentUser.emp_no),
                 updated_at: now
             });
         }
@@ -691,16 +699,25 @@
         function sync() {
             if(!currentUser) return;
             if(unsubSync) unsubSync();
-            unsubSync = db.collection('reports').onSnapshot(snap => {
-                const all = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                reports = all.filter(r => String(r.emp_no) === String(currentUser.emp_no));
-                renderReports();
-            });
-
-            // Legacy Sync from chat_sessions
-            db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no))
+            
+            // Filter by emp_no in the query directly to ensure privacy
+            unsubSync = db.collection('reports')
+                .where('emp_no', '==', String(currentUser.emp_no))
                 .onSnapshot(snap => {
-                    const sorted = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+                    reports = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    renderReports();
+                });
+
+            // Sync chats for unread indicators
+            db.collection('chat_sessions')
+                .where('participants', 'array-contains', String(currentUser.emp_no))
+                .onSnapshot(snap => {
+                    const chats = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    const hasUnread = chats.some(c => c.last_sender_id && String(c.last_sender_id) !== String(currentUser.emp_no));
+                    const dot = document.getElementById('notif-dot-nav');
+                    if(dot) dot.style.display = hasUnread ? 'block' : 'none';
+                    
+                    const sorted = chats.sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
                     renderInbox(sorted);
                 });
         }
@@ -718,12 +735,14 @@
             for(const c of chatsList) {
                 const otherID = c.participants.find(p => String(p) !== String(currentUser.emp_no));
                 let otherName = 'User ' + otherID;
+                const isUnread = c.last_sender_id && String(c.last_sender_id) !== String(currentUser.emp_no);
                 
                 const eSnap = await db.collection('employees').where('emp_no', '==', otherID).limit(1).get();
                 if(!eSnap.empty) otherName = eSnap.docs[0].data().name;
 
                 html += `
-                    <div class="inbox-item" onclick="openChat('${c.id}', '${otherName}')" style="background:white; border-radius:30px; padding:18px 22px; display:flex; align-items:center; margin-bottom:12px; cursor:pointer; box-shadow:0 6px 15px rgba(0,0,0,0.03); border:1px solid #f1f5f9">
+                    <div class="inbox-item" onclick="openChat('${c.id}', '${otherName}')" style="background:white; border-radius:30px; padding:18px 22px; display:flex; align-items:center; margin-bottom:12px; cursor:pointer; box-shadow:0 6px 15px rgba(0,0,0,0.03); border:1px solid #f1f5f9; position:relative">
+                        ${isUnread ? '<div class="unread-dot" style="position:absolute; top:15px; left:15px; width:10px; height:10px; background:#ef4444; border-radius:50%; border:2px solid white"></div>' : ''}
                         <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(otherName)}&background=f1f5f9&color=0f172a&bold=true" style="width:48px; height:48px; border-radius:14px; margin-right:15px">
                         <div style="flex:1; overflow:hidden">
                             <div style="display:flex; justify-content:space-between; align-items:baseline">
