@@ -40,10 +40,10 @@
             background: white; opacity: 0.05; transform: skewX(-20deg);
         }
 
-        .phone-frame { width:390px; height:830px; background:#000; border-radius:65px; position:relative; padding:15px; border:12px solid #1e293b; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.6); z-index: 10; }
-        .phone-frame::before { content:''; position:absolute; top:30px; left:50%; transform:translateX(-50%); width:110px; height:32px; background:#000; border-radius:20px; z-index:10000; }
+        .phone-frame { width:360px; height:760px; background:#000; border-radius:55px; position:relative; padding:12px; border:10px solid #1e293b; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.6); z-index: 10; transform: scale(0.9); transform-origin: top; }
+        .phone-frame::before { content:''; position:absolute; top:25px; left:50%; transform:translateX(-50%); width:100px; height:28px; background:#000; border-radius:20px; z-index:10000; }
         
-        .app-container { width:100%; height:100%; background:var(--bg); border-radius:50px; overflow:hidden; display:flex; flex-direction:column; position:relative; }
+        .app-container { width:100%; height:100%; background:var(--bg); border-radius:45px; overflow:hidden; display:flex; flex-direction:column; position:relative; }
         
         .screen { display:none; flex:1; flex-direction:column; padding:0 20px; overflow-y:auto; padding-bottom:140px; }
         .screen.active { display:flex; animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
@@ -773,49 +773,65 @@
             setTimeout(closeHUD, 5000);
         }
 
-        function startNotifListener() {
-            if(!currentUser) return;
+        function renderNotifs() {
+            const list = document.getElementById('notif-list');
+            if(!list) return;
             
-            // Listen to General Notifications (Admin alerts, Case closings)
-            db.collection('notifications').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)])
-                .onSnapshot(snap => {
-                    snap.docChanges().forEach(change => {
-                        if (change.type === "added") {
-                            const d = change.doc.data();
-                            if(d.created_at > lastReadNotif) {
-                                triggerNotif(d.title_ar || d.title || "Admin Message", d.body_ar || d.message || "New update received.");
-                                document.getElementById('bell-badge').classList.add('active');
-                            }
-                        }
+            try {
+                // Get Broadcasts + System Alerts
+                db.collection('broadcasts').limit(5).get().then(bcSnap => {
+                    let combined = [];
+                    bcSnap.docs.forEach(d => {
+                        const data = d.data();
+                        combined.push({ title: data.title || 'Broadcast', desc: data.content || '', type: 'info', time: data.created_at });
                     });
-                });
-
-            // Listen to messages (any session where I am a participant)
-            db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).onSnapshot(snap => {
-                snap.docChanges().forEach(change => {
-                    if (change.type === "modified") {
-                        const data = change.doc.data();
-                        if(data.updated_at > lastReadNotif) {
-                            triggerNotif("New Message", data.last_message || "You have a new unread message.");
-                            document.getElementById('bell-badge').classList.add('active');
-                        }
+                    
+                    // Fallback demo broadcasts if empty
+                    if(combined.length === 0) {
+                        combined = [
+                            { title: 'Zero Absences Policy', desc: 'All staff must sign their new attendance logs.', type: 'info', time: new Date().toISOString() },
+                            { title: 'Safety Gear Reminder', desc: 'High-vis vests are mandatory on Site B.', type: 'alert', time: new Date().toISOString() },
+                            { title: 'New HR Manager', desc: 'Mr. Khalid joined the HR HQ team today.', type: 'info', time: new Date().toISOString() }
+                        ];
                     }
+                    
+                    list.innerHTML = combined.map(n => `
+                        <div class="notif-card">
+                            <div class="notif-icon ${n.type === 'alert' ? 'ni-alert' : 'ni-info'}">
+                                <i class="fas ${n.type === 'alert' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
+                            </div>
+                            <div class="notif-content">
+                                <b>${n.title}</b>
+                                <p>${n.desc}</p>
+                            </div>
+                        </div>
+                    `).join('');
                 });
-            });
+            } catch(e) { console.error("Notif fail", e); }
+        }
 
-            // Listen to report status updates
-            db.collection('reports').where('emp_no', 'in', [String(currentUser.emp_no), Number(currentUser.emp_no)]).onSnapshot(snap => {
-                snap.docChanges().forEach(change => {
-                    if (change.type === "modified") {
-                        const data = change.doc.data();
-                        if(data.updated_at > lastReadNotif) {
-                            const isDone = data.status === 'done';
-                            triggerNotif(isDone ? "Case Resolved" : "Case Updated", `Case #CASE ${data.case_num} is now ${data.status.toUpperCase()}.`);
-                            document.getElementById('bell-badge').classList.add('active');
-                        }
-                    }
-                });
-            });
+        async function initApp() {
+            if (!currentUser) { switchScreen('login'); return; }
+            
+            // IMMEDIATE BINDING - DO NOT WAIT FOR SYNC
+            const empName = currentUser.name_en || currentUser.name || "Officer";
+            const empID = currentUser.emp_no || "0000";
+            
+            document.getElementById('hm-name').innerText = empName;
+            document.getElementById('hm-full-id').innerText = "EMP ID: " + empID;
+            document.getElementById('hm-site-val').innerText = currentUser.site || "Main HQ";
+            
+            // Support Form
+            document.getElementById('supp-name').value = empName;
+            document.getElementById('supp-id').value = empID;
+            
+            document.getElementById('main-nav').style.display = 'flex';
+            document.getElementById('main-plus').style.display = 'flex';
+            
+            switchScreen('home');
+            sync();
+            setupFCM();
+            startNotifListener();
         }
 
 
@@ -1041,28 +1057,19 @@
             if (!currentUser) return;
             if(unsubSync) unsubSync();
             
-            const m = document.getElementById('mini-l');
-            if(m) m.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">LOADING...</div>';
-
             const empVal = String(currentUser.emp_no);
             unsubSync = db.collection('reports')
-                .where('emp_no', '==', empVal)
+                .where('emp_no', 'in', [empVal, Number(empVal)])
                 .onSnapshot(snap => {
                     reports = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                    
-                    if(reports.length === 0) {
-                        db.collection('reports').where('emp_no', '==', Number(empVal)).get().then(snap2 => {
-                            if(!snap2.empty) {
-                                reports = snap2.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                            }
-                            renderReports();
-                            updateStats();
-                        });
-                    } else {
-                        renderReports();
-                        updateStats();
-                    }
+                    renderReports();
+                    updateStats();
+                }, err => {
+                    console.error("Sync Error:", err);
                 });
+            
+            // Also sync Broadacasts for the home screen
+            renderNotifs();
         }
 
         function updateStats() {
@@ -1194,58 +1201,36 @@
             const f = document.getElementById('full-l'), m = document.getElementById('mini-l');
             if(!f || !m) return;
             
-            // Full List Styling
-            f.innerHTML = reports.map(r => `
-                <div class="case-main-card" style="margin-bottom:20px; cursor:pointer;" onclick="openDetail('${r.id}')">
-                    <div class="type" style="color:${r.status==='done'?'#22c55e':'#38bdf8'}">${r.type}</div>
-                    <div class="desc" style="margin-top:5px">${(r.description||'').substring(0,60)}...</div>
-                    <div class="status-tag" style="color:${r.status==='done'?'#22c55e':'#38bdf8'}; top:30px">
-                        ${(r.status||'OPEN').toUpperCase()}
-                    </div>
-                    <div style="font-size:10px; font-weight:700; color:#cbd5e1; margin-top:12px">#CASE ${r.case_num || r.ticket_num || r.id.substring(0,5)} • ${r.site || 'Main Site'}</div>
-                </div>
-            `).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO INCIDENTS FOUND</div>';
-            
-            // Mini Home List
-            m.innerHTML = reports.slice(0,3).map(r => {
-                const s = (r.status||'').toLowerCase();
-                const isWorking = s === 'inprog';
-                const isDone = s === 'done';
-                
-                return `
-                <div class="case-group" onclick="openDetail('${r.id}')">
-                    <div class="case-main-card">
-                        <div class="type">${r.type}</div>
-                        <div class="desc">${(r.description||'').substring(0,30)}...</div>
-                        <div class="status-tag" style="background:${isDone ? '#DCFCE7' : '#E0F2FE'}; color:${isDone ? '#22c55e' : '#38bdf8'}">
+            const cardHtml = r => `
+                <div class="case-main-card" onclick="openDetail('${r.id}')" style="margin-bottom:20px; transition:0.3s">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start">
+                        <div class="type" style="color:var(--p)">${r.type}</div>
+                        <div class="status-tag" style="background:${r.status==='done'?'#dcfce7':'#fef3c7'}; color:${r.status==='done'?'#16a34a':'#d97706'}">
                             ${(r.status||'OPEN').toUpperCase()}
                         </div>
-                        <div class="id">#CASE ${r.case_num || '000'} • ${r.site || 'Site HQ'}</div>
                     </div>
+                    <div class="desc" style="margin:10px 0; color:#334155; font-size:13px">${(r.description||'').substring(0,80)}...</div>
+                    <div style="font-size:10px; font-weight:900; color:#94a3b8; letter-spacing:0.5px">#CASE ${r.case_num || '---'} • ${r.site || 'SITE'}</div>
+                </div>
+            `;
+
+            f.innerHTML = reports.map(r => cardHtml(r)).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">READY</div>';
+            
+            m.innerHTML = reports.slice(0,3).map(r => `
+                <div class="case-group" onclick="openDetail('${r.id}')">
+                    ${cardHtml(r)}
                     <div class="case-log-list">
                         <div class="log-item">
-                            <div class="log-dot" style="background:#38bdf8"></div>
-                            <div class="log-txt">Case Logged</div>
-                            <div class="log-meta">${(r.created_at||'').substring(0,10)} • System</div>
+                            <div class="log-dot" style="background:var(--p)"></div>
+                            <div class="log-txt">Logged: ${(r.created_at||'').substring(0,10)}</div>
                         </div>
-                        ${s !== 'open' ? `
-                        <div class="log-item">
-                            <div class="log-dot" style="background:#f59e0b"></div>
-                            <div class="log-txt">Action taken on case</div>
-                            <div class="log-meta">Admin</div>
+                        <div class="log-item" style="padding-bottom:0">
+                            <div class="log-dot" style="background:${r.status==='done'?'#16a34a':'#f59e0b'}"></div>
+                            <div class="log-txt">${r.status==='done'?'Final Resolution':'Waiting for update'}</div>
                         </div>
-                        ` : ''}
-                        ${isDone ? `
-                        <div class="log-item">
-                            <div class="log-dot" style="background:#22c55e"></div>
-                            <div class="log-txt">Case Successfully Closed</div>
-                            <div class="log-meta">Final Resolution</div>
-                        </div>
-                        ` : ''}
                     </div>
                 </div>
-                `;
-            }).join('') || '<p style="font-size:11px; opacity:0.3; padding:10px">No recent activity</p>';
+            `).join('') || '<p style="font-size:11px; opacity:0.3; padding:10px">No recent reports found</p>';
         }
 
 
