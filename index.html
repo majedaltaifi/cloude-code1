@@ -110,13 +110,25 @@
         .btn-p { width:100%; background:var(--primary); color:white; padding:20px; border-radius:22px; border:none; font-weight:950; letter-spacing:1px; font-size:14px; box-shadow: 0 8px 20px rgba(46,49,146,0.2); }
         .btn-p:disabled { opacity: 0.5; filter: grayscale(1); }
 
-        .login-bg { background: var(--secondary); overflow: hidden; position: relative; }
-        .brand-logo-main { width: 140px; margin-bottom: 30px; animation: fadeInDown 0.8s ease; }
-        @keyframes fadeInDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
-
-        .glass-login { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 40px; padding: 40px 30px; width: 100%; }
-        .login-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 18px; width: 100%; color: white; font-weight: 700; margin-bottom: 20px; }
-        .login-input::placeholder { color: rgba(255,255,255,0.3); }
+        /* SMART LOGIN */
+        .glass-login { 
+            background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 40px; 
+            padding: 40px 30px; width: 100%; transition: 0.5s;
+        }
+        .login-input { 
+            background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.1); 
+            border-radius: 22px; padding: 20px; width: 100%; color: white; 
+            font-weight: 700; margin-bottom: 15px; font-size: 15px; outline: none;
+            transition: 0.3s;
+        }
+        .login-input:focus { border-color: var(--s); background: rgba(255,255,255,0.15); }
+        .btn-signin { 
+            background: var(--s); color: var(--p); font-weight: 950; 
+            padding: 22px; border-radius: 22px; border: none; width: 100%; 
+            cursor: pointer; font-size: 16px; margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(128, 209, 233, 0.3);
+        }
 
         /* NOTIFICATIONS */
         .bell-wrap { position: relative; width: 42px; height: 42px; background: #f8fafc; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--primary); }
@@ -133,21 +145,21 @@
         <div class="app-container">
             <!-- LOGIN SCREEN -->
             <div class="screen active login-bg" id="s-login">
-                <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:35px">
-                    <img src="icon.png" class="brand-logo-main" alt="NIT Logo">
+                <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:35px; background: linear-gradient(135deg, #1e293b, #0f172a); border-radius:50px">
+                    <img src="https://nesma-it.com/wp-content/uploads/2023/10/NIT-Logo-White.png" style="width:160px; margin-bottom:40px">
                     
                     <div class="glass-login">
                         <div style="text-align: center; margin-bottom: 30px;">
-                            <h2 style="color:white; font-size:20px; font-weight:900; letter-spacing:1px;">NIT INTEL HUB</h2>
-                            <p style="color:var(--accent); font-weight:700; font-size:10px; letter-spacing:2px">AUTHORIZED ACCESS ONLY</p>
+                            <h2 style="color:white; font-size:22px; font-weight:950; letter-spacing:1px;" id="t-login-title">NIT INTEL HUB</h2>
+                            <p style="color:var(--s); font-weight:900; font-size:10px; letter-spacing:2px; opacity:0.6" id="t-login-sub">SECURE ACCESS</p>
                         </div>
 
-                        <input id="login-id" class="login-input" type="tel" maxlength="4" placeholder="Identification ID">
-                        <input id="login-pass" class="login-input" type="password" placeholder="Access Password">
+                        <input id="login-id" class="login-input" type="tel" placeholder="Employee ID">
+                        <input id="login-pass" class="login-input" type="password" placeholder="Password">
 
-                        <p id="login-err" style="color:#f87171; font-size:11px; font-weight:900; margin-bottom:20px; text-align:center; display:none">ACCESS DENIED: REDIRECTING...</p>
+                        <p id="login-err" style="color:#f87171; font-size:11px; font-weight:900; margin-bottom:15px; text-align:center; display:none">ACCESS DENIED</p>
 
-                        <button class="btn-login" onclick="doLogin()" style="background:var(--accent); color:var(--primary); font-weight:950; padding:20px; border-radius:20px; border:none; width:100%; cursor:pointer;">SIGN IN</button>
+                        <button class="btn-signin" onclick="doLogin()" id="t-signin-btn">SIGN IN</button>
                     </div>
                 </div>
             </div>
@@ -440,7 +452,8 @@
                 housing: "Employee Housing", housingD: "Living & utilities",
                 safety: "Safety / Danger", safetyD: "Hazards & incidents",
                 service: "Service Request", serviceD: "Transport & repairs",
-                back: "BACK", submit: "SUBMIT REPORT", details: "DETAILS", photo: "PHOTOGRAPH", tap: "TAP TO ATTACH"
+                back: "BACK", submit: "SUBMIT REPORT", details: "DETAILS", photo: "PHOTOGRAPH", tap: "TAP TO ATTACH",
+                loginTitle: "NIT INTEL HUB", loginSub: "SECURE ACCESS", loginID: "Employee ID", loginPass: "Password", signIn: "SIGN IN", accessDenied: "ACCESS DENIED"
             },
             ar: {
                 wizard: "إرسال بلاغ", step1: "أين تقع المشكلة؟", step2: "تصنيف المشكلة", step3: "اختر القسم", step4: "تحديد المشكلة",
@@ -448,7 +461,8 @@
                 housing: "سكن الموظفين", housingD: "المرافق والمعيشة",
                 safety: "بلاغ سلامة / خطر", safetyD: "المخاطر والحوادث",
                 service: "طلب خدمة", serviceD: "النقل والإصلاحات",
-                back: "رجوع", submit: "إرسال البلاغ", details: "التفاصيل", photo: "الصورة", tap: "اضغط للإرفاق"
+                back: "رجوع", submit: "إرسال البلاغ", details: "التفاصيل", photo: "الصورة", tap: "اضغط للإرفاق",
+                loginTitle: "منصة NIT الميدانية", loginSub: "دخول آمن", loginID: "الرقم الوظيفي", loginPass: "كلمة المرور", signIn: "تسجيل الدخول", accessDenied: "فشل الدخول"
             }
         };
 
@@ -467,8 +481,11 @@
             appLang = l;
             document.body.dir = l === 'ar' ? 'rtl' : 'ltr';
             document.getElementById('lang-screen').style.opacity = '0';
-            setTimeout(() => document.getElementById('lang-screen').style.display='none', 500);
+            setTimeout(() => {
+                document.getElementById('lang-screen').style.display='none';
+            }, 500);
             applyLocalization();
+            initApp(); // Start the actual app logic after language is chosen
         }
 
         function applyLocalization() {
@@ -493,6 +510,14 @@
             document.getElementById('t-details').innerText = t.details;
             document.getElementById('t-photo').innerText = t.photo;
             document.getElementById('t-tap').innerText = t.tap;
+
+            // Login Localization
+            document.getElementById('t-login-title').innerText = t.loginTitle;
+            document.getElementById('t-login-sub').innerText = t.loginSub;
+            document.getElementById('login-id').placeholder = t.loginID;
+            document.getElementById('login-pass').placeholder = t.loginPass;
+            document.getElementById('t-signin-btn').innerText = t.signIn;
+            document.getElementById('login-err').innerText = t.accessDenied;
         }
 
         function goToPane(n) {
@@ -998,9 +1023,7 @@
             ov.classList.add('active');
         }
 
-        }
-
-        function initApp() {
+        async function initApp() {
             const saved = localStorage.getItem('nit_user');
             if (saved) {
                 currentUser = JSON.parse(saved);
@@ -1009,500 +1032,27 @@
                 document.getElementById('main-nav').style.display = 'flex';
                 document.getElementById('main-plus').style.display = 'flex';
                 
-                document.getElementById('hm-name').innerText = currentUser.name_en || currentUser.name || "OFFICER";
-                document.getElementById('hm-full-id').innerText = "#" + (currentUser.emp_no || "3734") + " • NIT FIELD OPS";
-                
-                switchScreen('home');
-                sync();
-                setupFCM();
-            }
-        }
-
-
-        let activeImgB64 = null;
-        function handleFile(input) {
-            const f = input.files[0]; if(!f) return;
-            const r = new FileReader(); r.onload = (e) => {
-                activeImgB64 = e.target.result;
-                const c = document.getElementById('image-preview-cont');
-                if(c) c.innerHTML = `<img src="${activeImgB64}" alt="Preview" style="width:100%; height:100%; object-fit:cover">`;
-            }; r.readAsDataURL(f);
-        }
-        function handleImg(input) {
-            const f = input.files[0]; if(!f) return;
-            const r = new FileReader(); r.onload = (e) => {
-                activeImgB64 = e.target.result;
-                const p = document.getElementById('prevImg');
-                const ph = document.getElementById('phold');
-                if(p) { p.src = activeImgB64; p.style.display = 'block'; }
-                if(ph) ph.style.display = 'none';
-            }; r.readAsDataURL(f);
-        }
-
-        async function submitReport() {
-            const desc = document.getElementById('case-desc').value;
-            const site = document.getElementById('case-site').value;
-            if(!desc || !currentType) return alert('Please complete the details');
-            
-            const btn = document.querySelector('#s-create .btn-p');
-            const oldHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SYNCING...';
-            btn.disabled = true;
-
-            try {
-                // Atomic increment is more reliable than manual transaction for high-concurrency
-                const counterRef = db.collection('settings').doc('counters');
-                await counterRef.set({ report_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
-                
-                const sfDoc = await counterRef.get();
-                const caseNum = sfDoc.data().report_count || 1;
-
-                const reportDocRef = db.collection('reports').doc(String(caseNum));
-                await reportDocRef.set({
-                    user_id: currentUser.id,
-                    emp_no: currentUser.emp_no,
-                    user_name: currentUser.name_en || currentUser.name,
-                    case_num: caseNum,
-                    type: (currentEnv ? currentEnv.toUpperCase() : '') + ' - ' + currentType + (currentSubType ? ' - ' + currentSubType : ''),
-                    description: desc,
-                    site: site,
-                    status: 'open',
-                    photo_b64: activeImgB64 || null,
-                    created_at: new Date().toISOString()
-                });
-
-                await reportDocRef.collection('timeline').add({
-                    event_text: 'Case Logged (Serial #CASE ' + caseNum + ')',
-                    author: 'System',
-                    created_at: new Date().toISOString()
-                });
-
-                showStatus(true, caseNum);
-            } catch(e) { 
-                console.error("Submit Error:", e);
-                showStatus(false);
-                btn.innerHTML = oldHtml;
-                btn.disabled = false;
-            }
-        }
-
-        function showStatus(isSuccess, caseNum) {
-            const m = document.getElementById('status-modal');
-            const ic = document.getElementById('status-icon');
-            const t = document.getElementById('status-title');
-            const msg = document.getElementById('status-msg');
-            const wrap = document.getElementById('status-case-wrap');
-            const num = document.getElementById('status-case-num');
-
-            if(isSuccess) {
-                ic.className = 'status-icon s-icon-success';
-                ic.innerHTML = '<i class="fas fa-check-circle"></i>';
-                t.innerText = 'CASE RECORDED';
-                msg.innerText = 'Your field report has been successfully transmitted and logged in the system.';
-                wrap.style.display = 'block';
-                num.innerText = '#CASE ' + caseNum;
-            } else {
-                ic.className = 'status-icon s-icon-fail';
-                ic.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-                t.innerText = 'SUBMISSION FAILED';
-                msg.innerText = 'We encountered a connection error. Please verify your internet and try again.';
-                wrap.style.display = 'none';
-            }
-            m.classList.add('active');
-        }
-
-        function closeStatusModal() {
-            document.getElementById('status-modal').classList.remove('active');
-            if(document.getElementById('status-title').innerText === 'CASE RECORDED') {
-                switchScreen('home');
-                location.reload();
-            }
-        }
-
-        async function fixLegacyNumbers() {
-            try {
-                const snap = await db.collection('reports').where('case_num', '==', null).limit(100).get();
-                if(snap.empty) return;
-                
-                const all = await db.collection('reports').orderBy('created_at', 'asc').get();
-                const batch = db.batch();
-                let count = 0;
-
-                all.docs.forEach((d, i) => {
-                    if(!d.data().case_num) {
-                        batch.update(d.ref, { case_num: i + 1 });
-                        count = i + 1;
-                    } else {
-                        count = d.data().case_num;
-                    }
-                });
-                
-                await batch.commit();
-                await db.collection('settings').doc('counters').set({ report_count: count }, { merge: true });
-            } catch(e) { console.error("Migration Error:", e); }
-        }
-
-        let currentStatFilter = 'all';
-        function updateStats(filter) {
-            if(filter) currentStatFilter = filter;
-            const total = reports.length;
-            const pendArr = reports.filter(r=> (r.status||'').toLowerCase() !== 'done');
-            const doneArr = reports.filter(r=> (r.status||'').toLowerCase() === 'done');
-            
-            if(document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
-            if(document.getElementById('stat-pend')) document.getElementById('stat-pend').innerText = pendArr.length;
-            if(document.getElementById('stat-done')) document.getElementById('stat-done').innerText = doneArr.length;
-            
-            // Visual active state
-            document.querySelectorAll('.stat-card-main, .stat-box').forEach(el => el.classList.remove('active'));
-            if(currentStatFilter === 'all' && document.getElementById('stat-card-all')) document.getElementById('stat-card-all').classList.add('active');
-            if(currentStatFilter === 'pending' && document.getElementById('stat-card-pend')) document.getElementById('stat-card-pend').classList.add('active');
-            if(currentStatFilter === 'done' && document.getElementById('stat-card-done')) document.getElementById('stat-card-done').classList.add('active');
-            
-            let filtered = [];
-            let lbl = 'ALL ACTIVITY LOG';
-            if(currentStatFilter === 'all') filtered = reports;
-            else if(currentStatFilter === 'pending') { filtered = pendArr; lbl = 'PENDING CASES'; }
-            else if(currentStatFilter === 'done') { filtered = doneArr; lbl = 'COMPLETED CASES'; }
-            
-            const lblEl = document.getElementById('activity-lbl');
-            if(lblEl) lblEl.innerText = lbl;
-
-            const actEl = document.getElementById('stat-activity');
-            if(actEl) {
-                actEl.innerHTML = filtered.map(r=>{
-                    const isDone = (r.status||'').toLowerCase() === 'done';
-                    return `
-                        <div class="ticket-item" onclick="openDetail('${r.id}')" style="background:white; margin-bottom:15px; border-radius:24px; padding:22px; border:1px solid #f1f5f9; box-shadow:0 4px 12px rgba(0,0,0,0.015)">
-                            <div style="display:flex; justify-content:space-between; align-items:center">
-                                <div style="font-weight:950; color:var(--primary); font-size:15px">#CASE ${r.case_num || '---'}</div>
-                                <div style="font-size:10px; padding:5px 12px; border-radius:10px; font-weight:950; background:${isDone ? '#DCFCE7' : '#E0F2FE'}; color:${isDone ? '#22c55e' : '#38bdf8'}">
-                                    ${(r.status||'OPEN').toUpperCase()}
-                                </div>
-                            </div>
-                            <div style="font-size:12px; color:var(--text-muted); font-weight:900; margin-top:10px; text-transform:uppercase; letter-spacing:0.5px">
-                                ${r.type} • Site HQ
-                            </div>
-                        </div>
-                    `;
-                }).join('') || '<div style="text-align:center; padding:30px; opacity:0.5; font-weight:900">NO RECORDS FOUND</div>';
-            }
-        }
-
-        async function fetchUnreadChats() {
-            if(!currentUser) return;
-            const snap = await db.collection('chat_messages').where('is_read','==',false).where('participants','array-contains',String(currentUser.emp_no)).get();
-            unreadChats = {}; snap.docs.forEach(d => { const m = d.data(); if(m.sender_no !== String(currentUser.emp_no)) unreadChats[m.session_id] = (unreadChats[m.session_id]||0)+1; });
-            updateChatBadges();
-        }
-        function updateChatBadges() {
-            let t = 0; Object.values(unreadChats).forEach(v=>t+=v);
-            const dot = document.getElementById('chat-count-badge'); if(dot) { dot.innerText = t; if(t>0) dot.classList.add('active'); else dot.classList.remove('active'); }
-        }
-
-        function filterChats() {
-            const q = document.getElementById('chat-search').value.toLowerCase();
-            renderChatHub(q);
-        }
-
-        async function renderChatHub(query = '') {
-            if (isRenderingHub || !currentUser) return; 
-            isRenderingHub = true;
-            try {
-                const myIdStr = String(currentUser.emp_no);
-                
-                // 1. Get existing chat sessions
-                const [snap1, snap2] = await Promise.all([
-                    db.collection('chat_sessions').where('participants','array-contains', myIdStr).get(),
-                    db.collection('chat_sessions').where('participants','array-contains', Number(currentUser.emp_no)).get()
-                ]);
-                
-                let sessionsMap = {};
-                snap1.docs.forEach(d => sessionsMap[d.id] = {id:d.id, ...d.data()});
-                snap2.docs.forEach(d => sessionsMap[d.id] = {id:d.id, ...d.data()});
-                
-                let data = Object.values(sessionsMap).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
-                
-                // 2. If searching, also search for matching employees
-                if(query && query.length >= 3) {
-                    const empSnap = await db.collection('employees')
-                        .where('emp_no', '==', String(query))
-                        .limit(1)
-                        .get();
-                    
-                    if(!empSnap.empty) {
-                        const emp = empSnap.docs[0].data();
-                        const otherId = String(emp.emp_no);
-                        if(otherId !== myIdStr) {
-                            const pair = [myIdStr, otherId].sort();
-                            const sessionId = `p2p_${pair[0]}_${pair[1]}`;
-                            
-                            if(!sessionsMap[sessionId]) {
-                                data.push({
-                                    id: sessionId,
-                                    isVirtual: true,
-                                    last_message: 'Start conversation with ' + (emp.name_en || emp.name || otherId),
-                                    updated_at: new Date().toISOString()
-                                });
-                            }
-                        }
-                    }
-                }
-
-                // Force strict filtering and Sort: exact ID match comes FIRST
-                if(query) {
-                    data = data.filter(s => {
-                        const low = s.id.toLowerCase();
-                        if(!isNaN(query)) return low.includes('_'+query) || low.includes(query+'_') || low === query;
-                        return low.includes(query) || (s.last_message||'').toLowerCase().includes(query);
-                    });
-                    
-                    // Prioritize exact match in the ID string
-                    data.sort((a,b) => {
-                        const aExact = a.id.includes('_'+query) || a.id.includes(query+'_');
-                        const bExact = b.id.includes('_'+query) || b.id.includes(query+'_');
-                        return bExact - aExact;
-                    });
-                }
-
-                const c = document.getElementById('chat-report-list');
-                if(c) {
-                    let items = data.filter(s => s.id !== 'Management');
-                    const adminSid = `direct_${currentUser.emp_no}`;
-                    const hasAdmin = items.some(s => s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin'));
-                    
-                    if(!hasAdmin && !query) {
-                        items.unshift({
-                            id: adminSid,
-                            last_message: 'Official Support Channel',
-                            updated_at: new Date().toISOString(),
-                            isAuto: true
-                        });
-                    } else if(!query) {
-                        const aIdx = items.findIndex(s => s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin'));
-                        if(aIdx > 0) {
-                            const adminItem = items.splice(aIdx, 1)[0];
-                            items.unshift(adminItem);
-                        }
-                    }
-
-                    c.innerHTML = items.map((s, idx) => {
-                        const isFoundMatch = query && (s.id.includes('_'+query) || s.id.includes(query+'_'));
-                        const isSupport = s.id === adminSid || s.id === 'Admin' || s.id.toLowerCase().includes('admin') || s.id.toLowerCase().includes('direct');
-                        
-                        let displayName = String(s.id);
-                        if(displayName.includes('_')) {
-                            const parts = displayName.split('_');
-                            const other = parts.find(p => !['p2p', 'b2p', 'chat'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
-                            if (other) displayName = 'Employee ' + other;
-                        }
-                        if(isSupport) displayName = 'Support';
-
-                        return `
-                        <div class="chat-row ${idx === 0 && !query ? 'active' : ''} ${isFoundMatch ? 'found-match' : ''} ${isSupport ? 'admin-row' : ''}" onclick="openChat('${s.id}')">
-                            <div class="chat-avatar ${isSupport ? 'admin' : ''}">
-                                <i class="fas ${isSupport ? 'fa-headset' : 'fa-user-shield'}"></i>
-                            </div>
-                            <div class="chat-info">
-                                <div class="chat-name-meta">
-                                    <h4>${displayName}${isFoundMatch ? '<span class="badge-new">FOUND</span>' : ''}</h4>
-                                    <span>${s.updated_at ? s.updated_at.substring(0,10) : ''}</span>
-                                </div>
-                                <div class="chat-msg-prev">${s.last_message || '...'}</div>
-                            </div>
-                        </div>
-                    `}).join('') || '<div style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO CONVERSATIONS</div>';
-                }
-            } catch(e) { console.error(e); }
-            finally { isRenderingHub = false; }
-        }
-
-        async function openChat(sid) {
-            activeRoom = String(sid);
-            const isSupportRoom = activeRoom.toLowerCase().includes('direct') || activeRoom.toLowerCase().includes('admin');
-            let title = isSupportRoom ? 'Support' : activeRoom;
-            
-            // Smarter extraction for p2p/b2p formats
-            if(!isSupportRoom && activeRoom.includes('_')) {
-                const parts = activeRoom.split('_');
-                const other = parts.find(p => !['p2p', 'b2p', 'chat', 'direct'].includes(p.toLowerCase()) && p !== String(currentUser.emp_no));
-                if (other) title = 'Employee ' + other;
-            }
-            
-            document.getElementById('chat-title').innerText = title;
-            document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:20px; opacity:0.3">Loading conversation...</p>';
-            switchScreen('chat');
-            
-            if(unsubChat) unsubChat();
-            
-            // Fetch without orderBy first (safer against index issues)
-            unsubChat = db.collection('chat_messages')
-                .where('session_id', '==', activeRoom)
-                .onSnapshot(snap => {
-                    if (snap.empty) {
-                        document.getElementById('chat-msgs').innerHTML = '<p style="text-align:center; padding:50px; opacity:0.3; font-weight:900">NO MESSAGES YET</p>';
-                        return;
-                    }
-                    // Sort manually in JS
-                    const msgs = snap.docs.map(d => d.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-                    
-                    document.getElementById('chat-msgs').innerHTML = msgs.map(m => {
-                        const isMe = String(m.sender_no) === String(currentUser.emp_no);
-                        // Identify admin by special ID or if in Support room
-                        const isAdmin = String(m.sender_no).toLowerCase() === 'admin' || String(m.sender_no).toLowerCase() === 'management';
-                        const author = isAdmin ? 'THE ADMIN' : (isMe ? 'YOU' : 'OFFICER ' + m.sender_no);
-                        const icon = isAdmin ? 'fa-crown' : 'fa-user-shield';
-                        
-                        return `
-                            <div class="chat-msg-row ${isMe ? 'me' : 'them'}">
-                                ${!isMe ? `<div class="chat-avatar-mini ${isAdmin ? 'admin' : ''}"><i class="fas ${icon}"></i></div>` : ''}
-                                <div class="chat-bubble ${isMe ? 'me' : 'them'} ${isAdmin ? 'admin' : ''}" data-author="${author}">
-                                    ${m.content}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                    const mc = document.getElementById('chat-msgs');
-                    mc.scrollTop = mc.scrollHeight;
-                }, err => {
-                    console.error("Chat Error:", err);
-                });
-        }
-
-        async function sendReportMsg() {
-            const i=document.getElementById('chat-input'), val=i.value.trim(); if(!val || !activeRoom) return;
-            const ts=new Date().toISOString(); i.value='';
-            const d={ session_id:activeRoom, sender_no:currentUser.emp_no, content:val, created_at:ts, is_read:false, participants:[currentUser.emp_no,'admin'] };
-            await db.collection('chat_messages').add(d);
-            await db.collection('chat_sessions').doc(activeRoom).set({ participants:[currentUser.emp_no,'admin'], updated_at:ts, last_message:val }, {merge:true});
-        }
-
-
-        async function submitHelp() {
-            const s=document.getElementById('supp-subj').value.trim(), 
-                  m=document.getElementById('supp-msg').value.trim(),
-                  rawMob=document.getElementById('supp-mobile').value.trim(),
-                  em=document.getElementById('supp-email').value.trim();
-             
-            if(!s||!m) return alert("Subject and Details are required.");
-            
-            // Prepend country code
-            const mob = "+966 " + rawMob;
-            
-            // Validation Logic
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if(!emailRegex.test(em)) return alert("Please enter a valid email address (e.g. name@domain.com)");
-            
-            if(rawMob.length < 9) return alert("Please enter your complete 9-digit mobile number (e.g. 5XXXXXXXX)");
-
-            const btn = document.querySelector('#s-support .btn-p');
-            const oldHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> VERIFYING...';
-            btn.disabled = true;
-
-            try {
-                // Atomic increment for Support Tickets
-                const counterRef = db.collection('settings').doc('counters');
-                await counterRef.set({ support_count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
-                
-                const sfDoc = await counterRef.get();
-                const tixNum = sfDoc.data().support_count || 1;
-
-                await db.collection('support_requests').doc(String(tixNum)).set({ 
-                    emp_no: currentUser.emp_no, 
-                    emp_name: currentUser.name_en || currentUser.name,
-                    ticket_num: tixNum,
-                    subject: s, 
-                    message: m, 
-                    mobile: mob,
-                    email: em,
-                    created_at: new Date().toISOString() 
-                });
-                alert("Success! Your Ticket Number is #TICKET " + tixNum + ". We will contact you soon."); 
-                switchScreen('home');
-            } catch(e) { 
-                console.error("Help Submission Error:", e);
-                alert("Error sending request. Please try again."); 
-            } finally {
-                btn.innerHTML = 'SEND REQUEST';
-                btn.disabled = false;
-            }
-        }
-
-        function startChatBadgeListener() {
-            if(!currentUser) return;
-            // Listen to sessions where user is a participant
-            db.collection('chat_sessions').where('participants', 'array-contains', String(currentUser.emp_no)).onSnapshot(snap => {
-                let unreadCount = 0;
-                snap.docs.forEach(doc => {
-                    const data = doc.data();
-                    // If last message exists and it's NOT from the user, and updated_at > lastReadNotif
-                    if (data.updated_at > lastReadNotif && data.last_sender !== String(currentUser.emp_no)) {
-                        unreadCount++;
-                    }
-                });
-                
-                const b = document.getElementById('chat-count-badge');
-                if (b) {
-                    if (unreadCount > 0) {
-                        b.innerText = unreadCount;
-                        b.classList.add('active');
-                    } else {
-                        b.classList.remove('active');
-                    }
-                }
-            });
-        }
-
-        function openAdminChat() {
-            if(!currentUser) return;
-            const sid = `direct_${currentUser.emp_no}`;
-            openChat(sid);
-        }
-
-        async function initApp() {
-            const saved = localStorage.getItem('nit_user');
-            if (saved) {
-                currentUser = JSON.parse(saved);
-                document.getElementById('s-login').style.display = 'none';
-                
-                // Set UI headers
-                if(document.getElementById('dr-name')) document.getElementById('dr-name').innerText = currentUser.name_en || currentUser.name || "Officer";
-                if(document.getElementById('dr-id')) document.getElementById('dr-id').innerText = "ID: " + (currentUser.emp_no || "0000");
                 if(document.getElementById('hm-name')) document.getElementById('hm-name').innerText = currentUser.name_en || currentUser.name || "Officer";
                 
-                // Instant load
                 switchScreen('home');
                 sync(); 
                 startNotifListener();
                 startChatBadgeListener();
-                
-                // Background tasks (non-blocking)
-                fixLegacyNumbers().catch(e => console.log("Bg migration:", e));
                 setupFCM().catch(e => console.log("FCM Setup:", e));
-                
-                // Real-time news
-                db.collection('broadcasts').onSnapshot(snap => {
-                    const h = document.getElementById('news-list-home');
-                    if (h) h.innerHTML = snap.docs.map(d => `<div style="margin-bottom:10px; font-size:12px"><b>${d.data().title}</b><br>${d.data().content}</div>`).join('') || 'No news';
-                });
             } else {
                 document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
                 document.getElementById('s-login').style.display = 'flex';
                 document.getElementById('main-nav').style.display = 'none';
                 document.getElementById('main-plus').style.display = 'none';
-                document.getElementById('wa-float').style.display = 'none';
-                // Force close drawer
-                document.getElementById('drawer').classList.remove('active');
-                document.getElementById('drawer-overlay').classList.remove('active');
             }
         }
-        function openAdminChat() {
-            if(!currentUser) return;
-            const sid = `direct_${currentUser.emp_no}`;
-            openChat(sid);
-        }
-        window.onload = initApp;
+
+        // App starts ONLY when language is chosen or if already chosen before
+        window.onload = () => {
+             // If language was previously selected, skip splash
+             const lastLang = localStorage.getItem('app_lang');
+             if(lastLang) selectLanguage(lastLang);
+        };
     </script>
 </body>
 </html>
