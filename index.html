@@ -844,7 +844,11 @@
                 
             } catch(e) {
                 console.error("Notif Error:", e);
-                async function submitReport() {
+                if(list) list.innerHTML = '<p style="text-align:center; color:red; padding:50px">Error loading alerts.</p>';
+            }
+        }
+
+        async function submitReport() {
             const desc = document.getElementById('case-desc').value;
             if(!desc || !currentType || !currentEnv) return alert('Please complete the details');
             
@@ -888,8 +892,6 @@
                 showStatus(false);
                 btn.innerHTML = oldHtml;
                 btn.disabled = false;
-            }
-        }
             }
         }
 
@@ -948,35 +950,30 @@
             const pass = document.getElementById('login-pass').value.trim();
             if (!id || !pass) return;
             
-            const btn = document.querySelector('#s-login .btn-login');
-            if(btn) { btn.innerText = "VERIFYING..."; btn.disabled = true; }
+            const btn = document.getElementById('t-signin-btn');
+            const oldTxt = btn.innerText;
+            if(btn) { btn.innerText = "..."; btn.disabled = true; }
             
-            // Hardcoded Logic for NIT Version
-            if(pass !== '12') {
-                document.getElementById('login-err').style.display = 'block';
-                if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
+            // Hardcoded Verification (Admin bypass)
+            if(pass === '12') {
+                try {
+                    let snap = await db.collection('employees').where('emp_no', 'in', [id, Number(id), String(id)]).get();
+                    if (snap.empty) { 
+                        document.getElementById('login-err').style.display = 'block'; 
+                        if(btn) { btn.innerText = oldTxt; btn.disabled = false; }
+                    } else { 
+                        currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; 
+                        localStorage.setItem('nit_user', JSON.stringify(currentUser)); 
+                        initApp();
+                    }
+                } catch (e) { 
+                    alert("Sync failed. Check connection."); 
+                    if(btn) { btn.innerText = oldTxt; btn.disabled = false; }
+                }
                 return;
             }
-
-            try {
-                // Dual-type check for better compatibility
-                let snap = await db.collection('employees').where('emp_no', '==', id).get();
-                if(snap.empty) snap = await db.collection('employees').where('emp_no', '==', Number(id)).get();
-                if(snap.empty) snap = await db.collection('employees').where('emp_no', '==', String(id)).get();
-                
-                if (snap.empty) { 
-                    document.getElementById('login-err').style.display = 'block'; 
-                    if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
-                } else { 
-                    currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; 
-                    localStorage.setItem('nit_user', JSON.stringify(currentUser)); 
-                    initApp(); // Instant redirect
-                }
-            } catch (e) { 
-                console.error("Login Error:", e);
-                alert("Connection error. Please try again."); 
-                if(btn) { btn.innerText = "SIGN IN"; btn.disabled = false; }
-            }
+            document.getElementById('login-err').style.display = 'block';
+            if(btn) { btn.innerText = oldTxt; btn.disabled = false; }
         }
 
         function doLogout() { localStorage.removeItem('nit_user'); location.reload(); }
