@@ -210,11 +210,6 @@
                     
                 </div>
 
-                <div class="stats-grid">
-                    <div class="stat-card" onclick="gotoReportsFilter('all')"><i class="fas fa-folder-open" style="color: #3b82f6;"></i><span class="stat-num" id="s-total">0</span><span class="stat-lbl">TOTAL</span></div>
-                    <div class="stat-card" onclick="gotoReportsFilter('pending')"><i class="fas fa-clock" style="color: #f59e0b;"></i><span class="stat-num" id="s-open">0</span><span class="stat-lbl">PENDING</span></div>
-                    <div class="stat-card" onclick="gotoReportsFilter('resolved')"><i class="fas fa-check-double" style="color: #10b981;"></i><span class="stat-num" id="s-done">0</span><span class="stat-lbl">RESOLVED</span></div>
-                </div>
                 <div id="mini-l" style="margin-top:5px"></div>
             </div>
 
@@ -704,9 +699,9 @@
                 const openVal = open;
                 const doneVal = totalVal - openVal;
                 
-                ['s-total', 'sd-total'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = totalVal; });
-                ['s-open', 'sd-open'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = openVal; });
-                ['s-done', 'sd-done'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = doneVal; });
+                ['sd-total'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = totalVal; });
+                ['sd-open'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = openVal; });
+                ['sd-done'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = doneVal; });
 
                 const makeHtml = (list) => {
                     let htmlList = [];
