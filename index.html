@@ -287,11 +287,6 @@
                 <div class="nav-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span id="nb-help">HELP</span></div>
             </nav>
             <div class="plus-btn" id="main-plus" style="display: none;" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
-            
-            <div id="podcast-btn" style="position:absolute; bottom:105px; right:20px; width:65px; height:65px; border-radius:50%; background:white; display:none; justify-content:center; align-items:center; box-shadow:0 8px 30px rgba(46,49,146,0.25); z-index:100; cursor:pointer; color:var(--p)" onclick="alert('AI Voice / Podcast Module Activated')">
-                <i class="fas fa-robot" style="font-size:28px"></i>
-                <div style="position:absolute; top:-2px; right:-2px; background:#ef4444; width:18px; height:18px; border-radius:50%; border:3px solid white"></div>
-            </div>
             <div id="status-modal" class="status-modal"><div class="status-card"><i class="fas fa-check-circle" style="font-size:50px; color:#22c55e;"></i><h2>DONE</h2><button class="btn-smart" onclick="closeStatusModal()">OK</button></div></div>
         </div>
     </div>
@@ -303,7 +298,7 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let currentUser = null, reports = [], appLang = 'en', unsubSync = null, currentEnv = null, currentType = null, currentWizardStep = 1;
+        let currentUser = null, reports = [], appLang = 'en', unsubSync = null, currentEnv = null, currentType = null, currentWizardStep = 1, currentFilter = 'all';
 
         const i18n = {
             en: { 
@@ -388,9 +383,6 @@
             const isPop = ['create', 'login', 'lang-screen', 'detail', 'success'].includes(id);
             document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
             document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
-            
-            const podBtn = document.getElementById('podcast-btn');
-            if(podBtn) podBtn.style.display = isPop ? 'none' : 'flex';
             
             document.querySelectorAll('.nav-item').forEach(n => {
                 n.classList.remove('active');
