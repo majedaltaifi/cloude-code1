@@ -539,7 +539,10 @@
                             token: token,
                             updated_at: new Date().toISOString()
                         });
-                        console.log('FCM Device Identity Se            } catch(e) { console.error("FCM Background Sync Fail:", e); }
+                        console.log('FCM Device Identity Secured');
+                    }
+                }
+            } catch(e) { console.error("FCM Background Sync Fail:", e); }
         }
 
         let currentUser = null, reports = [], lastScreen = 'home', activeImgB64 = null, activeRoom = null;
@@ -820,42 +823,7 @@
             setTimeout(closeHUD, 5000);
         }
 
-        function renderNotifs() {
-            const list = document.getElementById('notif-list');
-            if(!list) return;
-            
-            try {
-                // Get Broadcasts + System Alerts
-                db.collection('broadcasts').limit(5).get().then(bcSnap => {
-                    let combined = [];
-                    bcSnap.docs.forEach(d => {
-                        const data = d.data();
-                        combined.push({ title: data.title || 'Broadcast', desc: data.content || '', type: 'info', time: data.created_at });
-                    });
-                    
-                    // Fallback demo broadcasts if empty
-                    if(combined.length === 0) {
-                        combined = [
-                            { title: 'Zero Absences Policy', desc: 'All staff must sign their new attendance logs.', type: 'info', time: new Date().toISOString() },
-                            { title: 'Safety Gear Reminder', desc: 'High-vis vests are mandatory on Site B.', type: 'alert', time: new Date().toISOString() },
-                            { title: 'New HR Manager', desc: 'Mr. Khalid joined the HR HQ team today.', type: 'info', time: new Date().toISOString() }
-                        ];
-                    }
-                    
-                    list.innerHTML = combined.map(n => `
-                        <div class="notif-card">
-                            <div class="notif-icon ${n.type === 'alert' ? 'ni-alert' : 'ni-info'}">
-                                <i class="fas ${n.type === 'alert' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
-                            </div>
-                            <div class="notif-content">
-                                <b>${n.title}</b>
-                                <p>${n.desc}</p>
-                            </div>
-                        </div>
-                    `).join('');
-                });
-            } catch(e) { console.error("Notif fail", e); }
-        }
+        function closeHUD() { document.getElementById('notif-hud').classList.remove('active'); }
 
         async function initApp() {
             if (!currentUser) { switchScreen('login'); return; }
