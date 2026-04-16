@@ -145,7 +145,11 @@
 <body>
     <div id="lang-screen">
         <div class="lang-card">
-            <img src="https://nesma.com/wp-content/themes/nesma/images/logo.png" style="width:140px; margin-bottom:30px; filter: brightness(0) invert(1);">
+            <!-- Inline SVG Logo for 100% Reliability -->
+            <svg viewBox="0 0 100 100" style="width:80px; height:80px; margin-bottom:20px;">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="2" opacity="0.3" />
+                <path d="M30 70 V30 L70 70 V30" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
             <h2 style="font-weight:950; margin-bottom:10px; font-size:24px">SELECT LANGUAGE</h2>
             <p style="opacity:0.6; font-size:12px; margin-bottom:30px; letter-spacing:1px; font-weight:700">CHOOSE YOUR PREFERRED TONGUE</p>
             
@@ -158,6 +162,8 @@
             <button class="lang-btn" onclick="selectLanguage('ur')" style="font-family:'Noto Sans Arabic'">
                 <i class="fas fa-language"></i> اردو (Urdu)
             </button>
+            <p style="font-size: 8px; margin-top: 20px; opacity: 0.4; font-weight: 700;">Smart Pro v2.1 | NIT HUB</p>
+            <a href="javascript:location.reload(true)" style="color:white; font-size:10px; text-decoration:none; opacity:0.3; font-weight:900; margin-top:10px; display:block">FORCE REFRESH</a>
         </div>
     </div>
 
@@ -167,7 +173,10 @@
             <!-- LOGIN SCREEN -->
             <div class="screen active login-bg" id="s-login">
                 <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:35px; background: linear-gradient(135deg, #1e293b, #0f172a); border-radius:50px">
-                    <img src="https://nesma.com/wp-content/themes/nesma/images/logo.png" style="width:160px; margin-bottom:40px; filter: brightness(0) invert(1);">
+                    <svg viewBox="0 0 100 100" style="width:100px; height:100px; margin-bottom:30px;">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="2" opacity="0.3" />
+                        <path d="M30 70 V30 L70 70 V30" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                     
                     <div class="glass-login">
                         <div style="text-align: center; margin-bottom: 30px;">
@@ -1142,36 +1151,55 @@
             const reader = new FileReader();
             reader.onload = e => {
                 activeImgB64 = e.target.result;
-                document.getElementById('image-preview-cont').innerHTML = `<img src="${activeImgB64}" style="width:100%; height:120px; object-fit:cover; border-radius:15px">`;
+                document.getElementById('image-preview-cont').innerHTML = `<svg viewBox="0 0 100 100" style="width:100%; height:120px; object-fit:cover; border-radius:15px"><rect width="100" height="100" fill="#e2e8f0"/></svg>`;
             };
             reader.readAsDataURL(file);
         }
 
         async function initApp() {
-                document.getElementById('s-login').style.display = 'flex';
-                document.getElementById('main-nav').style.display = 'none';
-                document.getElementById('main-plus').style.display = 'none';
+            if (!currentUser) {
+                switchScreen('login');
+                return;
             }
+            
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('main-nav').style.display = 'flex';
+            document.getElementById('main-plus').style.display = 'flex';
+            
+            document.getElementById('hm-name').innerText = currentUser.name_en || currentUser.name || "Officer";
+            document.getElementById('hm-full-id').innerText = "EMP #" + (currentUser.emp_no || "0000");
+            
+            switchScreen('home');
+            sync();
+            setupFCM();
+            startNotifListener();
         }
 
-        // App starts ONLY when language is chosen or if already chosen before
         window.onload = () => {
-             // We want EVERY user to see language selection at least once per session OR clear if they logout
              const lastLang = localStorage.getItem('app_lang');
              if(lastLang) {
                  appLang = lastLang;
                  document.getElementById('lang-screen').style.display = 'none';
                  document.body.dir = (appLang === 'ar' || appLang === 'ur') ? 'rtl' : 'ltr';
                  applyLocalization();
-                 initApp();
+                 
+                 const savedUser = localStorage.getItem('nit_user');
+                 if(savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    initApp();
+                 } else {
+                    switchScreen('login');
+                 }
              } else {
                  document.getElementById('lang-screen').style.display = 'flex';
+                 document.getElementById('lang-screen').style.opacity = '1';
+                 document.getElementById('lang-screen').style.pointerEvents = 'all';
              }
         };
 
         function doLogout() { 
             localStorage.removeItem('nit_user'); 
-            localStorage.removeItem('app_lang'); // Force language re-selection on logout
+            localStorage.removeItem('app_lang');
             location.reload(); 
         }
     </script>
