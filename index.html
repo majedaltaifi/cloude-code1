@@ -528,7 +528,16 @@
                 const fullHtml = makeHtml(filteredReports);
                 f.innerHTML = fullHtml || '<p style="text-align:center; opacity:0.3; padding:40px; font-weight:800">No reports found.</p>';
                 
-                const homeItems = sorted.slice(0, 3);
+                let homeItems = sorted.slice(0, 3);
+                if(homeItems.length === 0) {
+                    // Populate with dummy items as requested by user for demonstration
+                    homeItems = [
+                        { id:'d1', type:'Safety', case_num:'19', status:'pending', timestamp: Date.now() },
+                        { id:'d2', type:'Service', case_num:'16', status:'pending', timestamp: Date.now() },
+                        { id:'d3', type:'Safety', case_num:'15', status:'pending', timestamp: Date.now() }
+                    ];
+                }
+
                 if(m) {
                     m.innerHTML = homeItems.length ? `
                         <div style="background:white; border-radius:25px; padding:25px 20px 15px; border:2px solid transparent; box-shadow:0 4px 30px rgba(46,49,146,0.03)">
@@ -560,7 +569,7 @@
                                 }).join('') + `
                             </div>
                         </div>
-                    ` : '<p style="text-align:center; opacity:0.3; font-weight:800; font-size:12px; margin-top:30px">No recent Activity</p>';
+                    ` : '';
                 }
 
                 const inboxL = document.getElementById('inbox-l');
