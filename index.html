@@ -217,7 +217,15 @@
                 <div id="mini-l" style="margin-top:5px"></div>
             </div>
 
-            <div class="screen" id="s-reports"><div style="padding-top:20px"><span class="lbl-prime" id="t-all-reports">ALL REPORTS</span><div id="full-l"></div></div></div>
+            <div class="screen" id="s-reports">
+                <div style="padding-top:20px">
+                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px">
+                        <i class="fas fa-arrow-left" onclick="switchScreen('home')" style="font-size:20px; color:var(--p); cursor:pointer"></i>
+                        <span class="lbl-prime" id="t-all-reports" style="margin:0">ALL REPORTS</span>
+                    </div>
+                    <div id="full-l"></div>
+                </div>
+            </div>
             
             <div class="screen" id="s-detail">
                 <div id="det-cont" style="padding-top:20px; padding-bottom:30px;"></div>
@@ -704,6 +712,9 @@
             
             document.getElementById('det-cont').innerHTML = `
                 <div class="detail-header">
+                    <div style="margin-bottom:20px">
+                        <i class="fas fa-arrow-left" onclick="switchScreen('${originId}')" style="font-size:20px; color:var(--p); cursor:pointer"></i>
+                    </div>
                     <div style="display:flex; justify-content:space-between; align-items:flex-start">
                         <div>
                             <span class="lbl-prime">INTEL REPORT</span>
