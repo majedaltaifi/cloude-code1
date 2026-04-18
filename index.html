@@ -308,7 +308,7 @@
                     <div id="step-counter">1/4</div>
                 </div>
                 <div id="pane-1" class="creation-pane"><span class="lbl-prime" id="t-step-1">WHERE?</span><div class="smart-tile" onclick="setEnv('site')"><i class="fas fa-hard-hat"></i><div class="info"><b id="t-site">Site</b><span id="t-site-desc">Field Operations</span></div></div><div class="smart-tile" onclick="setEnv('office')"><i class="fas fa-building"></i><div class="info"><b>Office</b><span>Headquarters</span></div></div><div class="smart-tile" onclick="setEnv('accommodation')"><i class="fas fa-bed"></i><div class="info"><b id="t-housing">Accommodation</b><span id="t-housing-desc">Living Area</span></div></div></div>
-                <div id="pane-2" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-2">CATEGORY</span><div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div><div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div><button class="btn-secondary" onclick="goToPane(1)"><span class="btn-back-text">BACK</span></button></div>
+                <div id="pane-2" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-2">CATEGORY</span><div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div><div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div><div class="smart-tile" onclick="setOther()"><i class="fas fa-ellipsis-h"></i><div class="info"><b id="t-other">Other</b></div></div><button class="btn-secondary" onclick="goToPane(1)"><span class="btn-back-text">BACK</span></button></div>
                 <div id="pane-3" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-3">SUB-ISSUE</span><div id="branch-list"></div><button class="btn-secondary" onclick="goToPane(2)"><span class="btn-back-text">BACK</span></button></div>
                 <div id="pane-3-5" class="creation-pane" style="display:none"><span class="lbl-prime">SUB-SUB-ISSUE</span><div id="issue-list" style="display:grid; grid-template-columns:1fr; gap:10px"></div><button class="btn-secondary" onclick="goToPane(3)"><span class="btn-back-text">BACK</span></button></div>
                 <div id="pane-4" class="creation-pane" style="display:none">
@@ -464,7 +464,7 @@
             en: { 
                 wizard: "SUBMIT REPORT", step1: "WHERE?", step2: "CATEGORY", step3: "AREA", step4: "DETAILS", 
                 site: "Site", siteD: "Field Operations", housing: "Housing", housingD: "Living Area", 
-                safety: "Safety", service: "Service", back: "BACK", submit: "SUBMIT", 
+                safety: \"Safety\", service: \"Service\", other: \"Other\", back: "BACK", submit: "SUBMIT", 
                 loginTitle: "NIT INTEL HUB", loginSub: "SECURE ACCESS AREA", loginErr: "ACCESS DENIED",
                 nbHome: "HOME", nbReports: "REPORTS", nbInbox: "INBOX", nbHelp: "HELP", 
                 drHome: "HOME", drReports: "MY REPORTS", drMessages: "MESSAGES", drSupport: "SUPPORT", drLogout: "SIGN OUT", drLang: "CHANGE LANGUAGE",
@@ -588,7 +588,7 @@
             set('dr-dash', t.dash); set('t-dash-title', t.dash);
             set('t-step-1', t.step1); set('t-step-2', t.step2); set('t-step-3', t.step3); set('t-step-4', t.step4);
             set('t-site', t.site); set('t-site-desc', t.siteD); set('t-housing', t.housing); set('t-housing-desc', t.housingD);
-            set('t-safety', t.safety); set('t-service', t.service); set('t-recent', t.recent);
+            set('t-safety', t.safety); set('t-service', t.service); set('t-other', t.other); set('t-recent', t.recent);
             set('t-all-reports', t.allReports); set('t-inbox', t.inboxTitle); set('t-help-title', t.helpTitle);
             set('t-send-ticket', t.send); set('submit-btn', t.submit); set('t-welcome', t.welcome);
             document.querySelectorAll('.stat-lbl').forEach((el, idx) => { if(el) el.innerText = [t.total, t.pending, t.resolved][idx % 3]; });
@@ -1116,6 +1116,7 @@
         let currentSubIssue = '';
         function setEnv(e) { currentEnv = e; goToPane(2); }
         function setType(t) { currentType = t; renderBranches(); goToPane(3); }
+        function setOther() { currentType = 'Other'; currentBranch = 'Uncategorized'; goToPane(4); }
         function setSubIssue(s) { 
             currentSubIssue = s; 
             const issues = (treeLocalized[appLang] || treeLocalized['en'])[currentEnv][currentType][s];
@@ -1250,3 +1251,4 @@
     </script>
 </body>
 </html>
+
