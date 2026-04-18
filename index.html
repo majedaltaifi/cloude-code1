@@ -171,7 +171,7 @@
             <div class="drawer-menu-item" onclick="switchScreen('dashboard')"><i class="fas fa-chart-line"></i> <span id="dr-dash">MY DASHBOARD</span></div>
             <div class="drawer-menu-item" onclick="switchScreen('reports')"><i class="fas fa-file-alt"></i> <span id="dr-reports">MY REPORTS</span></div>
             <div class="drawer-menu-item" onclick="switchScreen('chat-list')"><i class="fas fa-comments"></i> <span id="dr-messages">MESSAGES</span></div>
-            <div class="drawer-menu-item" onclick="openSupportChat()"><i class="fas fa-headset"></i> <span id="dr-support">SUPPORT</span></div>
+            <div class="drawer-menu-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i> <span id="dr-support">SUPPORT</span></div>
             <div class="drawer-menu-item" onclick="showLanguageScreen()"><i class="fas fa-globe"></i> <span id="dr-lang">LANGUAGE</span></div>
         </div>
         <div class="drawer-menu-item" onclick="doLogout()" style="color: #ef4444; background: #fee2e2; border-radius: 20px;"><i class="fas fa-power-off"></i> <span id="dr-logout">SIGN OUT</span></div>
@@ -384,7 +384,7 @@
                 
                 <div style="padding:0 20px 100px">
                     <div style="display:flex; gap:15px; margin-bottom:30px; overflow-x:auto; padding-bottom:5px">
-                        <div style="display:flex; flex-direction:column; align-items:center; cursor:pointer" onclick="openSupportChat()">
+                        <div style="display:flex; flex-direction:column; align-items:center; cursor:pointer" onclick="switchScreen('support')">
                             <div style="width:65px; height:65px; background:white; border-radius:22px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(0,0,0,0.03); margin-bottom:8px">
                                 <i class="fas fa-headset" style="font-size:24px; color:#0f172a"></i>
                             </div>
@@ -436,6 +436,7 @@
                     <textarea id="support-desc" style="width:100%; border-radius:20px; border:1px solid #ddd; padding:15px; min-height:120px; margin-bottom:20px;" placeholder="Describe your issue in detail..."></textarea>
                     
                     <button class="btn-smart" onclick="submitSupport()" id="t-send-ticket">SEND REQUEST</button>
+                    <button class="btn-smart" onclick="openSupportChat()" style="margin-top:10px; background:#fbbf24; color:#0f172a"><i class="fas fa-comments"></i> LIVE CHAT WITH ADMIN</button>
                     <button class="btn-secondary" onclick="switchScreen('home')" style="margin-top:10px; width:100%"><span class="btn-back-text">BACK</span></button>
                 </div>
             </div>
@@ -448,7 +449,7 @@
                     <i class="fas fa-comment"></i><span id="nb-inbox">INBOX</span>
                     <div id="notif-dot-nav" class="unread-dot" style="display:none"></div>
                 </div>
-                <div class="nav-item" onclick="openSupportChat()"><i class="fas fa-headset"></i><span id="nb-help">HELP</span></div>
+                <div class="nav-item" onclick="switchScreen('support')"><i class="fas fa-headset"></i><span id="nb-help">HELP</span></div>
             </nav>
             <div class="plus-btn" id="main-plus" style="display: none;" onclick="switchScreen('create')"><i class="fas fa-plus"></i></div>
             <div id="status-modal" class="status-modal"><div class="status-card"><i class="fas fa-check-circle" style="font-size:50px; color:#22c55e;"></i><h2>DONE</h2><button class="btn-smart" onclick="closeStatusModal()">OK</button></div></div>
