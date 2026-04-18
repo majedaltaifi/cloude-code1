@@ -307,11 +307,34 @@
                     <h2 id="wizard-title" style="font-size:18px; font-weight:950; color:var(--p)">SUBMIT</h2>
                     <div id="step-counter">1/4</div>
                 </div>
-                <div id="pane-1" class="creation-pane"><span class="lbl-prime" id="t-step-1">WHERE?</span><div class="smart-tile" onclick="setEnv('site')"><i class="fas fa-hard-hat"></i><div class="info"><b id="t-site">Site</b><span id="t-site-desc">Field</span></div></div><div class="smart-tile" onclick="setEnv('housing')"><i class="fas fa-home"></i><div class="info"><b id="t-housing">Housing</b><span id="t-housing-desc">Living</span></div></div></div>
+                <div id="pane-1" class="creation-pane"><span class="lbl-prime" id="t-step-1">WHERE?</span><div class="smart-tile" onclick="setEnv('site')"><i class="fas fa-hard-hat"></i><div class="info"><b id="t-site">Site</b><span id="t-site-desc">Field Operations</span></div></div><div class="smart-tile" onclick="setEnv('office')"><i class="fas fa-building"></i><div class="info"><b>Office</b><span>Headquarters</span></div></div><div class="smart-tile" onclick="setEnv('accommodation')"><i class="fas fa-bed"></i><div class="info"><b id="t-housing">Accommodation</b><span id="t-housing-desc">Living Area</span></div></div></div>
                 <div id="pane-2" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-2">CATEGORY</span><div class="smart-tile" onclick="setType('safety', this)"><i class="fas fa-shield-alt"></i><div class="info"><b id="t-safety">Safety</b></div></div><div class="smart-tile" onclick="setType('service', this)"><i class="fas fa-tools"></i><div class="info"><b id="t-service">Service</b></div></div><button class="btn-secondary" onclick="goToPane(1)"><span class="btn-back-text">BACK</span></button></div>
-                <div id="pane-3" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-3">AREA</span><div id="branch-list"></div><button class="btn-secondary" onclick="goToPane(2)"><span class="btn-back-text">BACK</span></button></div>
+                <div id="pane-3" class="creation-pane" style="display:none"><span class="lbl-prime" id="t-step-3">SUB-ISSUE</span><div id="branch-list"></div><button class="btn-secondary" onclick="goToPane(2)"><span class="btn-back-text">BACK</span></button></div>
+                <div id="pane-3-5" class="creation-pane" style="display:none"><span class="lbl-prime">SUB-SUB-ISSUE</span><div id="issue-list" style="display:grid; grid-template-columns:1fr; gap:10px"></div><button class="btn-secondary" onclick="goToPane(3)"><span class="btn-back-text">BACK</span></button></div>
                 <div id="pane-4" class="creation-pane" style="display:none">
-                    <span class="lbl-prime" id="t-step-4">DETAILS</span>
+                    <span class="lbl-prime" id="t-step-4">PRIORITY & FREQUENCY</span>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px">
+                        <div>
+                            <span class="lbl-prime" style="font-size:8px; margin-bottom:5px">PRIORITY</span>
+                            <select id="case-priority" style="width:100%; border-radius:15px; border:1px solid #ddd; padding:12px; background:white; font-weight:700; color:var(--p); outline:none">
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span class="lbl-prime" style="font-size:8px; margin-bottom:5px">FREQUENCY</span>
+                            <select id="case-freq" style="width:100%; border-radius:15px; border:1px solid #ddd; padding:12px; background:white; font-weight:700; color:var(--p); outline:none">
+                                <option value="Rarely">Rarely</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Daily">Daily</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <span class="lbl-prime" style="font-size:8px; margin-bottom:5px">DESCRIPTION</span>
                     <textarea id="case-desc" style="width:100%; border-radius:20px; border:1px solid #ddd; padding:15px; min-height:100px; margin-bottom:15px;" placeholder="Describe the issue..."></textarea>
                     
                     <div style="margin-bottom:20px; display:flex; align-items:center; gap:15px">
@@ -324,7 +347,7 @@
                     </div>
 
                     <button class="btn-smart" id="submit-btn" onclick="submitReport()">SUBMIT</button>
-                    <button class="btn-secondary" onclick="goToPane(3)"><span class="btn-back-text">BACK</span></button>
+                    <button class="btn-secondary" onclick="goToPane('3-5')"><span class="btn-back-text">BACK</span></button>
                 </div>
             </div>
 
@@ -474,13 +497,73 @@
         };
 
         const treeLocalized = {
-            en: { 
-                housing: { safety: { branches: { h: { label: "Danger", items: ['Fire'] } } }, service: { branches: { t: { label: "Tech", items: ['Broken'] } } } },
-                site: { safety: { branches: { h: { label: "Hazard", items: ['Fall'] } } }, service: { branches: { l: { label: "Logistics", items: ['Delay'] } } } }
+            en: {
+                site: {
+                    safety: {
+                        "Welfare": ["Drinking/potable water", "Toilet facility", "Hygiene items (hand wash, sanitation/cleaning material)"],
+                        "Environment": ["Water leakage", "Waste Removal", "Oil Spillage"],
+                        "Injuries": ["Cut/abrasions/bruises", "Burn", "Fracture"],
+                        "Fire": ["Electrical connection", "Housekeeping", "Fire extinguisher"]
+                    },
+                    service: {
+                        "Electrical": ["Power Outage", "Broken Socket", "Lighting Issue"],
+                        "Plumbing": ["Pipe Leak", "Blocked Drain", "No Water"],
+                        "AC/HVAC": ["Not Cooling", "Noise", "Bad Smell"]
+                    }
+                },
+                office: {
+                    safety: {
+                        "Welfare": ["Drinking/potable water", "Toilet facility", "Cleaning"],
+                        "Electrical": ["Overloaded power outlets", "Damaged cables", "Missing outlet covers"],
+                        "Fire": ["Material storage", "Fire extinguisher", "Emergency evacuation plan"],
+                        "Improper workstation": ["Congested space/area", "Lighting/Illumination"]
+                    },
+                    service: {
+                        "IT": ["Network Down", "Printer Error", "PC Issue"],
+                        "Cleaning": ["Dusty Desk", "Full Trash", "Floor Stain"]
+                    }
+                },
+                accommodation: {
+                    safety: {
+                        "Welfare": ["Drinking/potable water", "Sanitation", "Hygiene items (hand wash, sanitation/cleaning material)"],
+                        "Environment": ["Water leakage", "Waste Removal", "Pest infestation"],
+                        "Electrical": ["Overloaded power outlets", "Improper cable connection", "Missing outlet covers"],
+                        "Fire & Emergency": ["Fire extinguisher", "Fire alarm/hose", "Fire/emergency exit"]
+                    },
+                    service: {
+                        "Maintenance": ["Door Lock", "Window Broken", "Bed Issue"],
+                        "AC": ["AC Not working", "Remote missing"]
+                    }
+                }
             },
             ar: {
-                housing: { safety: { branches: { h: { label: "خطر", items: ['حريق'] } } }, service: { branches: { t: { label: "تقني", items: ['عطل'] } } } },
-                site: { safety: { branches: { h: { label: "مخاطر", items: ['سقوط'] } } }, service: { branches: { l: { label: "لوجستيات", items: ['تأخير'] } } } }
+                site: {
+                    safety: {
+                        "الرفاهية (Welfare)": ["مياه الشرب", "المراحيض", "أدوات النظافة"],
+                        "البيئة (Environment)": ["تسرب مياه", "إزالة النفايات", "تسرب زيت"],
+                        "الإصابات (Injuries)": ["جروح/سحجات", "حروق", "كسور"],
+                        "الحريق (Fire)": ["توصيلات كهربائية", "التدبير المنزلي", "طفاية حريق"]
+                    },
+                    service: { "كهرباء": ["انقطاع", "عطل مقبس"], "سباكة": ["تسريب", "انسداد"] }
+                },
+                office: {
+                    safety: {
+                        "الرفاهية (Welfare)": ["مياه الشرب", "المراحيض", "التنظيف"],
+                        "الكهرباء (Electrical)": ["ضغط عالي", "كابلات تالفة", "أغطية مفقودة"],
+                        "الحريق (Fire)": ["تخزين المواد", "طفاية حريق", "خطة الطوارئ"],
+                        "بيئة العمل": ["زحام في المكان", "الإضاءة"]
+                    },
+                    service: { "تقنية المعلومات": ["تعطل الشبكة"], "النظافة": ["غبار", "سلة مهملات ممتلئة"] }
+                },
+                accommodation: {
+                    safety: {
+                        "الرفاهية (Welfare)": ["مياه الشرب", "الصرف الصحي", "أدوات النظافة"],
+                        "البيئة (Environment)": ["تسرب مياه", "إزالة النفايات", "آفات/حشرات"],
+                        "الكهرباء (Electrical)": ["ضغط عالي", "توصيل خاطئ", "أغطية مفقودة"],
+                        "الحريق والطوارئ": ["طفاية حريق", "إنذار/خرطوم حريق", "مخرج الطوارئ"]
+                    },
+                    service: { "الصيانة": ["قفل الباب", "نافذة مكسورة"], "التكييف": ["لا يعمل"] }
+                }
             }
         };
 
@@ -972,6 +1055,8 @@
                 const btn = document.getElementById('submit-btn');
                 const origText = btn.innerText;
                 btn.innerText = "SENDING..."; btn.disabled = true;
+                const priority = document.getElementById('case-priority').value;
+                const freq = document.getElementById('case-freq').value;
 
                 let num = Math.floor(Date.now() / 1000).toString().substring(3); // Fallback ID
                 try {
@@ -1016,13 +1101,32 @@
             }
         }
 
+        let currentSubIssue = '';
         function setEnv(e) { currentEnv = e; goToPane(2); }
         function setType(t) { currentType = t; renderBranches(); goToPane(3); }
-        function goToPane(n) { currentWizardStep = n; document.querySelectorAll('.creation-pane').forEach(p=>p.style.display='none'); document.getElementById('pane-'+n).style.display='block'; document.getElementById('step-counter').innerText = n+'/4'; }
-        function goBackWizard() { currentWizardStep > 1 ? goToPane(currentWizardStep - 1) : switchScreen('home'); }
+        function setSubIssue(s) { 
+            currentSubIssue = s; 
+            const issues = (treeLocalized[appLang] || treeLocalized['en'])[currentEnv][currentType][s];
+            document.getElementById('issue-list').innerHTML = issues.map(i => `<div class="smart-tile" onclick="setSubSubIssue('${i}')"><b>${i}</b></div>`).join('');
+            goToPane('3-5');
+        }
+        function setSubSubIssue(ss) { currentBranch = currentSubIssue + ' > ' + ss; goToPane(4); }
+
+        function goToPane(n) { 
+            currentWizardStep = n; 
+            document.querySelectorAll('.creation-pane').forEach(p=>p.style.display='none'); 
+            document.getElementById('pane-'+n).style.display='block'; 
+            document.getElementById('step-counter').innerText = (String(n).includes('3-5') ? '3' : n)+'/4'; 
+        }
+        function goBackWizard() { 
+            if(currentWizardStep === '3-5') goToPane(3);
+            else if(currentWizardStep === 4) goToPane('3-5');
+            else if(currentWizardStep > 1) goToPane(currentWizardStep - 1); 
+            else switchScreen('home'); 
+        }
         function renderBranches() { 
             const data = (treeLocalized[appLang] || treeLocalized['en'])[currentEnv][currentType];
-            document.getElementById('branch-list').innerHTML = Object.keys(data.branches).map(b => `<div class="smart-tile" onclick="goToPane(4)"><b>${data.branches[b].label}</b></div>`).join('');
+            document.getElementById('branch-list').innerHTML = Object.keys(data).map(sub => `<div class="smart-tile" onclick="setSubIssue('${sub}')"><b>${sub}</b></div>`).join('');
         }
 
         async function submitSupport() {
