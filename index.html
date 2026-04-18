@@ -1050,7 +1050,7 @@
             const activeScreenNode = document.querySelector('.screen.active');
             const originId = (activeScreenNode && activeScreenNode.id !== 's-detail') ? activeScreenNode.id.replace('s-', '') : 'home';
 
-            const r = reports.find(x => x.id === id); if(!r) return;
+            const r = reports.find(x => String(x.id) === String(id)); if(!r) return;
             const t = i18n[appLang];
             const st = String(r.status || 'open').toLowerCase();
             const isDone = st === 'done' || st === 'resolved' || st === 'تم الإنجاز';
