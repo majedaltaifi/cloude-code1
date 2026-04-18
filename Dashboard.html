@@ -423,7 +423,7 @@
             try {
                 const sid = `direct_${emp_no}`;
                 if(window.unsubChat) window.unsubChat();
-                window.unsubChat = db.collection('chat_sessions').document(sid).collection('messages')
+                window.unsubChat = db.collection('chat_sessions').doc(sid).collection('messages')
                     .orderBy('created_at', 'asc')
                     .onSnapshot(snap => {
                         const msgs = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -444,7 +444,7 @@
             try {
                 const sid = `report_${rid}`;
                 if(window.unsubChat) window.unsubChat();
-                window.unsubChat = db.collection('chat_sessions').document(sid).collection('messages')
+                window.unsubChat = db.collection('chat_sessions').doc(sid).collection('messages')
                     .orderBy('created_at', 'asc')
                     .onSnapshot(snap => {
                         const msgs = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -475,7 +475,7 @@
             };
             
             try {
-                const sessionRef = db.collection('chat_sessions').document(sid);
+                const sessionRef = db.collection('chat_sessions').doc(sid);
                 await sessionRef.collection('messages').add(data);
                 
                 // Update Session Meta
