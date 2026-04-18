@@ -701,9 +701,17 @@
             const container = document.getElementById('chat-messages');
             if(!container) return;
             container.innerHTML = list.map(m => {
+                const sId = String(m.sender_id).toLowerCase();
+                const isAdmin = sId.includes('admin') || sId === 'support';
                 const isMe = String(m.sender_id) === String(currentUser.emp_no);
+                
+                const bg = isAdmin ? 'linear-gradient(135deg, #1e293b, #334155)' : (isMe ? 'var(--p)' : 'white');
+                const color = (isAdmin || isMe) ? 'white' : '#1e293b';
+                const border = isAdmin ? '2px solid #fbbf24' : 'none';
+
                 return `
-                    <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; max-width: 82%; padding: 12px 18px; border-radius: ${isMe ? '22px 22px 4px 22px' : '22px 22px 22px 4px'}; background: ${isMe ? 'var(--p)' : 'white'}; color: ${isMe ? 'white' : '#1e293b'}; box-shadow: 0 4px 12px rgba(0,0,0,0.04); font-size: 14px; line-height: 1.5; font-weight: 600;">
+                    <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; max-width: 82%; padding: 12px 18px; border-radius: ${isMe ? '22px 22px 4px 22px' : '22px 22px 22px 4px'}; background: ${bg}; color: ${color}; border: ${border}; box-shadow: 0 4px 12px rgba(0,0,0,0.06); font-size: 14px; line-height: 1.5; font-weight: 600; position:relative">
+                        ${isAdmin ? `<div style="font-size:8px; font-weight:900; color:#fbbf24; margin-bottom:4px; display:flex; align-items:center; gap:4px"><i class="fas fa-shield-check"></i> OFFICIAL ADMIN</div>` : ''}
                         ${m.text}
                         <span style="display:block; font-size:9px; opacity:0.6; margin-top:6px; text-align:${isMe?'right':'left'}">${new Date(m.created_at || Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                     </div>
@@ -911,13 +919,15 @@
                 const eSnap = await db.collection('employees').where('emp_no', '==', otherID).limit(1).get();
                 if(!eSnap.empty) otherName = eSnap.docs[0].data().name;
 
+                const isOtherAdmin = String(otherID).toLowerCase().includes('admin') || String(otherID).toLowerCase() === 'support';
+
                 html += `
-                    <div class="inbox-item" onclick="openChat('${c.id}', '${otherName}')" style="background:white; border-radius:30px; padding:18px 22px; display:flex; align-items:center; margin-bottom:12px; cursor:pointer; box-shadow:0 6px 15px rgba(0,0,0,0.03); border:1px solid #f1f5f9; position:relative">
+                    <div class="inbox-item" onclick="openChat('${c.id}', '${otherName}')" style="background:white; border-radius:30px; padding:18px 22px; display:flex; align-items:center; margin-bottom:12px; cursor:pointer; box-shadow:0 6px 15px rgba(0,0,0,0.03); border:${isOtherAdmin ? '2px solid #fbbf24' : '1px solid #f1f5f9'}; position:relative">
                         ${isUnread ? `<div class="unread-dot" style="position:absolute; top:15px; left:15px; z-index:10"></div>` : ''}
-                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(otherName)}&background=f1f5f9&color=0f172a&bold=true" style="width:48px; height:48px; border-radius:14px; margin-right:15px">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(otherName)}&background=${isOtherAdmin?'0f172a':'f1f5f9'}&color=${isOtherAdmin?'fbbf24':'0f172a'}&bold=true" style="width:48px; height:48px; border-radius:14px; margin-right:15px">
                         <div style="flex:1; overflow:hidden">
                             <div style="display:flex; justify-content:space-between; align-items:baseline">
-                                <b style="font-size:15px; font-weight:950; color:#0f172a">${otherName}</b>
+                                <b style="font-size:15px; font-weight:950; color:${isOtherAdmin?'#0f172a':'#0f172a'}">${otherName} ${isOtherAdmin ? '<i class="fas fa-check-circle" style="color:#fbbf24; margin-left:5px"></i>' : ''}</b>
                                 <span style="font-size:9px; color:#cbd5e1; font-weight:850">${new Date(c.updated_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                             </div>
                             <p style="font-size:13px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; font-weight:600">${c.last_message || 'No messages yet'}</p>
