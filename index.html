@@ -670,7 +670,7 @@
 
         function openSupportChat() {
             if(!currentUser) return;
-            openChat('direct_' + currentUser.emp_no, 'User admin');
+            openChatWithUser('admin', 'User admin');
         }
 
         async function openChat(sid, optName) {
