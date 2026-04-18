@@ -422,12 +422,11 @@
             
             try {
                 const sid = `direct_${emp_no}`;
-                // Listen to live updates
                 if(window.unsubChat) window.unsubChat();
-                window.unsubChat = db.collection('chat_messages')
-                    .where('session_id', '==', sid)
+                window.unsubChat = db.collection('chat_sessions').document(sid).collection('messages')
+                    .orderBy('created_at', 'asc')
                     .onSnapshot(snap => {
-                        const msgs = snap.docs.map(d => d.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                        const msgs = snap.docs.map(d => ({id: d.id, ...d.data()}));
                         container.innerHTML = msgs.map(m => renderAdminMsg(m)).join('');
                         container.scrollTop = container.scrollHeight;
                         status.innerText = 'CONNECTED (REALTIME)';
@@ -445,10 +444,10 @@
             try {
                 const sid = `report_${rid}`;
                 if(window.unsubChat) window.unsubChat();
-                window.unsubChat = db.collection('chat_messages')
-                    .where('session_id', '==', sid)
+                window.unsubChat = db.collection('chat_sessions').document(sid).collection('messages')
+                    .orderBy('created_at', 'asc')
                     .onSnapshot(snap => {
-                        const msgs = snap.docs.map(d => d.data()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                        const msgs = snap.docs.map(d => ({id: d.id, ...d.data()}));
                         container.innerHTML = msgs.map(m => renderAdminMsg(m)).join('');
                         container.scrollTop = container.scrollHeight;
                         status.innerText = 'SYNCED';
@@ -458,8 +457,8 @@
         }
 
         function renderAdminMsg(m) {
-            const isMe = m.role === 'admin', align = isMe ? 'flex-end' : 'flex-start', bg = isMe ? 'var(--primary)' : 'white', color = isMe ? 'white' : 'var(--primary)';
-            return `<div style="align-self:${align}; background:${bg}; color:${color}; padding:12px; border-radius:15px; max-width:70%; font-size:13px; border:1px solid var(--border)">${m.message || m.content}</div>`;
+            const isMe = m.sender_id === 'admin', align = isMe ? 'flex-end' : 'flex-start', bg = isMe ? 'var(--primary)' : 'white', color = isMe ? 'white' : 'var(--primary)';
+            return `<div style="align-self:${align}; background:${bg}; color:${color}; padding:12px; border-radius:15px; max-width:70%; font-size:13px; border:1px solid var(--border); margin-bottom:5px">${m.text}</div>`;
         }
 
         function appendAdminMsg(m) { const c = document.getElementById('cc-msgs'); c.innerHTML += renderAdminMsg(m); c.scrollTop = c.scrollHeight; }
@@ -468,30 +467,23 @@
             const input = document.getElementById('cc-input'), msg = input.value.trim();
             if(!msg) return;
             const sid = activeEmpId ? `direct_${activeEmpId}` : `report_${activeRid}`;
-            const participants = activeEmpId ? [activeEmpId, 'admin'] : ['admin']; // Simplified
-            
+            const participants = activeEmpId ? [activeEmpId, 'admin'] : ['admin'];
             const data = { 
-                message: msg, 
-                content: msg, 
-                role: 'admin', 
-                session_id: sid, 
-                sender_name: 'Admin', 
-                sender_no: 'admin',
-                created_at: new Date().toISOString(),
-                is_read: false,
-                participants: participants
+                text: msg,
+                sender_id: 'admin',
+                created_at: new Date().toISOString()
             };
             
             try {
-                await db.collection('chat_messages').add(data);
+                const sessionRef = db.collection('chat_sessions').document(sid);
+                await sessionRef.collection('messages').add(data);
                 
-                // Update Session to trigger Mobile Badges
-                const sid = data.session_id;
-                await db.collection('chat_sessions').doc(sid).set({
+                // Update Session Meta
+                await sessionRef.set({
                     updated_at: data.created_at,
                     last_message: msg,
                     last_sender: 'admin',
-                    participants: data.participants
+                    participants: participants
                 }, { merge: true });
 
                 if(activeEmpId) {
@@ -502,7 +494,6 @@
                         type: 'info',
                         created_at: new Date().toISOString()
                     });
-                    // Trigger Background Push
                     sendBackgroundPush(activeEmpId, "رسالة جديدة", msg);
                 }
                 input.value = '';
