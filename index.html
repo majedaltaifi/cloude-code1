@@ -506,9 +506,9 @@
                         "Fire": ["Electrical connection", "Housekeeping", "Fire extinguisher"]
                     },
                     service: {
-                        "Electrical": ["Power Outage", "Broken Socket", "Lighting Issue"],
-                        "Plumbing": ["Pipe Leak", "Blocked Drain", "No Water"],
-                        "AC/HVAC": ["Not Cooling", "Noise", "Bad Smell"]
+                        "Transport": ["The bus is dirty", "The bus is late", "Bad driver"],
+                        "Maintenance": ["Appliances", "Plumbing", "Lighting"],
+                        "Supplies": ["Request Material/Tools"]
                     }
                 },
                 office: {
@@ -519,8 +519,8 @@
                         "Improper workstation": ["Congested space/area", "Lighting/Illumination"]
                     },
                     service: {
-                        "IT": ["Network Down", "Printer Error", "PC Issue"],
-                        "Cleaning": ["Dusty Desk", "Full Trash", "Floor Stain"]
+                        "Maintenance": ["Appliances", "Bathroom", "Lighting"],
+                        "Supplies": ["New table", "New chair", "Notebook and pens"]
                     }
                 },
                 accommodation: {
@@ -531,8 +531,9 @@
                         "Fire & Emergency": ["Fire extinguisher", "Fire alarm/hose", "Fire/emergency exit"]
                     },
                     service: {
-                        "Maintenance": ["Door Lock", "Window Broken", "Bed Issue"],
-                        "AC": ["AC Not working", "Remote missing"]
+                        "Transport": ["The bus is dirty", "The bus is late", "Bad driver"],
+                        "Housing": ["No water or electricity", "Not clean", "Crowded"],
+                        "Maintenance": ["Appliances", "Plumbing", "Lighting"]
                     }
                 }
             },
@@ -544,7 +545,11 @@
                         "الإصابات (Injuries)": ["جروح/سحجات", "حروق", "كسور"],
                         "الحريق (Fire)": ["توصيلات كهربائية", "التدبير المنزلي", "طفاية حريق"]
                     },
-                    service: { "كهرباء": ["انقطاع", "عطل مقبس"], "سباكة": ["تسريب", "انسداد"] }
+                    service: {
+                        "النقل (Transport)": ["الباص متسخ", "الباص متأخر", "سائق سيء"],
+                        "الصيانة (Maintenance)": ["أجهزة", "سباكة", "إضاءة"],
+                        "اللوازم (Supplies)": ["طلب أدوات/مواد"]
+                    }
                 },
                 office: {
                     safety: {
@@ -553,7 +558,10 @@
                         "الحريق (Fire)": ["تخزين المواد", "طفاية حريق", "خطة الطوارئ"],
                         "بيئة العمل": ["زحام في المكان", "الإضاءة"]
                     },
-                    service: { "تقنية المعلومات": ["تعطل الشبكة"], "النظافة": ["غبار", "سلة مهملات ممتلئة"] }
+                    service: {
+                        "الصيانة (Maintenance)": ["أجهزة", "دورة مياه", "إضاءة"],
+                        "اللوازم (Supplies)": ["طاولة جديدة", "كرسي جديد", "قرطاسية/أقلام"]
+                    }
                 },
                 accommodation: {
                     safety: {
@@ -562,7 +570,11 @@
                         "الكهرباء (Electrical)": ["ضغط عالي", "توصيل خاطئ", "أغطية مفقودة"],
                         "الحريق والطوارئ": ["طفاية حريق", "إنذار/خرطوم حريق", "مخرج الطوارئ"]
                     },
-                    service: { "الصيانة": ["قفل الباب", "نافذة مكسورة"], "التكييف": ["لا يعمل"] }
+                    service: {
+                        "النقل (Transport)": ["الباص متسخ", "الباص متأخر", "سائق سيء"],
+                        "السكن (Housing)": ["لا توجد كهرباء/ماء", "غير نظيف", "مزدحم"],
+                        "الصيانة (Maintenance)": ["أجهزة", "سباكة", "إضاءة"]
+                    }
                 }
             }
         };
