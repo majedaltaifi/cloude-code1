@@ -889,11 +889,16 @@
             if(!currentUser) return;
             if(unsubSync) unsubSync();
             
-            // Filter by emp_no in the query directly to ensure privacy
+            // Filter by creator_id to include Anonymous reports in user's view
             unsubSync = db.collection('reports')
-                .where('emp_no', '==', String(currentUser.emp_no))
+                .where('creator_id', '==', String(currentUser.emp_no))
                 .onSnapshot(snap => {
-                    reports = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    reports = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                    
+                    // Update Home Screen Stat
+                    const homeTotal = document.getElementById('stat-total-home');
+                    if(homeTotal) homeTotal.innerText = reports.length;
+                    
                     renderReports();
                 });
 
@@ -1125,6 +1130,7 @@
 
                 await db.collection('reports').doc(String(num)).set({ 
                     emp_no: isAnonymous ? 'Anonymous' : String(currentUser.emp_no), 
+                    creator_id: String(currentUser.emp_no),
                     case_num: num, 
                     type: currentType || 'General', 
                     env: currentEnv || 'Field',
