@@ -346,6 +346,14 @@
                         <span id="photo-status" style="font-size:10px; font-weight:800; color:#10b981;"></span>
                     </div>
 
+                    <div style="margin-bottom:20px; display:flex; align-items:center; background:rgb(248 250 252); padding:15px; border-radius:20px; border:1px solid #e2e8f0; cursor:pointer" onclick="toggleAnonymous()">
+                         <i id="anon-icon" class="fas fa-toggle-off" style="font-size:24px; color:#94a3b8"></i>
+                         <div style="margin-left:15px">
+                            <b style="font-size:11px; display:block; color:var(--p)">REPORT ANONYMOUSLY</b>
+                            <span style="font-size:9px; opacity:0.6; font-weight:700">Hide my identity from management</span>
+                         </div>
+                    </div>
+
                     <button class="btn-smart" id="submit-btn" onclick="submitReport()">SUBMIT</button>
                     <button class="btn-secondary" onclick="goToPane('3-5')"><span class="btn-back-text">BACK</span></button>
                 </div>
@@ -1116,7 +1124,7 @@
                 }
 
                 await db.collection('reports').doc(String(num)).set({ 
-                    emp_no: String(currentUser.emp_no), 
+                    emp_no: isAnonymous ? 'Anonymous' : String(currentUser.emp_no), 
                     case_num: num, 
                     type: currentType || 'General', 
                     env: currentEnv || 'Field',
@@ -1130,6 +1138,9 @@
                 });
                 
                 btn.innerText = origText; btn.disabled = false;
+                isAnonymous = false; // Reset
+                const anonIcon = document.getElementById('anon-icon');
+                if(anonIcon) { anonIcon.className='fas fa-toggle-off'; anonIcon.style.color='#94a3b8'; }
                 document.getElementById('case-desc').value = '';
                 if(fileInput) fileInput.value = '';
                 document.getElementById('photo-status').innerText = '';
@@ -1154,6 +1165,16 @@
             goToPane('3-5');
         }
         function setSubSubIssue(ss) { currentBranch = currentSubIssue + ' > ' + ss; goToPane(4); }
+        
+        let isAnonymous = false;
+        function toggleAnonymous() {
+            isAnonymous = !isAnonymous;
+            const icon = document.getElementById('anon-icon');
+            if(icon) {
+                icon.className = isAnonymous ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
+                icon.style.color = isAnonymous ? '#10b981' : '#94a3b8';
+            }
+        }
 
         function goToPane(n) { 
             currentWizardStep = n; 
