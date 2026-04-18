@@ -566,9 +566,9 @@
             dBody.innerHTML = filtered.slice(0, 20).map(r => `
                 <tr onclick="openDetail('${r.id}')" style="cursor:pointer">
                     <td>#CASE ${r.case_num || '---'}</td>
-                    <td>${r.emp_no}</td>
-                    <td>${r.site}</td>
-                    <td>${new Date(r.created_at).toLocaleDateString()}</td>
+                    <td><span style="${r.emp_no === 'Anonymous' ? 'color:#ef4444; font-weight:950' : ''}">${r.emp_no || '---'}</span></td>
+                    <td>${r.site || '---'}</td>
+                    <td>${r.created_at ? new Date(r.created_at).toLocaleDateString() : '---'}</td>
                     <td><span class="badge ${ (r.status||'').toLowerCase() === 'open' ? 'b-open' : 'b-done' }">${(r.status||'OPEN').toUpperCase()}</span></td>
                 </tr>
             `).join('') || '<tr><td colspan="5" style="text-align:center; opacity:0.5">No matching records</td></tr>';
