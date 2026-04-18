@@ -1097,6 +1097,9 @@
                     case_num: num, 
                     type: currentType || 'General', 
                     env: currentEnv || 'Field',
+                    branch: currentBranch || 'Generic',
+                    priority: priority || 'Medium',
+                    frequency: freq || 'Rarely',
                     status: 'open', 
                     description: desc,
                     photo: photoData,
@@ -1202,27 +1205,34 @@
                 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
                     <div class="detail-info-row" style="margin:0">
-                        <i class="fas fa-tag"></i>
-                        <div><b style="font-size:10px; opacity:0.7">CATEGORY</b><br><span style="font-size:13px">${typeStr}</span></div>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div><b style="font-size:10px; opacity:0.7">WHERE</b><br><span style="font-size:12px">${envStr}</span></div>
                     </div>
                     <div class="detail-info-row" style="margin:0">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div><b style="font-size:10px; opacity:0.7">LOCATION</b><br><span style="font-size:13px">${envStr}</span></div>
+                        <i class="fas fa-tag"></i>
+                        <div><b style="font-size:10px; opacity:0.7">CATEGORY</b><br><span style="font-size:12px">${typeStr}</span></div>
                     </div>
                     <div class="detail-info-row" style="margin:0">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <div><b style="font-size:10px; opacity:0.7">PRIORITY</b><br><span style="font-size:13px; color:${r.priority==='Critical'?'#ef4444':'var(--p)'}">${r.priority || 'Medium'}</span></div>
+                        <div><b style="font-size:10px; opacity:0.7">PRIORITY</b><br><span style="font-size:12px; color:${r.priority==='Critical'?'#ef4444':'var(--p)'}">${r.priority || 'Medium'}</span></div>
                     </div>
                      <div class="detail-info-row" style="margin:0">
-                        <i class="fas fa-redo"></i>
-                        <div><b style="font-size:10px; opacity:0.7">FREQUENCY</b><br><span style="font-size:13px">${r.frequency || 'Rarely'}</span></div>
+                        <i class="fas fa-history"></i>
+                        <div><b style="font-size:10px; opacity:0.7">FREQUENCY</b><br><span style="font-size:12px">${r.frequency || 'Rarely'}</span></div>
                     </div>
                 </div>
 
                 <div class="case-main-card" style="margin-top:15px; background:rgba(46,49,146,0.03)">
-                    <span class="lbl-prime" style="margin-bottom:10px; display:block">SPECIFIC ISSUE</span>
-                    <p style="font-size:15px; font-weight:950; color:var(--p)">${r.branch || 'General Issue'}</p>
+                    <span class="lbl-prime" style="margin-bottom:10px; display:block">ISSUE PATH / AREA</span>
+                    <p style="font-size:14px; font-weight:950; color:var(--p)">${r.branch || 'General Issue'}</p>
                 </div>
+
+                ${r.photo ? `
+                <div style="margin-top:20px;">
+                    <span class="lbl-prime" style="margin-bottom:10px; display:block">ATTACHED EVIDENCE</span>
+                    <img src="${r.photo}" style="width:100%; border-radius:30px; border:2px solid #f1f5f9; box-shadow:0 10px 30px rgba(0,0,0,0.05)" alt="Evidence">
+                </div>
+                ` : ''}
 
                 <div style="margin-top:25px; background:white; padding:25px 20px; border-radius:20px; border:1px solid #f1f5f9; box-shadow:0 4px 15px rgba(0,0,0,0.02)">
                     <span class="lbl-prime" style="margin-bottom:20px; display:block">STATUS TRACKER</span>
