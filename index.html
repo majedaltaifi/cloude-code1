@@ -889,18 +889,27 @@
             if(!currentUser) return;
             if(unsubSync) unsubSync();
             
-            // Filter by creator_id to include Anonymous reports in user's view
-            unsubSync = db.collection('reports')
-                .where('creator_id', '==', String(currentUser.emp_no))
-                .onSnapshot(snap => {
-                    reports = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                    
-                    // Update Home Screen Stat
-                    const homeTotal = document.getElementById('stat-total-home');
-                    if(homeTotal) homeTotal.innerText = reports.length;
-                    
-                    renderReports();
+            // Sync reports focusing on both legacy (emp_no) and new (creator_id) fields
+            // Using a single snapshot and combining logic to avoid double queries
+            unsubSync = db.collection('reports').onSnapshot(snap => {
+                const allFetched = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                
+                // Filter client-side to handle the 'OR' condition (emp_no == ID OR creator_id == ID)
+                reports = allFetched.filter(r => 
+                    String(r.emp_no) === String(currentUser.emp_no) || 
+                    String(r.creator_id) === String(currentUser.emp_no)
+                ).sort((a,b) => {
+                    const da = a.created_at ? new Date(a.created_at) : new Date(0);
+                    const db = b.created_at ? new Date(b.created_at) : new Date(0);
+                    return db - da;
                 });
+                
+                // Update Home Screen Stat
+                const homeTotal = document.getElementById('stat-total-home');
+                if(homeTotal) homeTotal.innerText = reports.length;
+                
+                renderReports();
+            });
 
             // Sync chats for unread indicators
             db.collection('chat_sessions')
