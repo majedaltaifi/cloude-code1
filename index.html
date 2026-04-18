@@ -1137,10 +1137,11 @@
                     created_at: new Date().toISOString()
                 });
                 
-                btn.innerText = origText; btn.disabled = false;
-                isAnonymous = false; // Reset
+                console.log("Report Submitted Successfully: ", num);
+                isAnonymous = false; 
                 const anonIcon = document.getElementById('anon-icon');
                 if(anonIcon) { anonIcon.className='fas fa-toggle-off'; anonIcon.style.color='#94a3b8'; }
+                btn.innerText = origText; btn.disabled = false;
                 document.getElementById('case-desc').value = '';
                 if(fileInput) fileInput.value = '';
                 document.getElementById('photo-status').innerText = '';

@@ -527,26 +527,9 @@
         }
 
         async function reloadAll() {
-            try {
-                // Fetch from Firebase instead of local API
-                const rSnap = await db.collection('reports').get();
-                allRep = rSnap.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                
-                const sSnap = await db.collection('support_requests').get();
-                helpTix = sSnap.docs.map(doc => doc.data());
-                
-                const openCount = allRep.filter(r => (r.status||'').toLowerCase() === 'open').length;
-                const doneCount = allRep.filter(r => (r.status||'').toLowerCase() === 'done').length;
-
-                document.getElementById('stat-total').innerText = allRep.length;
-                document.getElementById('stat-pending').innerText = openCount;
-                document.getElementById('stat-resolved').innerText = doneCount;
-                document.getElementById('stat-support').innerText = helpTix.length;
-                
-                renderData();
-                renderSites();
-                if(chatTabMode === 'incidents') renderChatList();
-            } catch(e){ console.error("Firebase Dashboard Sync Error:", e); }
+            // This function is still useful for initial deep fetch if needed, 
+            // but initDashboardSync handles the live updates.
+            renderData();
         }
 
 
@@ -817,14 +800,20 @@
         function closeModal() { document.getElementById('detailModal').classList.remove('active'); }
 
         function initDashboardSync() {
-            // Real-time Reports Sync
+            // Real-time Reports Sync - Better Robustness
             db.collection('reports').onSnapshot(snap => {
-                allRep = snap.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                allRep = snap.docs.map(doc => ({id: doc.id, ...doc.data()}))
+                        .sort((a,b) => {
+                            const dateA = a.created_at ? new Date(a.created_at) : new Date(0);
+                            const dateB = b.created_at ? new Date(b.created_at) : new Date(0);
+                            return dateB - dateA;
+                        });
                 
+                const total = allRep.length;
                 const openCount = allRep.filter(r => (r.status||'').toLowerCase() === 'open').length;
-                const doneCount = allRep.filter(r => (r.status||'').toLowerCase() === 'done').length;
+                const doneCount = allRep.filter(r => (r.status||'').toLowerCase() === 'done' || (r.status||'').toLowerCase() === 'closed').length;
 
-                document.getElementById('stat-total').innerText = allRep.length;
+                document.getElementById('stat-total').innerText = total;
                 document.getElementById('stat-pending').innerText = openCount;
                 document.getElementById('stat-resolved').innerText = doneCount;
                 
