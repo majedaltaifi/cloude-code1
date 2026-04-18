@@ -652,10 +652,17 @@
         }
 
         async function openChatWithUser(targetEmpNo, targetName) {
-            const roomId = [String(currentUser.emp_no), String(targetEmpNo)].sort().join('_');
+            let roomId;
+            const tId = String(targetEmpNo).toLowerCase();
+            if(tId === 'admin' || tId === 'support') {
+                roomId = 'direct_' + currentUser.emp_no;
+            } else {
+                roomId = [String(currentUser.emp_no), String(targetEmpNo)].sort().join('_');
+            }
+            
             // Ensure session exists
             await db.collection('chat_sessions').doc(roomId).set({
-                participants: roomId.split('_'),
+                participants: roomId.includes('direct_') ? [String(currentUser.emp_no), 'admin'] : roomId.split('_'),
                 updated_at: new Date().toISOString()
             }, {merge:true});
             openChat(roomId, targetName);
