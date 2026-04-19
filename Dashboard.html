@@ -755,29 +755,35 @@
         async function loadBroadcasts() {
             try {
                 const snap = await db.collection('broadcasts').get();
-                const data = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+                const data = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => a.id - b.id);
                 
                 document.getElementById('broadcast-editor-list').innerHTML = data.map(b => `
-                    <div class="bc-card">
+                    <div class="bc-card" style="background:white; padding:25px; border-radius:20px; border:1px solid var(--border); margin-bottom:20px; box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.05)">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
-                            <span style="font-size:10px; font-weight:900; opacity:0.5; text-transform:uppercase">Broadcast Slot #${b.id}</span>
-                            <div class="icon-indicator" onclick="openPicker('${b.id}', this)" style="padding:10px; cursor:pointer; color:var(--accent); font-size:24px; transition:0.2s">
-                                <i class="fas ${b.icon || 'fa-info-circle'}" id="bc-preview-${b.id}"></i>
+                            <span style="font-size:10px; font-weight:900; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px">Signal Slot #${b.id}</span>
+                            <div class="icon-indicator" onclick="openPicker('${b.id}', this)" style="width:45px; height:45px; border-radius:12px; background:rgba(59,130,246,0.05); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--accent); font-size:20px; transition:0.2s">
+                                <i class="fas ${b.icon || 'fa-bullhorn'}" id="bc-preview-${b.id}"></i>
                             </div>
                         </div>
 
-                        <div style="display:grid; grid-template-columns: 140px 1fr; gap:15px;">
-                            <div><label style="font-size:10px; font-weight:900; opacity:0.6">ICON CLASS</label><input class="bc-input" value="${b.icon}" id="bc-i-${b.id}"></div>
-                            <div><label style="font-size:10px; font-weight:900; opacity:0.6">HEADLINE</label><input class="bc-input" value="${b.title}" id="bc-t-${b.id}"></div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px">
+                            <div>
+                                <label style="font-size:10px; font-weight:800; color:var(--text-muted); display:block; margin-bottom:5px">ICON CLASS</label>
+                                <input class="bc-input" style="width:100%; padding:12px; border-radius:10px; border:1.1px solid var(--border); font-size:13px; font-weight:700" value="${b.icon || ''}" id="bc-i-${b.id}">
+                            </div>
+                            <div>
+                                <label style="font-size:10px; font-weight:800; color:var(--text-muted); display:block; margin-bottom:5px">ANNOUNCEMENT TITLE</label>
+                                <input class="bc-input" style="width:100%; padding:12px; border-radius:10px; border:1.1px solid var(--border); font-size:13px; font-weight:700" value="${b.title || ''}" placeholder="Enter title..." id="bc-t-${b.id}">
+                            </div>
                         </div>
-                        <div style="margin-top:15px">
-                            <label style="font-size:10px; font-weight:900; opacity:0.6">DESCRIPTION CONTENT</label>
-                            <input class="bc-input" value="${b.content}" id="bc-c-${b.id}">
+                        <div style="margin-bottom:20px">
+                            <label style="font-size:10px; font-weight:800; color:var(--text-muted); display:block; margin-bottom:5px">BODY CONTENT (ARABIC / ENGLISH)</label>
+                            <input class="bc-input" style="width:100%; padding:12px; border-radius:10px; border:1.1px solid var(--border); font-size:13px; font-weight:700" value="${b.content || ''}" placeholder="Enter message details..." id="bc-c-${b.id}">
                         </div>
-                        <button class="btn-p" style="width:100%; margin-top:20px; font-size:12px" onclick="saveBroadcast('${b.id}', this)">APPLY UPDATE</button>
+                        <button class="btn-p" style="width:100%; height:45px; justify-content:center; text-transform:uppercase; font-size:11px; letter-spacing:1px" onclick="saveBroadcast('${b.id}', this)">Update Broadcast Signal</button>
                     </div>
-                `).join('') || '<p style="text-align:center; padding:40px; opacity:0.5">No broadcasts found</p>';
-            } catch(e){}
+                `).join('') || '<p style="text-align:center; padding:40px; opacity:0.5">No signal slots detected</p>';
+            } catch(e){ console.error("LoadBC Error:", e); }
         }
 
         async function saveBroadcast(id, btn) {
