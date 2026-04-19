@@ -963,13 +963,19 @@
         }
 
         function syncBroadcasts() {
-            db.collection('broadcasts').orderBy('created_at', 'desc').limit(5).onSnapshot(snap => {
+            // Using updated_at as primary sort key from Dashboard
+            db.collection('broadcasts').onSnapshot(snap => {
                 const el = document.getElementById('br-l');
                 if(!el) return;
-                if(snap.empty) return;
-                el.innerHTML = '<span class="lbl-prime" style="color:white; opacity:0.5; margin-bottom:20px">NIT BROADCASTS</span>' + snap.docs.map(d => {
-                    const r = d.data();
-                    const icon = r.type === 'safety' ? 'fa-shield-alt' : (r.type === 'hr' ? 'fa-bullhorn' : 'fa-info-circle');
+                if(snap.empty) {
+                    el.innerHTML = '';
+                    return;
+                }
+                const sorted = snap.docs.map(d => ({id: d.id, ...d.data()}))
+                                  .sort((a,b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+
+                el.innerHTML = '<span class="lbl-prime" style="color:white; opacity:0.5; margin-bottom:20px">NIT BROADCASTS</span>' + sorted.map(r => {
+                    const icon = r.icon || (r.type === 'safety' ? 'fa-shield-alt' : (r.type === 'hr' ? 'fa-bullhorn' : 'fa-info-circle'));
                     return `
                         <div class="broadcast-item">
                             <div class="broadcast-icon"><i class="fas ${icon}"></i></div>
@@ -977,7 +983,7 @@
                         </div>
                     `;
                 }).join('');
-            });
+            }, err => console.error("Broadcast Sync Error:", err));
         }
 
         function sync() {
