@@ -422,6 +422,7 @@
 
         window.onload = function() {
             startGlobalObservers();
+            initDashboardSync(); // Enable real-time sync for reports and status
             reloadAll();
         };
 
@@ -700,13 +701,13 @@
                 </div>
 
                 <div style="background:var(--bg); padding:25px; border-radius:25px; margin-bottom:25px; border:1.5px solid var(--border)">
-                    <span style="font-size:10px; font-weight:900; color:var(--text-muted); opacity:0.6; text-transform:uppercase">Incident Site</span>
-                    <p style="font-weight:950; font-size:16px; margin:5px 0 15px 0">${r.site || 'N/A'}</p>
+                    <span style="font-size:10px; font-weight:900; color:var(--text-muted); opacity:0.6; text-transform:uppercase">Incident Site / Location</span>
+                    <p style="font-weight:950; font-size:16px; margin:5px 0 15px 0">${r.site || r.env || 'N/A'}</p>
                     <span style="font-size:10px; font-weight:900; color:var(--text-muted); opacity:0.6; text-transform:uppercase">Detailed Description</span>
-                    <p style="font-weight:700; line-height:1.6; margin-top:5px; color:var(--primary)">${r.description || 'No description provided'}</p>
+                    <p style="font-weight:700; line-height:1.6; margin-top:5px; color:var(--primary); white-space: pre-wrap;">${(r.description || '').trim() || 'No description provided'}</p>
                 </div>
 
-                ${r.photo_b64 ? `<div style="margin-bottom:25px"><span style="font-size:10px; font-weight:900; opacity:0.5; display:block; margin-bottom:10px">EVIDENCE PHOTO</span><img src="${r.photo_b64}" style="width:100%; border-radius:30px; border:2px solid var(--border)"></div>` : ''}
+                ${r.photo ? `<div style="margin-bottom:25px"><span style="font-size:10px; font-weight:900; opacity:0.5; display:block; margin-bottom:10px">EVIDENCE PHOTO</span><img src="${r.photo}" style="width:100%; border-radius:30px; border:2px solid var(--border)"></div>` : ''}
 
                 <div id="modal-timeline" style="margin-bottom:30px">
                     <span style="font-size:10px; font-weight:900; opacity:0.5; display:block; margin-bottom:15px">INCIDENT TIMELINE</span>
