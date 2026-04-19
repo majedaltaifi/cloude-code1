@@ -233,7 +233,7 @@
                     
                 </div>
                 
-                <div id="br-l" class="broadcast-card">
+                <div id="br-l" class="broadcast-card" style="display:none"></div>
                     <span class="lbl-prime" style="color:white; opacity:0.5; margin-bottom:20px">NIT BROADCASTS</span>
                     <div class="broadcast-item">
                         <div class="broadcast-icon"><i class="fas fa-bullhorn"></i></div>
@@ -973,12 +973,13 @@
                                   .sort((a,b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
 
                 if(valid.length === 0) {
-                    el.innerHTML = '';
+                    el.style.display = 'none';
                     return;
                 }
+                el.style.display = 'block';
 
                 el.innerHTML = '<span class="lbl-prime" style="color:white; opacity:0.5; margin-bottom:20px">NIT BROADCASTS</span>' + valid.map(r => {
-                    const icon = r.icon || (r.type === 'safety' ? 'fa-shield-alt' : (r.type === 'hr' ? 'fa-bullhorn' : 'fa-info-circle'));
+                    const icon = r.icon || 'fa-bullhorn';
                     return `
                         <div class="broadcast-item">
                             <div class="broadcast-icon"><i class="fas ${icon}"></i></div>
