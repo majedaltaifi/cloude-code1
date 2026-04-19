@@ -215,7 +215,7 @@
 
             <div class="screen" id="s-home" style="padding-top:20px; padding-bottom:120px">
                 <!-- User Profile Info Box -->
-                <div style="background:white; border-radius:30px; margin-top:10px; margin-bottom:20px; box-shadow:0 10px 30px rgba(15,23,42,0.04); padding:25px 20px 20px; display:flex; flex-direction:column; align-items:center; text-align:center">
+                <div onclick="switchScreen('profile')" style="background:white; border-radius:30px; margin-top:10px; margin-bottom:20px; box-shadow:0 10px 30px rgba(15,23,42,0.04); padding:25px 20px 20px; display:flex; flex-direction:column; align-items:center; text-align:center; cursor:pointer">
                     
                     <div class="avatar-container" onclick="document.getElementById('avatar-input').click()">
                         <img src="https://ui-avatars.com/api/?name=Officer&background=f8fafc&color=0f172a&font-size=0.33&bold=true" id="hm-avatar" style="width:85px; height:85px; border-radius:50%; object-fit:cover; border:3px solid #f1f5f9; box-shadow:0 8px 20px rgba(0,0,0,0.05); display:block">
@@ -224,8 +224,8 @@
                     <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="updateProfilePhoto(this)">
                     
                     <div style="display:flex; justify-content:center; gap:8px; margin-bottom:12px">
-                        <span style="background:#f1f5f9; padding:6px 14px; border-radius:10px; font-size:11px; font-weight:800; color:#64748b">Grade: <b style="color:#0f172a">B3</b></span>
-                        <span style="background:#f1f5f9; padding:6px 14px; border-radius:10px; font-size:11px; font-weight:800; color:#64748b">Office</span>
+                        <span style="background:#f1f5f9; padding:6px 14px; border-radius:10px; font-size:11px; font-weight:800; color:#64748b">Grade: <b style="color:#0f172a" id="hm-grade">---</b></span>
+                        <span style="background:#f1f5f9; padding:6px 14px; border-radius:10px; font-size:11px; font-weight:800; color:#64748b" id="hm-site">---</span>
                     </div>
 
                     <h2 style="font-size:22px; font-weight:950; color:#0f172a; margin-bottom:3px; letter-spacing:-0.5px" id="hm-name-card">Officer <span style="opacity:0.4; font-size:16px">#3400</span></h2>
@@ -448,6 +448,28 @@
                     <button class="btn-secondary" onclick="switchScreen('home')" style="margin-top:10px; width:100%"><span class="btn-back-text">BACK</span></button>
                 </div>
             </div>
+            <div class="screen" id="s-profile">
+                <div style="padding-top:20px; padding-bottom:100px">
+                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:25px">
+                        <i class="fas fa-arrow-left" onclick="switchScreen('home')" style="font-size:20px; color:var(--p); cursor:pointer"></i>
+                        <span class="lbl-prime" style="margin:0">MY PROFILE</span>
+                    </div>
+
+                    <div style="background:white; border-radius:30px; padding:30px 20px; box-shadow:0 10px 30px rgba(0,0,0,0.02); margin-bottom:20px; text-align:center">
+                         <div style="position:relative; width:100px; height:100px; margin:0 auto 20px">
+                            <img id="prof-avatar" src="" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid #f1f5f9">
+                         </div>
+                         <h2 id="prof-name" style="font-size:24px; font-weight:950; color:#0f172a; margin:0">Employee Name</h2>
+                         <p id="prof-id" style="font-size:14px; font-weight:700; color:#94a3b8; margin-top:5px">#ID</p>
+                    </div>
+
+                    <div id="prof-details-list" style="display:grid; grid-template-columns:1fr; gap:15px"></div>
+                    
+                    <button class="btn-smart" onclick="doLogout()" style="margin-top:30px; background:#fee2e2; color:#ef4444; border:none; width:100%"><i class="fas fa-sign-out-alt"></i> SIGN OUT</button>
+                    <button class="btn-secondary" onclick="switchScreen('home')" style="margin-top:10px; width:100%">BACK</button>
+                </div>
+            </div>
+
 
             <nav class="navbar" id="main-nav" style="display: none;">
                 <div class="nav-item active" onclick="switchScreen('home')"><i class="fas fa-home"></i><span id="nb-home">HOME</span></div>
@@ -639,24 +661,35 @@
             empL.innerHTML = '<p style="text-align:center; padding:20px; font-size:12px; color:#94a3b8">Searching...</p>';
 
             try {
-                // Search by name prefix
-                const snap = await db.collection('employees').orderBy('name').startAt(v).endAt(v + '\uf8ff').limit(10).get();
-                let matches = snap.docs.map(d => d.data());
+                // Search by name prefix or name_en prefix or emp_no
+                const snapName = await db.collection('employees').orderBy('name').startAt(v).endAt(v + '\uf8ff').limit(5).get();
+                const snapNameEn = await db.collection('employees').orderBy('name_en').startAt(v).endAt(v + '\uf8ff').limit(5).get();
+                const snapNameNe = await db.collection('employees').orderBy('name_ne').startAt(v).endAt(v + '\uf8ff').limit(5).get();
+                
+                let matchesMap = new Map();
+                snapName.docs.forEach(d => matchesMap.set(d.id, d.data()));
+                snapNameEn.docs.forEach(d => matchesMap.set(d.id, d.data()));
+                snapNameNe.docs.forEach(d => matchesMap.set(d.id, d.data()));
+                
+                let matches = Array.from(matchesMap.values());
                 
                 if(!matches.length) {
                     const snapId = await db.collection('employees').where('emp_no', '==', v).get();
                     if(!snapId.empty) matches = [snapId.docs[0].data()];
                 }
 
-                empL.innerHTML = matches.length ? matches.map(e => `
-                    <div class="inbox-item" style="background:white; border-radius:22px; padding:15px; display:flex; align-items:center; margin-bottom:10px; cursor:pointer" onclick="openChatWithUser('${e.emp_no}', '${e.name}')">
-                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(e.name)}&background=f1f5f9&color=0f172a&bold=true" style="width:40px; height:40px; border-radius:12px; margin-right:15px">
+                empL.innerHTML = matches.length ? matches.map(e => {
+                    const isValidName = (s) => s && String(s).trim().toLowerCase() !== 'undefined' && String(s).trim().toLowerCase() !== 'null' && String(s).trim().toLowerCase() !== 'nan';
+                    const displayName = isValidName(e.name) ? e.name : (isValidName(e.name_en) ? e.name_en : (isValidName(e.name_ne) ? e.name_ne : (isValidName(e.name_ar) ? e.name_ar : `User ${e.emp_no}`)));
+                    return `
+                    <div class="inbox-item" style="background:white; border-radius:22px; padding:15px; display:flex; align-items:center; margin-bottom:10px; cursor:pointer" onclick="openChatWithUser('${e.emp_no}', '${displayName.replace(/'/g, "\\'")}')">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=f1f5f9&color=0f172a&bold=true" style="width:40px; height:40px; border-radius:12px; margin-right:15px">
                          <div>
-                            <b style="font-size:14px; color:#0f172a">${e.name}</b>
+                            <b style="font-size:14px; color:#0f172a">${displayName}</b>
                             <p style="font-size:11px; color:#94a3b8; font-weight:800">ID: ${e.emp_no}</p>
                          </div>
                     </div>
-                `).join('') : '<p style="text-align:center; padding:20px; font-size:12px; color:#94a3b8">No matches found.</p>';
+                `}).join('') : '<p style="text-align:center; padding:20px; font-size:12px; color:#94a3b8">No matches found.</p>';
             } catch(e) { console.error(e); }
         }
 
@@ -689,7 +722,11 @@
             
             if(!optName) {
                 const eSnap = await db.collection('employees').where('emp_no', '==', otherId).get();
-                if(!eSnap.empty) otherName = eSnap.docs[0].data().name;
+                if(!eSnap.empty) {
+                    const eData = eSnap.docs[0].data();
+                    const isValidName = (s) => s && String(s).trim().toLowerCase() !== 'undefined' && String(s).trim().toLowerCase() !== 'null' && String(s).trim().toLowerCase() !== 'nan';
+                    otherName = isValidName(eData.name) ? eData.name : (isValidName(eData.name_en) ? eData.name_en : (isValidName(eData.name_ne) ? eData.name_ne : (isValidName(eData.name_ar) ? eData.name_ar : 'User ' + otherId)));
+                }
             }
 
             document.getElementById('chat-name').innerText = otherName;
@@ -784,7 +821,7 @@
                 target.classList.add('active');
                 target.style.display = (id === 'chat-view' || id === 'login' || id === 'lang-screen') ? 'flex' : 'block';
             }
-            const isPop = ['create', 'login', 'lang-screen', 'detail', 'success', 'chat-view'].includes(id);
+            const isPop = ['create', 'login', 'lang-screen', 'detail', 'success', 'chat-view', 'profile'].includes(id);
             document.getElementById('main-nav').style.display = isPop ? 'none' : 'flex';
             document.getElementById('main-plus').style.display = isPop ? 'none' : 'flex';
             
@@ -806,6 +843,42 @@
                 document.getElementById('main-nav').style.display = 'flex';
                 document.getElementById('main-plus').style.display = 'flex';
             }
+
+            if(id === 'home' || id === 'reports') renderReports();
+            if(id === 'dashboard') updateStats();
+            if(id === 'chat-list') renderInbox();
+            if(id === 'profile') renderProfile();
+        }
+
+        function renderProfile() {
+            if(!currentUser) return;
+            document.getElementById('prof-name').innerText = currentUser.name;
+            document.getElementById('prof-id').innerText = '#' + currentUser.emp_no;
+            const av = document.getElementById('prof-avatar');
+            if(av) av.src = currentUser.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=f8fafc&color=0f172a&bold=true`;
+            
+            const list = document.getElementById('prof-details-list');
+            const data = [
+                { label: 'Role / Job', value: currentUser.job_title || currentUser.role || '---', icon: 'fa-user-tag' },
+                { label: 'Department', value: currentUser.department || '---', icon: 'fa-building' },
+                { label: 'Site / Project', value: currentUser.site || currentUser.project || '---', icon: 'fa-map-marker-alt' },
+                { label: 'Email Address', value: currentUser.email || '---', icon: 'fa-envelope' },
+                { label: 'Mobile Number', value: currentUser.phone || '---', icon: 'fa-phone' },
+                { label: 'Grade Level', value: currentUser.grade || '---', icon: 'fa-layer-group' },
+                { label: 'Branch Code', value: currentUser.branch_code || '---', icon: 'fa-hashtag' }
+            ];
+
+            list.innerHTML = data.map(d => `
+                <div class="stat-card" style="padding:20px; display:flex; gap:15px; align-items:center; background:white; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.02); border:1px solid #f8fafc">
+                    <div style="width:40px; height:40px; border-radius:12px; background:rgba(46,49,146,0.05); display:flex; align-items:center; justify-content:center; color:var(--p)">
+                        <i class="fas ${d.icon}"></i>
+                    </div>
+                    <div>
+                        <span style="font-size:10px; font-weight:900; color:#94a3b8; text-transform:uppercase">${d.label}</span>
+                        <p style="font-size:14px; font-weight:800; color:#0f172a; margin-top:2px">${d.value}</p>
+                    </div>
+                </div>
+            `).join('');
         }
 
         async function updateProfilePhoto(input) {
@@ -834,7 +907,16 @@
             if(document.getElementById('login-pass').value === '12') {
                 let snap = await db.collection('employees').where('emp_no', 'in', [id, Number(id), String(id)]).get();
                 if(!snap.empty) { 
-                    currentUser = { id: snap.docs[0].id, ...snap.docs[0].data() }; 
+                    const rawData = snap.docs[0].data();
+                    // Robust Name Normalization
+                    const isValidName = (s) => s && String(s).trim().toLowerCase() !== 'undefined' && String(s).trim().toLowerCase() !== 'null' && String(s).trim().toLowerCase() !== 'nan';
+                    let normalizedName = 'Officer';
+                    if (isValidName(rawData.name)) normalizedName = rawData.name;
+                    else if (isValidName(rawData.name_en)) normalizedName = rawData.name_en;
+                    else if (isValidName(rawData.name_ne)) normalizedName = rawData.name_ne;
+                    else if (isValidName(rawData.name_ar)) normalizedName = rawData.name_ar;
+
+                    currentUser = { id: snap.docs[0].id, ...rawData, name: normalizedName }; 
                     localStorage.setItem('nit_user', JSON.stringify(currentUser)); 
                     initApp(); 
                 }
@@ -844,6 +926,13 @@
 
         function initApp() {
             if(!currentUser) { switchScreen('login'); return; }
+            
+            // Ensure name is present and valid for legacy sessions or different field names
+            const isValidName = (s) => s && String(s).trim().toLowerCase() !== 'undefined' && String(s).trim().toLowerCase() !== 'null' && String(s).trim().toLowerCase() !== 'nan';
+            if (!isValidName(currentUser.name)) {
+                currentUser.name = isValidName(currentUser.name_en) ? currentUser.name_en : (isValidName(currentUser.name_ne) ? currentUser.name_ne : (isValidName(currentUser.name_ar) ? currentUser.name_ar : 'Officer'));
+            }
+
             ["main-header", "main-nav", "main-plus"].forEach(id => document.getElementById(id).style.display = 'flex');
             
             document.getElementById('dr-name').innerText = currentUser.name; document.getElementById('dr-id').innerText = "EMP ID: " + currentUser.emp_no;
@@ -851,7 +940,13 @@
             const nameCard = document.getElementById('hm-name-card');
             if(nameCard) nameCard.innerHTML = `${currentUser.name} <span style="color:#94a3b8; font-weight:600">#${currentUser.emp_no}</span>`;
             const jobCard = document.getElementById('hm-job-card');
-            if(jobCard) jobCard.innerText = currentUser.job_title || 'Application Manager';
+            if(jobCard) jobCard.innerText = currentUser.job_title || currentUser.role || 'Officer';
+            
+            const gradeCard = document.getElementById('hm-grade');
+            if(gradeCard) gradeCard.innerText = currentUser.grade || '---';
+            const siteCard = document.getElementById('hm-site');
+            if(siteCard) siteCard.innerText = currentUser.site || currentUser.project || 'Field';
+
             const avImg = document.getElementById('hm-avatar');
             if(avImg) {
                 avImg.src = currentUser.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=f8fafc&color=0f172a&font-size=0.33&bold=true`;
@@ -952,7 +1047,10 @@
                 const isUnread = unreadCount > 0;
                 
                 const eSnap = await db.collection('employees').where('emp_no', '==', otherID).limit(1).get();
-                if(!eSnap.empty) otherName = eSnap.docs[0].data().name;
+                if(!eSnap.empty) {
+                    const eData = eSnap.docs[0].data();
+                    otherName = eData.name || eData.name_en || eData.name_ne || eData.name_ar || ('User ' + otherID);
+                }
 
                 const isOtherAdmin = String(otherID).toLowerCase().includes('admin') || String(otherID).toLowerCase() === 'support';
 

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIT Bulk Importer V2 | Nesma IT</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        :root { --navy: #1E293B; --sky: #0EA5E9; --bg: #F1F5F9; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); width: 90%; max-width: 800px; text-align: center; }
+        .drop-zone { border: 2px dashed #CBD5E1; padding: 40px; border-radius: 16px; cursor: pointer; background: #F8FAFC; transition: 0.2s; margin-bottom: 20px; }
+        .drop-zone:hover { border-color: var(--sky); background: #F0F9FF; }
+        #log { text-align: left; background: #0F172A; color: #38BDF8; padding: 20px; border-radius: 12px; height: 150px; overflow-y: auto; font-family: monospace; font-size: 12px; margin: 20px 0; }
+        .btn { background: var(--navy); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; }
+        .btn:disabled { background: #94A3B8; }
+        .status-bar { height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden; margin: 10px 0; display: none; }
+        .progress { height: 100%; background: var(--sky); width: 0%; transition: 0.1s; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1 style="margin-bottom: 5px;">NIT Data Importer V2</h1>
+    <p style="color: #64748B;">Drag & Drop your Excel file to sync 2500+ employees</p>
+    
+    <div id="dropZone" class="drop-zone">
+        <b id="dropText">Select File (.xlsx)</b>
+        <input type="file" id="fileInput" hidden accept=".xlsx, .xls">
+    </div>
+
+    <div id="columnCheck" style="text-align: left; font-size: 13px; color: #334155; display:none;">
+        <strong>Detected Columns:</strong> <span id="colNames"></span>
+    </div>
+
+    <div id="log">Logs will appear here...</div>
+    
+    <div class="status-bar" id="statusBar">
+        <div class="progress" id="progressBar"></div>
+    </div>
+
+    <button id="importBtn" class="btn" style="display:none;">START SECURE SYNC 🚀</button>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCavTcaDYVcW_lfF0YwvmnUCZH_PcuwFck",
+        authDomain: "cloude-code1.firebaseapp.com",
+        projectId: "cloude-code1",
+        storageBucket: "cloude-code1.firebasestorage.app",
+        messagingSenderId: "553630040386",
+        appId: "1:553630040386:web:361da3353836ac709188db"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const logEl = document.getElementById('log');
+    const addLog = (msg) => {
+        logEl.innerHTML += `> ${msg}<br>`;
+        logEl.scrollTop = logEl.scrollHeight;
+    };
+
+    document.getElementById('dropZone').onclick = () => document.getElementById('fileInput').click();
+
+    document.getElementById('fileInput').onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            const data = evt.target.result;
+            const workbook = XLSX.read(data, { type: 'binary' });
+            const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+            
+            if (json.length > 0) {
+                const cols = Object.keys(json[0]);
+                document.getElementById('colNames').innerText = cols.join(', ');
+                document.getElementById('columnCheck').style.display = 'block';
+                document.getElementById('importBtn').style.display = 'block';
+                window.employeesToUpload = json;
+                addLog(`Detected ${json.length} records in Excel.`);
+                addLog(`Matching columns for Nesma IT schema...`);
+            }
+        };
+        reader.readAsBinaryString(file);
+    };
+
+    document.getElementById('importBtn').onclick = async () => {
+        const btn = document.getElementById('importBtn');
+        btn.disabled = true;
+        document.getElementById('statusBar').style.display = 'block';
+        const progress = document.getElementById('progressBar');
+        
+        const data = window.employeesToUpload;
+        let batch = db.batch();
+        let counter = 0;
+        let totalProcessed = 0;
+
+        addLog("Beginning batch sync to Firestore...");
+
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            
+            // Fuzzy Match logic for columns
+            const getVal = (name) => {
+                const key = Object.keys(row).find(k => k.trim().toLowerCase() === name.trim().toLowerCase());
+                return key ? String(row[key]).trim() : "";
+            };
+
+            const empNo = getVal("Employee Code");
+            if (!empNo || empNo === "undefined") continue;
+
+            const payload = {
+                emp_no: empNo,
+                name_en: getVal("Employee Name - English"),
+                role: getVal("Position - English"),
+                department: getVal("Departments - English"),
+                division: getVal("Division - English"),
+                unit: getVal("Unit - English"),
+                project: getVal("Project - English"),
+                site: getVal("Site - English"),
+                email: getVal("E-Mail"),
+                phone: getVal("Mobile"),
+                grade: getVal("Grade - English"),
+                branch_code: getVal("Branch Code"),
+                updated_at: new Date().toISOString()
+            };
+
+            const docRef = db.collection('employees').doc(empNo);
+            batch.set(docRef, payload, { merge: true });
+            counter++;
+            totalProcessed++;
+
+            if (counter === 400 || i === data.length - 1) {
+                try {
+                    await batch.commit();
+                    addLog(`Synced ${totalProcessed} / ${data.length}...`);
+                    batch = db.batch();
+                    counter = 0;
+                    progress.style.width = `${(totalProcessed / data.length) * 100}%`;
+                } catch (err) {
+                    addLog(`ERROR: ${err.message}`);
+                    console.error(err);
+                }
+            }
+        }
+
+        addLog("✨ DATABASE SYNC COMPLETE! All employees are now active.");
+        btn.innerText = "SUCCESSFULLY SYNCED";
+    };
+</script>
+</body>
+</html>

@@ -1,186 +1,246 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import React, { useState, useContext, useMemo } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, StatusBar, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/colors';
 import { AuthContext } from '../context/AuthContext';
 import { ReportsContext } from '../context/ReportsContext';
-
-const TYPE_OPTIONS = [
-  { id: 'safety', label: 'Safety', icon: 'shield-checkmark', color: '#EF4444' },
-  { id: 'materials', label: 'Materials', icon: 'construct', color: '#38BDF8' },
-  { id: 'complaint', label: 'Complaint', icon: 'warning', color: '#F59E0B' },
-  { id: 'other', label: 'Other', icon: 'ellipsis-horizontal-circle', color: '#64748B' },
-];
+import { ISSUE_HIERARCHY, PRIORITIES, FREQUENCIES } from '../constants/issueTypes';
 
 export default function NewReportScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const { addReport } = useContext(ReportsContext);
   
-  const [type, setType] = useState('safety');
-  const [description, setDescription] = useState('');
-  const [site, setSite] = useState(user?.site || 'Randa Tower');
-  const [loading, setLoading] = useState(false);
-  const [photoB64, setPhotoB64] = useState(null);
+  // Step Tracking
+  const [step, setStep] = useState(1);
 
-  const pickImage = () => {
-    // Simulation: Pick a demo image (Base64)
-    const demoImg = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="; // Solid white 1x1 base64
-    setPhotoB64(demoImg);
-    Alert.alert('Camera', 'Demo Photo Attached Successfully');
-  };
+  // Form State
+  const [location, setLocation] = useState('SITE'); // SITE, OFFICE, ACCOMMODATION
+  const [category, setCategory] = useState('Safety'); // Safety, Service
+  const [subIssue, setSubIssue] = useState('');
+  const [detailIssue, setDetailIssue] = useState('');
+  const [priority, setPriority] = useState('Medium');
+  const [frequency, setFrequency] = useState('Rarely');
+  const [description, setDescription] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [photoB64, setPhotoB64] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Derived Options
+  const subIssueOptions = useMemo(() => {
+    return Object.keys(ISSUE_HIERARCHY[location][category] || {});
+  }, [location, category]);
+
+  const detailOptions = useMemo(() => {
+    if (!subIssue) return [];
+    return ISSUE_HIERARCHY[location][category][subIssue] || [];
+  }, [location, category, subIssue]);
 
   const handleSubmit = async () => {
-    if (!description.trim()) {
-      return Alert.alert('Attention', 'Please write a description first.');
-    }
-
     setLoading(true);
     try {
-      const result = await addReport({
-        emp_no: user?.empNo || '3734',
-        type,
-        priority: 'Normal', // Defaulted since removed from UI
-        site,
+      await addReport({
+        location,
+        category,
+        sub_issue: subIssue,
+        detail_issue: detailIssue,
+        priority,
+        frequency,
         description,
+        isAnonymous,
         photo_b64: photoB64,
+        site: location, // User's logical site context
+        branch: 'Field Observation'
       });
 
-      if (result) {
-        Alert.alert('Success', 'Your report has been submitted.');
-        navigation.navigate('My Reports');
-      } else {
-        Alert.alert('Error', 'Failed to submit. Check server connection.');
-      }
+      Alert.alert('Success', 'Report submitted successfully to the cloud.');
+      navigation.navigate('My Reports');
     } catch (e) {
-      console.log('[NewReport] Submission Error:', e);
-      Alert.alert('Error', 'An unexpected error occurred.');
+      Alert.alert('Error', 'Submission failed. Please check connection.');
     } finally {
       setLoading(false);
     }
   };
 
+  const renderStep1 = () => (
+    <View>
+      <Text style={styles.label}>1. Select Work Environment</Text>
+      <View style={styles.grid}>
+        {['SITE', 'OFFICE', 'ACCOMMODATION'].map(loc => (
+          <TouchableOpacity 
+            key={loc} 
+            style={[styles.choiceCard, location === loc && styles.activeCard]}
+            onPress={() => { setLocation(loc); setSubIssue(''); setDetailIssue(''); }}
+          >
+            <Ionicons name={loc === 'SITE' ? 'construct' : loc === 'OFFICE' ? 'business' : 'home'} size={24} color={location === loc ? COLORS.white : COLORS.navy} />
+            <Text style={[styles.choiceLabel, location === loc && {color: COLORS.white}]}>{loc}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <Text style={styles.label}>2. Category of Issue</Text>
+      <View style={styles.row}>
+        {['Safety', 'Service'].map(cat => (
+          <TouchableOpacity 
+            key={cat} 
+            style={[styles.smallCard, category === cat && styles.activeCard]}
+            onPress={() => { setCategory(cat); setSubIssue(''); setDetailIssue(''); }}
+          >
+            <Text style={[styles.choiceLabel, category === cat && {color: COLORS.white}]}>{cat}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      
+      <TouchableOpacity style={styles.nextBtn} onPress={() => setStep(2)}>
+        <Text style={styles.nextBtnText}>Next Step</Text>
+        <Ionicons name="arrow-forward" size={20} color="#FFF" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderStep2 = () => (
+    <View>
+      <Text style={styles.label}>3. Sub-Issue Type ({category})</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom: 20}}>
+          {subIssueOptions.map(opt => (
+            <TouchableOpacity 
+                key={opt} 
+                style={[styles.chip, subIssue === opt && styles.activeChip]}
+                onPress={() => { setSubIssue(opt); setDetailIssue(''); }}
+            >
+                <Text style={[styles.chipText, subIssue === opt && {color: '#FFF'}]}>{opt}</Text>
+            </TouchableOpacity>
+          ))}
+      </ScrollView>
+
+      {subIssue ? (
+          <>
+            <Text style={styles.label}>4. Specific Detail</Text>
+            <View style={styles.detailList}>
+                {detailOptions.map(opt => (
+                    <TouchableOpacity 
+                        key={opt} 
+                        style={[styles.detailItem, detailIssue === opt && styles.activeDetail]}
+                        onPress={() => setDetailIssue(opt)}
+                    >
+                        <Text style={[styles.detailText, detailIssue === opt && {color: '#FFF'}]}>{opt}</Text>
+                        {detailIssue === opt && <Ionicons name="checkmark-circle" size={18} color="#FFF" />}
+                    </TouchableOpacity>
+                ))}
+            </View>
+          </>
+      ) : null}
+
+      <View style={styles.stepFooter}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => setStep(1)}>
+            <Text style={styles.backBtnText}>Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.nextBtn, !detailIssue && {opacity: 0.5}]} 
+            onPress={() => setStep(3)}
+            disabled={!detailIssue}
+          >
+            <Text style={styles.nextBtnText}>Final Details</Text>
+          </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderStep3 = () => (
+    <View>
+      <Text style={styles.label}>5. Priority & Frequency</Text>
+      <View style={styles.row}>
+          <View style={{flex: 1, marginRight: 10}}>
+              <Text style={styles.subLabel}>Priority</Text>
+              {PRIORITIES.map(p => (
+                  <TouchableOpacity key={p} onPress={() => setPriority(p)} style={[styles.miniBtn, priority === p && {backgroundColor: COLORS.sky}]}>
+                      <Text style={[styles.miniBtnText, priority === p && {color: '#FFF'}]}>{p}</Text>
+                  </TouchableOpacity>
+              ))}
+          </View>
+          <View style={{flex: 1}}>
+              <Text style={styles.subLabel}>Frequency</Text>
+              {FREQUENCIES.map(f => (
+                  <TouchableOpacity key={f} onPress={() => setFrequency(f)} style={[styles.miniBtn, frequency === f && {backgroundColor: COLORS.navy}]}>
+                      <Text style={[styles.miniBtnText, frequency === f && {color: '#FFF'}]}>{f}</Text>
+                  </TouchableOpacity>
+              ))}
+          </View>
+      </View>
+
+      <Text style={styles.label}>6. Comments & Description</Text>
+      <TextInput 
+        style={styles.textArea} 
+        multiline 
+        value={description} 
+        onChangeText={setDescription} 
+        placeholder="Any additional details..."
+      />
+
+      <View style={styles.anonRow}>
+          <Text style={styles.anonLabel}>Report Anonymously</Text>
+          <Switch value={isAnonymous} onValueChange={setIsAnonymous} trackColor={{true: COLORS.sky}} />
+      </View>
+
+      <View style={styles.stepFooter}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => setStep(2)}>
+            <Text style={styles.backBtnText}>Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={loading}>
+            {loading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitBtnText}>Submit Report</Text>}
+          </TouchableOpacity>
+      </View>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : null} style={{flex:1}}>
-        
-        <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={{padding:8}}>
-                <Ionicons name="close" size={28} color={COLORS.navy} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>New Field Report</Text>
-            <View style={{width: 44}} />
-        </View>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>New Incident Report</Text>
+        <Text style={styles.stepIndicator}>Step {step}/3</Text>
+      </View>
 
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          
-          <Text style={styles.label}>Incident Category</Text>
-          <View style={styles.typeGrid}>
-            {TYPE_OPTIONS.map((opt) => (
-              <TouchableOpacity 
-                key={opt.id} 
-                style={[styles.typeCard, type === opt.id && { borderColor: opt.color, backgroundColor: opt.color + '10' }]}
-                onPress={() => setType(opt.id)}
-              >
-                <Ionicons name={opt.icon} size={24} color={type === opt.id ? opt.color : '#94A3B8'} />
-                <Text style={[styles.typeLabel, type === opt.id && { color: opt.color }]}>{opt.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <Text style={styles.label}>Field Location</Text>
-          <View style={styles.inputContainer}>
-            <Ionicons name="location" size={20} color="#94A3B8" />
-            <TextInput 
-              style={styles.input} 
-              value={site} 
-              onChangeText={setSite} 
-              placeholder="e.g. Dammam Warehouse" 
-              placeholderTextColor="#94A3B8"
-            />
-          </View>
-
-          <Text style={styles.label}>Incident Description</Text>
-          <TextInput 
-            style={styles.textArea} 
-            multiline 
-            numberOfLines={6} 
-            value={description} 
-            onChangeText={setDescription} 
-            placeholder="Describe what happened clearly..."
-            placeholderTextColor="#94A3B8"
-            textAlignVertical="top"
-          />
-
-          <Text style={styles.label}>Evidence (Optional)</Text>
-          <TouchableOpacity style={styles.photoBox} onPress={() => pickImage()}>
-            {photoB64 ? (
-                <Ionicons name="checkmark-circle" size={40} color={COLORS.sky} />
-            ) : (
-                <Ionicons name="camera" size={30} color="#94A3B8" />
-            )}
-            <Text style={styles.photoText}>{photoB64 ? 'Photo Selected & Ready' : 'Tap to Capture Photo'}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.submitBtn, (loading || !description.trim()) && { opacity: 0.7 }]} 
-            onPress={handleSubmit}
-            disabled={loading || !description.trim()}
-          >
-            {loading ? (
-              <ActivityIndicator color={COLORS.white} />
-            ) : (
-              <Text style={styles.submitBtnText}>Submit Report Now</Text>
-            )}
-          </TouchableOpacity>
-
+      <ScrollView contentContainerStyle={styles.scroll}>
+          {step === 1 && renderStep1()}
+          {step === 2 && renderStep2()}
+          {step === 3 && renderStep3()}
           <View style={{height: 100}} />
-
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  header: { 
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', 
-    paddingHorizontal: 16, paddingVertical: 12, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' 
-  },
+  container: { flex: 1, backgroundColor: '#F4F7FE' },
+  header: { padding: 20, backgroundColor: '#FFF', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#EEE' },
   headerTitle: { fontSize: 18, fontWeight: '900', color: COLORS.navy },
-  
-  scroll: { padding: 24 },
-  
-  label: { fontSize: 13, fontWeight: '800', color: COLORS.navy, marginBottom: 12, marginTop: 10 },
-  
-  typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
-  typeCard: { 
-    width: '48%', padding: 18, borderRadius: 20, borderWidth: 2, borderColor: '#F1F5F9', 
-    alignItems: 'center', gap: 8, backgroundColor: COLORS.white 
-  },
-  typeLabel: { fontSize: 13, fontWeight: '800', color: '#64748B' },
-
-
-  inputContainer: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, 
-    borderRadius: 16, paddingHorizontal: 16, marginBottom: 20, borderWidth: 1.5, borderColor: '#F1F5F9' 
-  },
-  input: { flex: 1, padding: 16, fontSize: 15, fontWeight: '600', color: COLORS.navy },
-  textArea: { 
-    backgroundColor: COLORS.white, borderRadius: 16, padding: 16, height: 120, 
-    borderWidth: 1.5, borderColor: '#F1F5F9', marginBottom: 20, fontSize: 15, fontWeight: '600', color: COLORS.navy 
-  },
-
-  photoBox: { 
-    width: '100%', height: 100, borderRadius: 20, borderStyle: 'dotted', borderWidth: 2, 
-    borderColor: '#CBD5E1', alignItems: 'center', justifyContent: 'center', marginBottom: 30, gap: 8, backgroundColor: COLORS.white 
-  },
-  photoText: { fontSize: 12, fontWeight: '800', color: '#94A3B8' },
-
-  submitBtn: { 
-    backgroundColor: COLORS.sky, padding: 20, borderRadius: 24, 
-    alignItems: 'center', shadowColor: COLORS.sky, shadowOpacity: 0.3, shadowRadius: 10, elevation: 5, marginBottom: 20 
-  },
-  submitBtnText: { color: COLORS.white, fontSize: 16, fontWeight: '900' }
+  stepIndicator: { fontSize: 12, fontWeight: '700', color: COLORS.sky },
+  scroll: { padding: 20 },
+  label: { fontSize: 14, fontWeight: '900', color: COLORS.navy, marginBottom: 15, marginTop: 10 },
+  subLabel: { fontSize: 11, fontWeight: '700', color: '#64748B', marginBottom: 8 },
+  grid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 25 },
+  choiceCard: { width: '30%', padding: 15, backgroundColor: '#FFF', borderRadius: 16, alignItems: 'center', borderWidth: 2, borderColor: '#EEE' },
+  activeCard: { backgroundColor: COLORS.navy, borderColor: COLORS.navy },
+  choiceLabel: { fontSize: 10, fontWeight: '800', marginTop: 8, color: COLORS.navy },
+  row: { flexDirection: 'row', gap: 10, marginBottom: 20 },
+  smallCard: { flex: 1, padding: 15, backgroundColor: '#FFF', borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#DDD' },
+  nextBtn: { backgroundColor: COLORS.sky, padding: 18, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 20 },
+  nextBtnText: { color: '#FFF', fontWeight: '900', fontSize: 16 },
+  chip: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#FFF', borderRadius: 25, marginRight: 10, borderWidth: 1, borderColor: '#DDD' },
+  activeChip: { backgroundColor: COLORS.sky, borderColor: COLORS.sky },
+  chipText: { fontSize: 12, fontWeight: '800', color: COLORS.navy },
+  detailList: { gap: 10 },
+  detailItem: { padding: 18, backgroundColor: '#FFF', borderRadius: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, borderColor: '#EEE' },
+  activeDetail: { backgroundColor: COLORS.sky, borderColor: COLORS.sky },
+  detailText: { fontSize: 14, fontWeight: '700', color: COLORS.navy },
+  miniBtn: { padding: 12, backgroundColor: '#FFF', borderRadius: 10, marginBottom: 6, borderWidth: 1, borderColor: '#EEE', alignItems: 'center' },
+  miniBtnText: { fontSize: 11, fontWeight: '700', color: COLORS.navy },
+  textArea: { backgroundColor: '#FFF', borderRadius: 16, padding: 15, height: 100, textAlignVertical: 'top', marginTop: 10, borderWidth: 1, borderColor: '#EEE' },
+  anonRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, backgroundColor: '#FFF', padding: 15, borderRadius: 16 },
+  anonLabel: { fontWeight: '800', color: COLORS.navy },
+  stepFooter: { flexDirection: 'row', gap: 10, marginTop: 30 },
+  backBtn: { flex: 1, backgroundColor: '#E2E8F0', padding: 18, borderRadius: 16, alignItems: 'center' },
+  backBtnText: { fontWeight: '800', color: '#64748B' },
+  submitBtn: { flex: 2, backgroundColor: '#10B981', padding: 18, borderRadius: 16, alignItems: 'center' },
+  submitBtnText: { color: '#FFF', fontWeight: '900', fontSize: 16 }
 });

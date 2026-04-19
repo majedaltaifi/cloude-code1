@@ -1,152 +1,94 @@
 /**
- * ReportsContext.js — NIT Field App
- * Manages reports via the backend API with local offline queue support.
+ * ReportsContext.js — NIT Field App (Cloud Edition)
+ * Manages reports directly via Firebase Firestore.
  */
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
-import { NetworkContext } from './NetworkContext';
+import { db } from '../api/firebaseConfig';
+import { 
+  collection, 
+  query, 
+  where, 
+  onSnapshot, 
+  doc, 
+  setDoc, 
+  orderBy 
+} from 'firebase/firestore';
 import { AuthContext } from './AuthContext';
-import { getReports, createReport as apiCreateReport } from '../api/apiClient';
 
 export const ReportsContext = createContext();
 
-const OFFLINE_QUEUE_KEY = 'nit_offline_queue_v1';
-
 export const ReportsProvider = ({ children }) => {
   const [reports, setReports] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const { isOffline } = useContext(NetworkContext);
+  const [loading, setLoading] = useState(true);
   const { user } = useContext(AuthContext);
 
-  // Load reports from backend whenever user is set and we're online
+  // Real-time Cloud Sync
   useEffect(() => {
-    if (user?.empNo) {
-      loadReports();
+    if (!user?.empNo) {
+        setLoading(false);
+        return;
     }
+
+    // Query for reports where I am either the explicit ID or the creator_id
+    // Note: Standard Firestore listener. 
+    // For 2500 users, we rely on the efficient query on creator_id.
+    const q = query(
+      collection(db, 'reports'),
+      where('creator_id', '==', String(user.empNo))
+    );
+
+    const unsubscribe = onSnapshot(q, (snap) => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      
+      // Sort client-side
+      const sorted = data.sort((a,b) => {
+          const da = a.created_at ? new Date(a.created_at) : new Date(0);
+          const db = b.created_at ? new Date(b.created_at) : new Date(0);
+          return db - da;
+      });
+      
+      setReports(sorted);
+      setLoading(false);
+    }, (err) => {
+      console.log('[ReportsContext] Firestore Sync Error:', err);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, [user?.empNo]);
 
-  // When coming back online, sync the offline queue
-  useEffect(() => {
-    if (!isOffline && user?.empNo) {
-      syncOfflineQueue();
-    }
-  }, [isOffline]);
-
   /**
-   * Fetch reports from backend. Falls back to cached local data if offline.
-   */
-  const loadReports = useCallback(async () => {
-    if (isOffline) {
-      // Load from local cache
-      try {
-        const cached = await AsyncStorage.getItem('nit_reports_cache_v1');
-        if (cached) setReports(JSON.parse(cached));
-      } catch (e) {
-        console.log('[Reports] Cache load error:', e);
-      }
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await getReports(user?.empNo);
-      const data = res.data.reports || [];
-      setReports(data);
-      // Cache locally for offline use
-      await AsyncStorage.setItem('nit_reports_cache_v1', JSON.stringify(data));
-    } catch (err) {
-      console.log('[Reports] Fetch error:', err?.response?.data || err.message);
-      // Fallback to cache
-      try {
-        const cached = await AsyncStorage.getItem('nit_reports_cache_v1');
-        if (cached) setReports(JSON.parse(cached));
-      } catch (e) {}
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.empNo, isOffline]);
-
-  /**
-   * Submit a new report. If offline, queue it locally.
+   * Submit a new report to Firestore.
    */
   const addReport = async (reportData) => {
-    // Map priorities to short keys for backend (low, med, hi)
-    const pKey = reportData.priority === 'High' ? 'hi' : (reportData.priority === 'Low' || reportData.priority === 'Normal') ? 'low' : 'med';
+    const num = Math.floor(Math.random() * 900000) + 100000;
+    const isAnon = reportData.isAnonymous || false;
     
     const payload = {
-      emp_no: user?.empNo || '3734',
+      emp_no: isAnon ? 'Anonymous' : String(user?.empNo || '3734'),
+      creator_id: String(user?.empNo || '3734'),
+      case_num: num,
       type: reportData.type || 'other',
-      priority: pKey,
+      priority: reportData.priority || 'Medium',
       site: reportData.site || 'Randa Tower',
+      branch: reportData.branch || 'Generic',
       description: reportData.description || 'No description provided',
       photo_b64: reportData.photo_b64 || null,
+      status: 'open',
+      created_at: new Date().toISOString()
     };
 
-    if (isOffline) {
-      // Save to offline queue
-      const localReport = {
-        ...payload,
-        id: `offline-${Date.now()}`,
-        ticket_no: `OFFLINE-${Date.now()}`,
-        status: 'pending_sync',
-        created_at: new Date().toISOString(),
-        title: reportData.title,
-      };
-      const updatedReports = [localReport, ...reports];
-      setReports(updatedReports);
-      await AsyncStorage.setItem('nit_reports_cache_v1', JSON.stringify(updatedReports));
-
-      // Store in offline queue for later sync
-      const queue = JSON.parse((await AsyncStorage.getItem(OFFLINE_QUEUE_KEY)) || '[]');
-      queue.push(payload);
-      await AsyncStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
-
-      return localReport;
-    }
-
-    // Online: submit directly to backend
     try {
-      const res = await apiCreateReport(payload);
-      const newReport = res.data;
-      const updatedReports = [newReport, ...reports];
-      setReports(updatedReports);
-      await AsyncStorage.setItem('nit_reports_cache_v1', JSON.stringify(updatedReports));
-      return newReport;
+      await setDoc(doc(db, 'reports', String(num)), payload);
+      return { id: num, ...payload };
     } catch (err) {
-      console.log('[Reports] Create error:', err?.response?.data || err.message);
+      console.log('[ReportsContext] Create error:', err.message);
       throw err;
     }
   };
 
-  /**
-   * Sync any reports that were submitted while offline.
-   */
-  const syncOfflineQueue = async () => {
-    try {
-      const raw = await AsyncStorage.getItem(OFFLINE_QUEUE_KEY);
-      const queue = JSON.parse(raw || '[]');
-      if (queue.length === 0) return;
-
-      let synced = 0;
-      for (const payload of queue) {
-        try {
-          await apiCreateReport(payload);
-          synced++;
-        } catch (e) {
-          console.log('[Reports] Sync failed for item:', e);
-        }
-      }
-
-      // Clear queue and refresh
-      await AsyncStorage.removeItem(OFFLINE_QUEUE_KEY);
-      if (synced > 0) {
-        Alert.alert('تمت المزامنة', `تم رفع ${synced} بلاغ كان محفوظاً بدون اتصال.`);
-        loadReports();
-      }
-    } catch (e) {
-      console.log('[Reports] Sync queue error:', e);
-    }
+  const loadReports = () => {
+      // Real-time listener handles this now
   };
 
   return (

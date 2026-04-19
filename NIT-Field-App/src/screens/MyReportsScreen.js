@@ -9,25 +9,33 @@ export default function MyReportsScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    loadReports();
+    if (loadReports) loadReports();
   }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadReports();
+    if (loadReports) await loadReports();
     setRefreshing(false);
   };
 
   const getStatusDetail = (status) => {
-    switch (status) {
-      case 'done': return { label: 'Resolved', color: '#22C55E', bg: '#DCFCE7' };
-      case 'inprog': return { label: 'In Progress', color: '#EAB308', bg: '#FEF9C3' };
-      default: return { label: 'Open', color: '#EF4444', bg: '#FEE2E2' };
+    const s = (status || 'open').toLowerCase();
+    switch (s) {
+      case 'done': 
+      case 'resolved':
+      case 'closed':
+           return { label: 'Resolved', color: '#22C55E', bg: '#DCFCE7' };
+      case 'inprog': 
+           return { label: 'In Progress', color: '#EAB308', bg: '#FEF9C3' };
+      default: 
+           return { label: 'Open', color: '#EF4444', bg: '#FEE2E2' };
     }
   };
 
   const renderReport = ({ item }) => {
     const status = getStatusDetail(item.status);
+    const displayId = item.case_num || item.id;
+    
     return (
       <TouchableOpacity 
         style={styles.card}
@@ -37,7 +45,7 @@ export default function MyReportsScreen({ navigation }) {
           <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
             <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>
           </View>
-          <Text style={styles.ticketId}>Ticket #{item.id}</Text>
+          <Text style={styles.ticketId}>#{displayId}</Text>
         </View>
 
         <Text style={styles.description} numberOfLines={2}>{item.description}</Text>
@@ -45,13 +53,13 @@ export default function MyReportsScreen({ navigation }) {
         <View style={styles.cardFooter}>
           <View style={styles.footerItem}>
             <Ionicons name="location-outline" size={14} color="#64748B" />
-            <Text style={styles.footerText}>{item.site}</Text>
+            <Text style={styles.footerText}>{item.site || 'N/A'}</Text>
           </View>
           <View style={styles.footerItem}>
             <Ionicons name="calendar-outline" size={14} color="#64748B" />
-            <Text style={styles.footerText}>{new Date(item.created_at).toLocaleDateString()}</Text>
+            <Text style={styles.footerText}>{item.created_at ? new Date(item.created_at).toLocaleDateString() : '---'}</Text>
           </View>
-          {(item.priority === 'قصوى' || item.priority === 'hi') && (
+          {(item.priority === 'Critical' || item.priority === 'High' || item.priority === 'hi') && (
              <View style={styles.urgentBadge}>
                 <Text style={styles.urgentText}>URGENT</Text>
              </View>
@@ -65,7 +73,7 @@ export default function MyReportsScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Field Reports History</Text>
+        <Text style={styles.headerTitle}>Incident History</Text>
         <TouchableOpacity onPress={onRefresh} style={styles.refreshBtn}>
           <Ionicons name="refresh" size={20} color={COLORS.sky} />
         </TouchableOpacity>
@@ -84,8 +92,8 @@ export default function MyReportsScreen({ navigation }) {
           ListEmptyComponent={
             <View style={styles.empty}>
               <Ionicons name="document-text-outline" size={80} color="#CBD5E1" />
-              <Text style={styles.emptyTitle}>No Reports Logged Yet</Text>
-              <Text style={styles.emptySubtitle}>Submit a report to see it appear here.</Text>
+              <Text style={styles.emptyTitle}>No Reports Found</Text>
+              <Text style={styles.emptySubtitle}>Your submitted reports will appear here.</Text>
             </View>
           }
         />
@@ -102,8 +110,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontSize: 18, fontWeight: '900', color: COLORS.navy },
   refreshBtn: { padding: 8 },
-
-  list: { padding: 16, paddingBottom: 50 },
+  list: { padding: 16, paddingBottom: 100 },
   card: { 
     backgroundColor: COLORS.white, padding: 16, borderRadius: 24, marginBottom: 14,
     shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 10, elevation: 2,
@@ -113,16 +120,12 @@ const styles = StyleSheet.create({
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
   statusText: { fontSize: 10, fontWeight: '900' },
   ticketId: { fontSize: 12, color: '#94A3B8', fontWeight: '800' },
-
   description: { fontSize: 15, fontWeight: '800', color: COLORS.navy, marginBottom: 16, lineHeight: 22 },
-
   cardFooter: { flexDirection: 'row', gap: 16, alignItems: 'center', borderTopWidth: 1.5, borderTopColor: '#F8FAFC', paddingTop: 12 },
   footerItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   footerText: { fontSize: 11, color: '#64748B', fontWeight: '700' },
-
   urgentBadge: { backgroundColor: '#FEE2E2', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
   urgentText: { color: '#EF4444', fontSize: 10, fontWeight: '900' },
-
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 100 },
   emptyTitle: { fontSize: 16, fontWeight: '900', color: COLORS.navy, marginTop: 16 },

@@ -338,7 +338,10 @@
                     let eName = "Employee #" + empId;
                     try {
                         const eSnap = await db.collection('employees').doc(empId).get();
-                        if (eSnap.exists) eName = eSnap.data().name_en || eSnap.data().name_ar || eName;
+                        if (eSnap.exists) {
+                            const d = eSnap.data();
+                            eName = d.name || d.name_en || d.name_ne || d.name_ar || eName;
+                        }
                     } catch(e) {}
                     list.innerHTML += `
                         <div class="ticket-item ${activeEmpId == empId ? 'active' : ''}" onclick="selectDirectChat('${empId}', '${eName.replace(/'/g, "\\'")}')">
@@ -404,11 +407,13 @@
                     snap = await db.collection('employees').where('name_en', '>=', q).where('name_en', '<=', q + '\uf8ff').limit(10).get();
                 }
                 
-                list.innerHTML = (snap.docs.map(d => d.data()) || []).map(e => `
-                    <div class="ticket-item ${activeEmpId == e.emp_no ? 'active' : ''}" onclick="selectDirectChat('${e.emp_no}', '${(e.name_en || e.name).replace(/'/g, "\\'")}')">
-                        <b>ID #${e.emp_no}</b><br><small>${e.name_en || e.name} • ${e.department || 'Field'}</small>
+                list.innerHTML = (snap.docs.map(d => d.data()) || []).map(e => {
+                    const dn = e.name || e.name_en || e.name_ne || e.name_ar || `User ${e.emp_no}`;
+                    return `
+                    <div class="ticket-item ${activeEmpId == e.emp_no ? 'active' : ''}" onclick="selectDirectChat('${e.emp_no}', '${dn.replace(/'/g, "\\'")}')">
+                        <b>ID #${e.emp_no}</b><br><small>${dn} • ${e.department || 'Field'}</small>
                     </div>
-                `).join('') || '<p style="text-align:center; padding:20px">Not found</p>';
+                `}).join('') || '<p style="text-align:center; padding:20px">Not found</p>';
             } catch(e){}
         }
 
@@ -629,14 +634,29 @@
             const modal = document.getElementById('detailModal');
             const body = document.getElementById('modal-body');
             
-            const stats_color = (r.status||'').toLowerCase() === 'open' ? 'b-open' : ((r.status||'').toLowerCase() === 'inprog' ? 'b-warning' : 'b-done');
+            let empName = "Loading...";
+            db.collection('employees').doc(String(r.emp_no)).get().then(doc => {
+                if(doc.exists) {
+                    const d = doc.data();
+                    empName = d.name || d.name_en || d.name_ne || d.name_ar || ("ID #" + r.emp_no);
+                } else {
+                    empName = "User ID #" + r.emp_no;
+                }
+                const nameEl = document.getElementById('det-emp-name');
+                if(nameEl) nameEl.innerText = empName;
+            }).catch(() => {
+                const nameEl = document.getElementById('det-emp-name');
+                if(nameEl) nameEl.innerText = "Error loading name";
+            });
 
+            const stats_color = (r.status||'').toLowerCase() === 'open' ? 'b-open' : ((r.status||'').toLowerCase() === 'inprog' ? 'b-warning' : 'b-done');
+            
             body.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px">
                     <div>
                         <span class="badge b-open" style="margin-bottom:10px; display:inline-block">OFFICIAL RECORD #CASE ${r.case_num || '---'}</span>
                         <h2 style="font-size:24px; font-weight:950; color:var(--primary)">${(r.type||'OTHER').toUpperCase()} REPORT</h2>
-                        <p style="opacity:0.6; font-size:12px; font-weight:700">Filed by ID ${r.emp_no} • ${new Date(r.created_at).toLocaleString()}</p>
+                        <p style="opacity:0.6; font-size:12px; font-weight:700">Filed by: <b id="det-emp-name">${empName}</b> • ${new Date(r.created_at).toLocaleString()}</p>
                     </div>
                     <div style="text-align:right">
                          <div class="status-select-pro ${stats_color}">${(r.status||'OPEN').toUpperCase()}</div>

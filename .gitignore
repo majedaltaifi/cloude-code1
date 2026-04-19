@@ -1,0 +1,21 @@
+nit_data.db
+backups/
+backup2/
+node_modules/
+.DS_Store
+*.pyc
+__pycache__/
+*.log
+*.env
+.vscode/
+
+# Whitelist vital JSON files
+*.json
+!firebase.json
+!manifest.json
+!package.json
+!package-lock.json
+!app.json
+!eas.json
+!firebase.json
+!.firebaserc

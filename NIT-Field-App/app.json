@@ -9,19 +9,23 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0D1145"
+      "backgroundColor": "#1E3A8A"
     },
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.nit.report",
+      "buildNumber": "1.0.0",
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs access to your camera to take photos for reports.",
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to attach photos to reports."
       }
     },
     "android": {
+      "package": "com.nit.report",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0D1145"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#1E3A8A"
       },
       "permissions": [
         "android.permission.CAMERA",
@@ -45,6 +49,11 @@
           "photosPermission": "The app accesses your photos to let you share them securely in reports."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6d152c93-5490-48e0-bb82-67cc3794692c"
+      }
+    }
   }
 }
