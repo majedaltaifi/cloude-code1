@@ -1241,6 +1241,7 @@
                     case_num: num, 
                     type: currentType || 'General', 
                     env: currentEnv || 'Field',
+                    site: currentUser.site || currentUser.project || 'Field Site',
                     branch: currentBranch || 'Generic',
                     priority: priority || 'Medium',
                     frequency: freq || 'Rarely',
@@ -1364,8 +1365,15 @@
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
                     <div class="detail-info-row" style="margin:0">
                         <i class="fas fa-map-marker-alt"></i>
-                        <div><b style="font-size:10px; opacity:0.7">WHERE</b><br><span style="font-size:12px">${envStr}</span></div>
+                        <div><b style="font-size:10px; opacity:0.7">SITE / PROJECT</b><br><span style="font-size:12px">${r.site || 'Field Site'}</span></div>
                     </div>
+                    <div class="detail-info-row" style="margin:0">
+                        <i class="fas fa-building"></i>
+                        <div><b style="font-size:10px; opacity:0.7">AREA TYPE</b><br><span style="font-size:12px">${envStr}</span></div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
                     <div class="detail-info-row" style="margin:0">
                         <i class="fas fa-tag"></i>
                         <div><b style="font-size:10px; opacity:0.7">CATEGORY</b><br><span style="font-size:12px">${typeStr}</span></div>
@@ -1373,10 +1381,6 @@
                     <div class="detail-info-row" style="margin:0">
                         <i class="fas fa-exclamation-triangle"></i>
                         <div><b style="font-size:10px; opacity:0.7">PRIORITY</b><br><span style="font-size:12px; color:${r.priority==='Critical'?'#ef4444':'var(--p)'}">${r.priority || 'Medium'}</span></div>
-                    </div>
-                     <div class="detail-info-row" style="margin:0">
-                        <i class="fas fa-history"></i>
-                        <div><b style="font-size:10px; opacity:0.7">FREQUENCY</b><br><span style="font-size:12px">${r.frequency || 'Rarely'}</span></div>
                     </div>
                 </div>
 

@@ -591,7 +591,7 @@
                 <tr onclick="openDetail('${r.id}')" style="cursor:pointer; transition: background 0.2s">
                     <td style="color:var(--p); font-weight:800">#${r.case_num || '---'}</td>
                     <td><span style="${r.emp_no === 'Anonymous' ? 'color:var(--danger); font-weight:800' : ''}">${r.emp_no || '---'}</span></td>
-                    <td style="font-weight:700">${r.site || '---'}</td>
+                    <td style="font-weight:700">${r.site || r.env || '---'}</td>
                     <td style="color:var(--text-muted)">${r.created_at ? new Date(r.created_at).toLocaleDateString() : '---'}</td>
                     <td><span class="badge ${ (r.status||'').toLowerCase() === 'open' ? 'b-open' : 'b-done' }">${(r.status||'OPEN').toUpperCase()}</span></td>
                 </tr>
