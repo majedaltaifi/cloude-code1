@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "NIT-Field-App",
+    "name": "NIT REPORT",
     "slug": "nit-field-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -36,7 +36,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow NIT Field App to access your camera to take photos for reports."
+          "cameraPermission": "Allow NIT REPORT to access your camera to take photos for reports."
         }
       ],
       [
